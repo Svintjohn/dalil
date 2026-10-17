@@ -1,0 +1,159 @@
+country: GB
+name: United Kingdom
+last_verified: 2026-10-10
+portal: {name: GOV.UK, url: https://www.gov.uk/}
+official_domains: [gov.uk, acas.org.uk]
+authorities:
+  - id: acas
+    name: Acas (Advisory, Conciliation and Arbitration Service)
+    url: https://www.acas.org.uk/
+    covers: [employment]
+    phone: "0300 123 1100"
+    phone_source: https://www.gov.uk/pay-and-work-rights-helpline
+  - id: hmrc_nmw
+    name: HM Revenue and Customs (National Minimum Wage complaints)
+    url: https://www.gov.uk/pay-and-work-rights-helpline
+    covers: [employment]
+  - id: report_fraud
+    name: Report Fraud (England and Wales; Police Scotland in Scotland)
+    url: https://www.gov.uk/report-suspicious-emails-websites-phishing
+    covers: [scams]
+    phone: "0300 123 2040"
+    phone_source: https://www.gov.uk/report-suspicious-emails-websites-phishing
+  - id: citizens_advice_consumer
+    name: Citizens Advice consumer service (England and Wales)
+    url: https://www.gov.uk/consumer-protection-rights
+    covers: [consumer]
+    phone: "0808 223 1133"
+    phone_source: https://www.gov.uk/consumer-protection-rights
+  - id: ico
+    name: Information Commissioner's Office
+    url: https://www.gov.uk/government/organisations/information-commissioner-s-office
+    covers: [privacy]
+    phone: "0303 123 1113"
+    phone_source: https://www.gov.uk/data-protection
+topics:
+  tenancy:
+    sources:
+      - {url: https://www.gov.uk/tenancy-deposit-protection, title: Tenancy deposit protection, publisher: GOV.UK, language: en}
+      - {url: https://www.gov.uk/private-renting-evictions, title: Private renting evictions, publisher: GOV.UK, language: en}
+      - {url: https://www.gov.uk/tenancy-agreements-a-guide-for-landlords, title: Tenancy agreements a guide for landlords, publisher: GOV.UK, language: en}
+    facts:
+      - id: deposit_protection_30_days
+        statement: In England and Wales a landlord or letting agent must put the deposit in a government-approved protection scheme within 30 days of receiving it; Scotland and Northern Ireland have separate schemes.
+        source_url: https://www.gov.uk/tenancy-deposit-protection
+        quote: "Your landlord or letting agent must put your deposit in the scheme within 30 days of getting it."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: england_notice_to_leave
+        statement: In England a private landlord must give proper notice before a tenant has to leave, and the length depends on the landlord's reason; Scotland, Wales and Northern Ireland have different eviction procedures.
+        source_url: https://www.gov.uk/private-renting-evictions
+        quote: "Your landlord must give you the proper notice to leave your home."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: england_periodic_tenancies
+        statement: In England new private tenancies can no longer be assured shorthold tenancies, and existing ones became rolling assured periodic tenancies with no fixed end date on 1 May 2026.
+        source_url: https://www.gov.uk/tenancy-agreements-a-guide-for-landlords
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: england_spoken_agreement_terms
+        statement: In England a tenancy agreement can be spoken, but the landlord must still give the tenant the key terms in writing.
+        source_url: https://www.gov.uk/tenancy-agreements-a-guide-for-landlords
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  employment:
+    sources:
+      - {url: https://www.gov.uk/employment-contracts-and-conditions, title: Employment contracts and conditions, publisher: GOV.UK, language: en}
+      - {url: https://www.gov.uk/employment-contracts-and-conditions/written-statement-of-employment-particulars, title: Written statement of employment particulars, publisher: GOV.UK, language: en}
+      - {url: https://www.gov.uk/maximum-weekly-working-hours, title: Maximum weekly working hours, publisher: GOV.UK, language: en}
+      - {url: https://www.gov.uk/national-minimum-wage-rates, title: National Minimum Wage rates, publisher: GOV.UK, language: en}
+      - {url: https://www.gov.uk/employment-agencies-and-businesses, title: Employment agencies and businesses, publisher: GOV.UK, language: en}
+      - {url: https://www.gov.uk/pay-and-work-rights-helpline, title: Acas helpline, publisher: GOV.UK, language: en}
+    facts:
+      - id: contract_formed_on_acceptance
+        statement: A job contract exists as soon as someone accepts a job offer, even if nothing is written down.
+        source_url: https://www.gov.uk/employment-contracts-and-conditions
+        quote: "As soon as someone accepts a job offer they have a contract with their employer."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: written_statement_first_day
+        statement: The employer must give the principal written statement of employment terms on the first day of employment, and the wider statement within 2 months.
+        source_url: https://www.gov.uk/employment-contracts-and-conditions/written-statement-of-employment-particulars
+        quote: "The employer must provide the principal statement on the first day of employment."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: weekly_hours_48
+        statement: A worker cannot be made to work more than 48 hours a week on average, normally averaged over 17 weeks, unless they choose to opt out.
+        source_url: https://www.gov.uk/maximum-weekly-working-hours
+        quote: "You cannot work more than 48 hours a week on average - normally averaged over 17 weeks."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: minimum_wage_rates_2026
+        statement: From April 2026 the National Minimum Wage is 12.71 pounds an hour for ages 21 and over, 10.85 for ages 18 to 20, and 8.00 for under 18s and apprentices.
+        source_url: https://www.gov.uk/national-minimum-wage-rates
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: no_agency_fee_for_work_finding
+        statement: Employment agencies and businesses may not charge a worker a fee for finding them work.
+        source_url: https://www.gov.uk/employment-agencies-and-businesses
+        quote: "charge a fee to a work-seeker for work finding services"
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: acas_helpline
+        statement: Acas gives free and confidential advice on workplace rights by phone; complaints about the National Minimum Wage go to HM Revenue and Customs.
+        source_url: https://www.gov.uk/pay-and-work-rights-helpline
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  scams:
+    sources:
+      - {url: https://www.gov.uk/report-suspicious-emails-websites-phishing, title: Avoid and report internet scams and phishing, publisher: GOV.UK, language: en}
+    facts:
+      - id: forward_scam_texts
+        statement: Suspicious text messages can be forwarded for free to 7726.
+        source_url: https://www.gov.uk/report-suspicious-emails-websites-phishing
+        quote: "Forward suspicious text messages to 7726 - it's free."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: forward_scam_emails
+        statement: Suspicious emails can be forwarded to report@phishing.gov.uk.
+        source_url: https://www.gov.uk/report-suspicious-emails-websites-phishing
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: report_fraud_loss
+        statement: If you lost money to a scam in England or Wales you report it online or on 0300 123 2040 to Report Fraud, and in Scotland you report it to Police Scotland.
+        source_url: https://www.gov.uk/report-suspicious-emails-websites-phishing
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  consumer:
+    sources:
+      - {url: https://www.gov.uk/consumer-protection-rights, title: Consumer protection rights, publisher: GOV.UK, language: en}
+    facts:
+      - id: consumer_complaint_bodies
+        statement: For consumer complaints contact Citizens Advice in England and Wales, Advice Direct Scotland in Scotland, and Consumerline in Northern Ireland.
+        source_url: https://www.gov.uk/consumer-protection-rights
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  privacy:
+    sources:
+      - {url: https://www.gov.uk/data-protection, title: Data protection, publisher: GOV.UK, language: en}
+    facts:
+      - id: uk_gdpr_dpa
+        statement: UK data protection is governed by the UK GDPR and the Data Protection Act 2018.
+        source_url: https://www.gov.uk/data-protection
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: ico_complaints
+        statement: The Information Commissioner's Office gives advice and takes complaints about how personal data is used.
+        source_url: https://www.gov.uk/data-protection
+        quote: "Contact the ICO (Information Commissioner's Office) for advice or to make a complaint."
+        confidence: quoted
+        verified_on: 2026-10-10
+notes: "Tenancy facts marked England apply to England only; Scotland, Wales and Northern Ireland have their own tenancy law and eviction rules (gov.uk links to mygov.scot, gov.wales and nidirect.gov.uk, not opened here). Employment pages on gov.uk did not state which nations they cover; Acas, working time and minimum wage are understood UK-wide but this was not confirmed on the pages. The Employment Agency Standards Inspectorate page says it was replaced by the Fair Work Agency; the Fair Work Agency page was not read. Gaps: fines, immigration, rent increase, probation, passport retention, cooling-off period (pages errored or lacked content)."

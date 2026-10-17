@@ -1,0 +1,149 @@
+country: SA
+name: Saudi Arabia
+last_verified: 2026-10-10
+portal: {name: Unified National Platform (my.gov.sa), url: https://my.gov.sa/en}
+official_domains: [my.gov.sa, hrsd.gov.sa, ejar.sa, mc.gov.sa, sama.gov.sa]
+authorities:
+  - id: hrsd
+    name: Ministry of Human Resources and Social Development
+    url: https://www.hrsd.gov.sa/en
+    covers: [employment]
+    phone: "19911"
+    phone_source: https://my.gov.sa/en/content/employment
+  - id: ejar
+    name: Ejar (tenancy contract registration platform)
+    url: https://www.ejar.sa/en/faqs
+    covers: [tenancy]
+  - id: mci
+    name: Ministry of Commerce
+    url: https://mc.gov.sa/en
+    covers: [consumer]
+    phone: "1900"
+    phone_source: https://mc.gov.sa/en/mediacenter/News/Pages/17-03-19-01.aspx
+  - id: sama
+    name: Saudi Central Bank (SAMA)
+    url: https://www.sama.gov.sa/en-US/MediaCenter/News/pages/news-622.aspx
+    covers: [scams]
+topics:
+  tenancy:
+    sources:
+      - {url: https://www.ejar.sa/en/node/430204, title: Ejar tenancy provisions, publisher: Ejar, language: en}
+      - {url: https://www.ejar.sa/en/faqs, title: Ejar FAQs, publisher: Ejar, language: en}
+    facts:
+      - id: registration_in_ejar
+        statement: The landlord must register a residential or commercial lease of more than three months in the Ejar system, and if the landlord does not, the tenant can ask for registration or file a complaint.
+        source_url: https://www.ejar.sa/en/node/430204
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: standard_contract_mandatory
+        statement: Using the Ejar Standard Contract is mandatory, and it has mandatory clauses plus optional clauses that both parties must agree to.
+        source_url: https://www.ejar.sa/en/faqs
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: deposit_optional
+        statement: A security deposit is an optional term the landlord and tenant may agree on, it is held in a special Ejar account, and all or part of it may be returned when the unit is handed back.
+        source_url: https://www.ejar.sa/en/faqs
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: auto_renewal_notice
+        statement: Either party can stop automatic renewal by notifying the other at least 60 days before the contract ends.
+        source_url: https://www.ejar.sa/en/node/430204
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: rent_increase
+        statement: Outside Riyadh a rent increase is not automatic; the landlord must request it through the platform and the tenant must approve it, while in Riyadh rent increases are frozen for five years.
+        source_url: https://www.ejar.sa/en/node/430204
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: tenancy_disputes
+        statement: In Riyadh a tenant can file a complaint with the Real Estate General Authority, and the Ejar contract is described as a binding executive instrument before judicial bodies.
+        source_url: https://www.ejar.sa/en/node/430204
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  employment:
+    sources:
+      - {url: https://prod.hrsd.gov.sa/sites/default/files/2021-01/5012021.pdf, title: Labor education booklet on rights and duties, publisher: Ministry of Human Resources and Social Development, language: en}
+      - {url: https://www.hrsd.gov.sa/sites/default/files/2023-02/Labor.pdf, title: Labor Law, publisher: Ministry of Human Resources and Social Development, language: en}
+      - {url: https://my.gov.sa/en/content/employment, title: Labor and Employment, publisher: Unified National Platform, language: en}
+    facts:
+      - id: contract_two_copies
+        statement: The work contract is made in two copies, one for each party, and the ministry sets a standard template for each contract type.
+        source_url: https://prod.hrsd.gov.sa/sites/default/files/2021-01/5012021.pdf
+        quote: "The employment contract must be executed in duplicate, one copy per each party."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: probation_limit
+        statement: Probation normally cannot exceed ninety days, and it can be extended only by written agreement up to one hundred and eighty days in total.
+        source_url: https://prod.hrsd.gov.sa/sites/default/files/2021-01/5012021.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: daily_hours
+        statement: Under the daily system a worker may not actually work more than eight hours a day, and hours are reduced in Ramadan for Muslims.
+        source_url: https://prod.hrsd.gov.sa/sites/default/files/2021-01/5012021.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: overtime_pay
+        statement: Overtime is paid at the hourly wage plus 50 percent of the basic wage.
+        source_url: https://my.gov.sa/en/content/employment
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: wages_through_banks
+        statement: Wages must be paid on the agreed dates and through approved banks, and an employer may not withhold wages without a court basis.
+        source_url: https://my.gov.sa/en/content/employment
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: recruitment_cost_employer
+        statement: The employer bears the fees for recruiting non-Saudi workers.
+        source_url: https://www.hrsd.gov.sa/sites/default/files/2023-02/Labor.pdf
+        quote: "An employer shall bear the fees pertaining to the recruitment of non-Saudi workers."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: end_of_service_pay
+        statement: End-of-service gratuity is half a month's wage for each of the first five years and one month's wage for each later year.
+        source_url: https://my.gov.sa/en/content/employment
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: notice_period
+        statement: For contracts with no fixed term, the notice period is at least 60 days if the worker is paid monthly, and at least 30 days for other workers.
+        source_url: https://prod.hrsd.gov.sa/sites/default/files/2021-01/5012021.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: report_violations
+        statement: Workers can report labor law violations by a private-sector employer through the ministry's e-service, the unified number 19911 or its smartphone app.
+        source_url: https://my.gov.sa/en/content/employment
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  consumer:
+    sources:
+      - {url: https://mc.gov.sa/en/mediacenter/News/Pages/17-03-19-01.aspx, title: Consumer rights news, publisher: Ministry of Commerce, language: en}
+    facts:
+      - id: consumer_complaints_1900
+        statement: Consumers can report problems and complaints to the Ministry of Commerce on the toll-free number 1900 or through its website.
+        source_url: https://mc.gov.sa/en/mediacenter/News/Pages/17-03-19-01.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  scams:
+    sources:
+      - {url: https://www.sama.gov.sa/en-US/MediaCenter/News/pages/news-622.aspx, title: SAMA warning on suspicious messages, publisher: Saudi Central Bank, language: en}
+    facts:
+      - id: sama_suspicious_messages
+        statement: The Saudi Central Bank warns people not to respond to suspicious messages and to get information only through official sources.
+        source_url: https://www.sama.gov.sa/en-US/MediaCenter/News/pages/news-622.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+notes: "Verified from pages that opened. Gaps: no official page confirmed a ban on passport retention (the labor law page only says the employer must return deposited documents), no explicit ban on charging workers recruitment fees, no fines-payment page (Absher and my.gov.sa violation pages did not open), no privacy page (SDAIA pages were rejected). Ejar rent-freeze facts cover Riyadh; other cities follow the platform approval process."

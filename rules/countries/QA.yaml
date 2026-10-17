@@ -1,0 +1,132 @@
+country: QA
+name: Qatar
+last_verified: 2026-10-11
+portal: {name: Hukoomi (Qatar Government Portal), url: https://hukoomi.gov.qa/en}
+official_domains: [hukoomi.gov.qa, mol.gov.qa, gco.gov.qa, moci.gov.qa, qcb.gov.qa, portal.moi.gov.qa]
+authorities:
+  - id: mol
+    name: Ministry of Labour
+    url: https://www.mol.gov.qa/en
+    covers: [employment]
+  - id: moci
+    name: Ministry of Commerce and Industry
+    url: https://www.moci.gov.qa/en/about-the-ministry/departments/departments-under-the-assistant-deputy-of-consumer-affairs/the-consumer-protection-and-combating-commercial-fraud/
+    covers: [consumer]
+  - id: moi
+    name: Ministry of Interior (Metrash2)
+    url: https://hukoomi.gov.qa/en/news/moi-report-any-suspicion-or-crimes-through-metrash-2
+    covers: [fines, scams]
+  - id: qcb
+    name: Qatar Central Bank
+    url: https://www.qcb.gov.qa/en/Pages/The-National-Awareness-Campaign-for-Information-Security.aspx
+    covers: [scams]
+    phone: "66815757"
+    phone_source: https://www.qcb.gov.qa/en/Pages/The-National-Awareness-Campaign-for-Information-Security.aspx
+topics:
+  tenancy:
+    sources:
+      - {url: https://hukoomi.gov.qa/en/services/request-hearing-rental-dispute, title: Request hearing of a rental dispute, publisher: Hukoomi, language: en}
+    facts:
+      - id: rental_dispute_service
+        statement: Hukoomi offers an e-service for settling rental disputes between two parties, open to individuals and to government, semi-government and private entities.
+        source_url: https://hukoomi.gov.qa/en/services/request-hearing-rental-dispute
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  employment:
+    sources:
+      - {url: https://www.gco.gov.qa/en/media-centre/in-focus/labour-reform/, title: Labour reform, publisher: Government Communications Office, language: en}
+      - {url: https://www.mol.gov.qa/admin/LawsDocuments/Law%20No.%20(15)%20of%202017%20on%20Domestic%20Workers.pdf, title: Law No. 15 of 2017 on Domestic Workers, publisher: Ministry of Labour, language: en}
+    facts:
+      - id: no_noc_required
+        statement: Qatar has abolished the No-Objection Certificate, so employees can end their contracts without employer approval.
+        source_url: https://www.gco.gov.qa/en/media-centre/in-focus/labour-reform/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: minimum_wage
+        statement: Qatar has a minimum wage of QAR 1,000 for all employees, and employers must also provide QAR 500 a month for accommodation and QAR 300 a month for food, or provide these in kind.
+        source_url: https://www.gco.gov.qa/en/media-centre/in-focus/labour-reform/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wage_protection_system
+        statement: Qatar's Wage Protection System is meant to make sure migrant workers are paid in full and on time as stated in their contracts.
+        source_url: https://www.gco.gov.qa/en/media-centre/in-focus/labour-reform/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: labour_dispute_committees
+        statement: Labour Dispute Resolution Committees aim to settle a labour dispute within three weeks of filing, and complaints can also be made through a 24/7 hotline and electronic kiosks.
+        source_url: https://www.gco.gov.qa/en/media-centre/in-focus/labour-reform/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: domestic_written_contract
+        statement: For domestic workers, the contract must be written and ratified by the labour department, and it must be in Arabic.
+        source_url: https://www.mol.gov.qa/admin/LawsDocuments/Law%20No.%20(15)%20of%202017%20on%20Domestic%20Workers.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: domestic_wages_monthly
+        statement: For domestic workers, wages are due at the end of each month and no later than the third day of the next month, paid by bank deposit or in cash against a signed receipt.
+        source_url: https://www.mol.gov.qa/admin/LawsDocuments/Law%20No.%20(15)%20of%202017%20on%20Domestic%20Workers.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: domestic_hours_and_rest
+        statement: For domestic workers, maximum working hours are ten a day unless otherwise agreed, with at least 24 consecutive hours of weekly rest and three weeks of paid annual leave.
+        source_url: https://www.mol.gov.qa/admin/LawsDocuments/Law%20No.%20(15)%20of%202017%20on%20Domestic%20Workers.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: domestic_recruitment_costs
+        statement: For domestic workers, an employer cannot deduct from wages the fees or expenses of bringing the worker to Qatar.
+        source_url: https://www.mol.gov.qa/admin/LawsDocuments/Law%20No.%20(15)%20of%202017%20on%20Domestic%20Workers.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: domestic_end_of_service
+        statement: For domestic workers with at least one full year of service, the gratuity is not less than three weeks of pay for each year of service.
+        source_url: https://www.mol.gov.qa/admin/LawsDocuments/Law%20No.%20(15)%20of%202017%20on%20Domestic%20Workers.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  fines:
+    sources:
+      - {url: https://hukoomi.gov.qa/en/services/view-and-pay-traffic-violations, title: View and pay traffic violations, publisher: Hukoomi, language: en}
+    facts:
+      - id: traffic_fines_channels
+        statement: Traffic violations can be checked and paid online through the Ministry of Interior website, or in person at a Ministry collection office or the Traffic Department.
+        source_url: https://hukoomi.gov.qa/en/services/view-and-pay-traffic-violations
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://www.moci.gov.qa/en/about-the-ministry/departments/departments-under-the-assistant-deputy-of-consumer-affairs/the-consumer-protection-and-combating-commercial-fraud/, title: Consumer protection and combating commercial fraud, publisher: Ministry of Commerce and Industry, language: en}
+    facts:
+      - id: consumer_complaints_moci
+        statement: The Ministry of Commerce and Industry receives and responds to consumer complaints and commercial fraud complaints through its consumer affairs departments.
+        source_url: https://www.moci.gov.qa/en/about-the-ministry/departments/departments-under-the-assistant-deputy-of-consumer-affairs/the-consumer-protection-and-combating-commercial-fraud/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://www.qcb.gov.qa/en/Pages/The-National-Awareness-Campaign-for-Information-Security.aspx, title: National awareness campaign for information security, publisher: Qatar Central Bank, language: en}
+      - {url: https://hukoomi.gov.qa/en/news/moi-report-any-suspicion-or-crimes-through-metrash-2, title: Report suspicion or crimes via Metrash2, publisher: Hukoomi, language: en}
+    facts:
+      - id: qcb_fraud_report_channels
+        statement: Financial cybercrime can be reported to the hotline 66815757, through the Metrash2 app, or by email to cccc@moi.gov.qa, and the central bank campaign names calls, social media, email, text messages and web links as the main fraud channels.
+        source_url: https://www.qcb.gov.qa/en/Pages/The-National-Awareness-Campaign-for-Information-Security.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: moi_report_via_metrash2
+        statement: The Ministry of Interior says suspicion or crimes can be reported through the Criminal Investigation Information Service in the Metrash2 app.
+        source_url: https://hukoomi.gov.qa/en/news/moi-report-any-suspicion-or-crimes-through-metrash-2
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Verified from pages that opened. Gaps: Al Meezan law texts (Labour Law 14 of 2004, property leasing law, consumer law) loaded without article text, so no private-sector hours, overtime, probation, notice, end-of-service, passport retention or recruitment fee facts and no tenancy deposit or notice facts; mol.gov.qa main pages and the labour complaint form blocked automated reading; the Hukoomi migrant workers page had no body text; no privacy facts (NCSA PDF unreadable). The domestic_* facts apply only to domestic workers under the Domestic Workers law, not to other private-sector workers. The hotline number in the scams fact comes from the central bank page and is for financial cybercrime."

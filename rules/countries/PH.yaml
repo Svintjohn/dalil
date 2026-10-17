@@ -1,0 +1,94 @@
+country: PH
+name: Philippines
+last_verified: 2026-10-11
+portal: {name: Department of Migrant Workers, url: https://dmw.gov.ph/}
+official_domains: [dmw.gov.ph, wcms.dmw.gov.ph, privacy.gov.ph, pia.gov.ph, car.dole.gov.ph]
+authorities:
+  - id: dmw
+    name: Department of Migrant Workers (DMW)
+    url: https://dmw.gov.ph/archives/v1/resources/dsms/DMW/DMW-Directory-as-of-23-December-2025.pdf
+    covers: [employment, scams]
+    phone: "8722-11-44"
+    phone_source: https://dmw.gov.ph/archives/v1/resources/dsms/DMW/DMW-Directory-as-of-23-December-2025.pdf
+  - id: npc
+    name: National Privacy Commission
+    url: https://privacy.gov.ph/contactus/
+    covers: [privacy]
+    phone: "+63 2 5322 1322"
+    phone_source: https://privacy.gov.ph/contactus/
+  - id: dict_1326
+    name: Hotline 1326 (reporting of suspected online scams, promoted by DICT)
+    url: https://pia.gov.ph/news/oplan-paskong-sigurado-launches-hotline-1326-to-fight-online-scams/
+    covers: [scams]
+    phone: "1326"
+    phone_source: https://pia.gov.ph/news/oplan-paskong-sigurado-launches-hotline-1326-to-fight-online-scams/
+  - id: dole_car
+    name: Department of Labor and Employment (Cordillera regional office, kasambahay information)
+    url: https://car.dole.gov.ph/news/kasambahays-and-their-labor-standard-benefits/
+    covers: [employment]
+topics:
+  employment:
+    sources:
+      - {url: https://dmw.gov.ph/archives/poea/mandates/files/ra_8042.pdf, title: Republic Act No. 8042 (Migrant Workers and Overseas Filipinos Act, 1995 text), publisher: Department of Migrant Workers, language: en}
+      - {url: https://wcms.dmw.gov.ph/uploads/Department_of_Migrant_Workers_2026_1st_Edition_Citizens_Charter_d07dfff2cb.pdf, title: Citizen's Charter 2026 1st Edition, publisher: Department of Migrant Workers, language: en}
+      - {url: https://dmw.gov.ph/archives/v1/resources/dsms/DMW/DMW-Directory-as-of-23-December-2025.pdf, title: DMW Directory as of 23 December 2025, publisher: Department of Migrant Workers, language: en}
+      - {url: https://car.dole.gov.ph/news/kasambahays-and-their-labor-standard-benefits/, title: Kasambahays and their labor standard benefits, publisher: DOLE Cordillera Administrative Region, language: en}
+    facts:
+      - id: illegal_recruitment_fees
+        statement: It is unlawful for a recruiter to charge or accept more than the amount in the schedule of allowable fees, and illegal recruitment carries fines and imprisonment (this is the 1995 text of the Act, which may have been amended since).
+        source_url: https://dmw.gov.ph/archives/poea/mandates/files/ra_8042.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dmw_complaints_no_fee
+        statement: Overseas Filipino workers can complain to the Department of Migrant Workers about its services, and its Citizen's Charter lists no fee for complaints or for appeals from recruitment violation or disciplinary cases.
+        source_url: https://wcms.dmw.gov.ph/uploads/Department_of_Migrant_Workers_2026_1st_Edition_Citizens_Charter_d07dfff2cb.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dmw_regional_cases
+        statement: DMW regional offices list services for filing cases against employers, conciliation and mediation of complaints, and illegal recruitment or trafficking cases.
+        source_url: https://wcms.dmw.gov.ph/uploads/Department_of_Migrant_Workers_2026_1st_Edition_Citizens_Charter_d07dfff2cb.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dmw_hotline
+        statement: The DMW hotline is 8722-11-44 and its feedback email is feedback@dmw.gov.ph, as shown in its December 2025 directory.
+        source_url: https://dmw.gov.ph/archives/v1/resources/dsms/DMW/DMW-Directory-as-of-23-December-2025.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: kasambahay_rest_day
+        statement: Household workers (kasambahay) are entitled to one whole uninterrupted weekly rest day and to 13th-month pay.
+        source_url: https://car.dole.gov.ph/news/kasambahays-and-their-labor-standard-benefits/
+        quote: "a one whole day uninterrupted weekly rest period."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: kasambahay_social_coverage
+        statement: Domestic workers who have served at least one month must be covered by SSS, PhilHealth and Pag-IBIG.
+        source_url: https://car.dole.gov.ph/news/kasambahays-and-their-labor-standard-benefits/
+        quote: "all domestic workers who have rendered at least 1 month of service shall be covered by SSS, Philhealth and Pagibig Fund."
+        confidence: quoted
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://pia.gov.ph/news/oplan-paskong-sigurado-launches-hotline-1326-to-fight-online-scams/, title: Oplan Paskong Sigurado launches Hotline 1326, publisher: Philippine Information Agency, language: en}
+    facts:
+      - id: hotline_1326
+        statement: Suspected online scams can be reported through Hotline 1326, the #ReportScamNow channel or the eGov PH app.
+        source_url: https://pia.gov.ph/news/oplan-paskong-sigurado-launches-hotline-1326-to-fight-online-scams/
+        quote: "The public is encouraged to report suspected scams through Hotline 1326, via #ReportScamNow, or through the eGov PH app."
+        confidence: quoted
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: https://privacy.gov.ph/, title: National Privacy Commission, publisher: National Privacy Commission, language: en}
+      - {url: https://privacy.gov.ph/contactus/, title: Contact us, publisher: National Privacy Commission, language: en}
+    facts:
+      - id: npc_complaint
+        statement: People can file a formal complaint directly with the National Privacy Commission, which enforces the Data Privacy Act; its complaints line is on its contact page.
+        source_url: https://privacy.gov.ph/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Fetch tool errors blocked the Official Gazette, DHSUD, DOLE main site, PCW and other pages. NOT covered: tenancy (the rent control pages read were for expired periods: a 2.3 percent cap for 2025 per a PIA release and older 2016-17 limits; current 2026 rent control rules and deposit and notice rules were not confirmed, so no tenancy facts are given); kasambahay written contract, wages and deposit rules (minimum wage differs by region and only a Cordillera figure was seen); recruitment placement fee amount (only a 2016 archived POEA page, not used); fines; consumer. DMW archived POEA pages describe older procedures, so confirm current ones. Seen but unused: DMW directory lists regional 24/7 hotlines."

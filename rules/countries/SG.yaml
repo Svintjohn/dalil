@@ -1,0 +1,174 @@
+country: SG
+name: Singapore
+last_verified: 2026-10-10
+portal: {name: Ministry of Manpower, url: https://www.mom.gov.sg/}
+official_domains: [mom.gov.sg, judiciary.gov.sg, mti.gov.sg, police.gov.sg, scamshield.gov.sg, pdpc.gov.sg]
+authorities:
+  - id: mom
+    name: Ministry of Manpower (MOM)
+    url: https://www.mom.gov.sg/
+    covers: [employment, immigration]
+    phone: "6438 5122"
+    phone_source: https://www.mom.gov.sg/-/media/mom/documents/publications/mw-guides/mw-handy-guide-english.pdf
+  - id: sct
+    name: Small Claims Tribunals (Singapore Judiciary)
+    url: https://www.judiciary.gov.sg/civil/small-claims
+    covers: [tenancy, consumer]
+  - id: mti
+    name: Ministry of Trade and Industry (Consumer Protection Fair Trading Act)
+    url: https://www.mti.gov.sg/resources/laws-and-regulations/consumer-protection-fair-trading-act/
+    covers: [consumer]
+  - id: spf
+    name: Singapore Police Force
+    url: https://www.police.gov.sg/
+    covers: [fines, scams]
+  - id: scamshield
+    name: ScamShield
+    url: https://www.scamshield.gov.sg/important-information-for-police-report/
+    covers: [scams]
+    phone: "1799"
+    phone_source: https://www.scamshield.gov.sg/important-information-for-police-report/
+  - id: pdpc
+    name: Personal Data Protection Commission
+    url: https://www.pdpc.gov.sg/
+    covers: [privacy]
+topics:
+  employment:
+    sources:
+      - {url: https://www.mom.gov.sg/faq/work-pass-general/can-an-employer-keep-a-workers-passport, title: Can an employer keep a worker passport, publisher: Ministry of Manpower, language: en}
+      - {url: https://www.mom.gov.sg/employment-practices/salary/paying-salary, title: Paying salary, publisher: Ministry of Manpower, language: en}
+      - {url: https://www.mom.gov.sg/employment-practices/contract-of-service/key-employment-terms, title: Key employment terms, publisher: Ministry of Manpower, language: en}
+      - {url: https://www.mom.gov.sg/employment-practices/hours-of-work-overtime-and-rest-days, title: Hours of work overtime and rest day, publisher: Ministry of Manpower, language: en}
+      - {url: https://www.mom.gov.sg/faq/employment-agencies/are-eas-allowed-to-charge-foreign-workers-fees-for-work-pass-renewals, title: EA fees for foreign workers, publisher: Ministry of Manpower, language: en}
+      - {url: https://www.mom.gov.sg/-/media/mom/documents/publications/mw-guides/mw-handy-guide-english.pdf, title: A guide for migrant workers, publisher: Ministry of Manpower, language: en}
+    facts:
+      - id: passport_retention
+        statement: Employers should not keep the passports of their migrant workers or migrant domestic workers.
+        source_url: https://www.mom.gov.sg/faq/work-pass-general/can-an-employer-keep-a-workers-passport
+        quote: "Employers should not keep the passports of their migrant workers or migrant domestic workers (MDWs)."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: passport_return_report
+        statement: A migrant worker's passport is their personal property, it must be returned immediately on request, and refusal to return the passport or work permit can be reported to MOM.
+        source_url: https://www.mom.gov.sg/-/media/mom/documents/publications/mw-guides/mw-handy-guide-english.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: salary_timing
+        statement: Salary must be paid at least once a month, within 7 days after the end of the salary period, and overtime pay within 14 days after the end of the salary period.
+        source_url: https://www.mom.gov.sg/employment-practices/salary/paying-salary
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: work_permit_salary_bank
+        statement: For work permit holders who live in dormitories, the employer must pay salary by crediting it directly to the worker's bank account.
+        source_url: https://www.mom.gov.sg/passes-and-permits/work-permit-for-foreign-worker/sector-specific-rules/paying-the-salary
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: key_employment_terms
+        statement: The written key employment terms should list items such as job title and duties, start date, working hours and rest day, basic salary, fixed allowances and deductions, overtime rate, leave, probation and notice period.
+        source_url: https://www.mom.gov.sg/employment-practices/contract-of-service/key-employment-terms
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: hours_overtime
+        statement: Employees may not work more than 12 hours a day, overtime is limited to 72 hours a month, overtime pay is at least 1.5 times the hourly basic rate, and employees get one rest day a week.
+        source_url: https://www.mom.gov.sg/employment-practices/hours-of-work-overtime-and-rest-days
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: no_fee_recovery_from_workers
+        statement: Employers must pay levies and work pass application and renewal fees themselves and may not recover them from foreign employees, directly or indirectly.
+        source_url: https://www.mom.gov.sg/faq/employment-agencies/are-eas-allowed-to-charge-foreign-workers-fees-for-work-pass-renewals
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: agency_fee_cap
+        statement: Agency fees charged to migrant workers are capped at 1 month of fixed monthly salary per year of contract, up to 2 months in total, and at least 50 percent must be refunded if the employer ends the job within 6 months.
+        source_url: https://www.mom.gov.sg/-/media/mom/documents/publications/mw-guides/mw-handy-guide-english.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: unpaid_salary_complaint
+        statement: Workers owed salary should approach MOM or the Tripartite Alliance for Dispute Management (TADM) as early as possible.
+        source_url: https://www.mom.gov.sg/-/media/mom/documents/publications/mw-guides/mw-handy-guide-english.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  tenancy:
+    sources:
+      - {url: https://www.judiciary.gov.sg/civil/cases-eligible-small-claim, title: Cases eligible for a small claim, publisher: Singapore Judiciary, language: en}
+    facts:
+      - id: small_claims_tenancy
+        statement: The Small Claims Tribunals can hear disputes about a residential tenancy agreement of not more than 2 years, but not leases of industrial or commercial premises.
+        source_url: https://www.judiciary.gov.sg/civil/cases-eligible-small-claim
+        quote: "A tenancy agreement for residential premises not exceeding 2 years."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: small_claims_time_limit
+        statement: Small claims must be filed within 2 years of the event that created the cause of action.
+        source_url: https://www.judiciary.gov.sg/civil/cases-eligible-small-claim
+        quote: "All SCT claims must be filed within 2 years of the event which creates your cause of action."
+        confidence: quoted
+        verified_on: 2026-10-10
+  fines:
+    sources:
+      - {url: https://www.police.gov.sg/knowledge-hub/traffic/traffic-matters/methods-of-payment-for-traffic-offences, title: Methods of payment for traffic offences, publisher: Singapore Police Force, language: en}
+      - {url: https://www.police.gov.sg/Media-Hub/News/2026/08/20260808_police_advisory_on_phishing_scams_impersonating_the_singapore_police_force, title: Police advisory on phishing scams impersonating SPF, publisher: Singapore Police Force, language: en}
+    facts:
+      - id: traffic_fine_channels
+        statement: Traffic fines are paid only through the Singapore Police Force e-Services site or AXS payment channels, and counter payment at Traffic Police headquarters is not accepted.
+        source_url: https://www.police.gov.sg/knowledge-hub/traffic/traffic-matters/methods-of-payment-for-traffic-offences
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: no_payment_links
+        statement: The Police, Traffic Police and Courts never ask for payment through unsolicited links or text message replies.
+        source_url: https://www.police.gov.sg/Media-Hub/News/2026/08/20260808_police_advisory_on_phishing_scams_impersonating_the_singapore_police_force
+        quote: "SPF, TP and the Singapore Courts will never request payment via unsolicited links or text message replies."
+        confidence: quoted
+        verified_on: 2026-10-10
+  consumer:
+    sources:
+      - {url: https://www.mti.gov.sg/resources/laws-and-regulations/consumer-protection-fair-trading-act/, title: Consumer Protection (Fair Trading) Act, publisher: Ministry of Trade and Industry, language: en}
+    facts:
+      - id: cooling_off_direct_sales
+        statement: Direct sales and time share contracts have a 5 working day cancellation (cooling-off) period, and cancellation is by written notice to the supplier.
+        source_url: https://www.mti.gov.sg/resources/laws-and-regulations/consumer-protection-fair-trading-act/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: consumer_disputes_route
+        statement: Consumers should first try to resolve a dispute with the trader, can use mediation such as CASE, and most claims under the Act are filed in the Small Claims Tribunals.
+        source_url: https://www.mti.gov.sg/resources/laws-and-regulations/consumer-protection-fair-trading-act/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  scams:
+    sources:
+      - {url: https://www.scamshield.gov.sg/important-information-for-police-report/, title: What to include when you file a police report, publisher: ScamShield, language: en}
+    facts:
+      - id: scamshield_helpline
+        statement: The 24/7 ScamShield Helpline is 1799, for people who are unsure whether something is a scam.
+        source_url: https://www.police.gov.sg/Media-Hub/News/2026/08/20260808_police_advisory_on_phishing_scams_impersonating_the_singapore_police_force
+        quote: "Call the 24/7 ScamShield Helpline at 1799 if you are unsure if something is a scam."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: scam_police_report
+        statement: Scams are reported to the police at a Neighbourhood Police Centre, bringing evidence such as screenshots, receipts and bank records.
+        source_url: https://www.scamshield.gov.sg/important-information-for-police-report/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  privacy:
+    sources:
+      - {url: https://www.pdpc.gov.sg/overview-of-pdpa/the-legislation/personal-data-protection-act/data-protection-obligations, title: Data protection obligations, publisher: Personal Data Protection Commission, language: en}
+    facts:
+      - id: pdpa_consent
+        statement: Under the Personal Data Protection Act, organisations may collect, use or disclose personal data only for purposes the individual has consented to, and consent can be withdrawn.
+        source_url: https://www.pdpc.gov.sg/overview-of-pdpa/the-legislation/personal-data-protection-act/data-protection-obligations
+        quote: "Only collect, use or disclose personal data for purposes which an individual has given his/her consent to."
+        confidence: quoted
+        verified_on: 2026-10-10
+notes: "Tenancy: deposit, notice and registration rules could not be confirmed from official pages read (IRAS pages did not state stamping deadline). The work permit salary page (mom.gov.sg/passes-and-permits/work-permit-for-foreign-worker/sector-specific-rules/paying-the-salary) was opened and also states salary is due within 7 days of month end. MOM phone 6438 5122 is listed in the MOM migrant worker guide as the line for employment and salary matters. Small Claims Tribunals claim limits are stated as 20,000 dollars (30,000 with consent) on the eligibility page and 30,000 on the overview page, so check the current limit."

@@ -1,0 +1,338 @@
+country: AE
+name: United Arab Emirates
+last_verified: 2026-10-11
+portal: {name: UAE Government Portal, url: https://u.ae/en}
+official_domains: [u.ae, assets.u.ae, mohre.gov.ae, dubailand.gov.ae, adjd.gov.ae, dubai.ae, centralbank.ae, moet.gov.ae, icp.gov.ae]
+authorities:
+  - id: mohre
+    name: Ministry of Human Resources and Emiratisation (MoHRE)
+    url: https://www.mohre.gov.ae/
+    covers: [employment]
+    phone: "80084"
+    phone_source: https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/labour-dispute
+  - id: moet
+    name: Ministry of Economy and Tourism (consumer complaints)
+    url: https://www.moet.gov.ae/en/w/consumer-complaints-2
+    covers: [consumer]
+    phone: "8001222"
+    phone_source: https://www.moet.gov.ae/en/w/consumer-complaints-2
+  - id: police
+    name: Dubai Police and Abu Dhabi Police (report fraud)
+    url: https://u.ae/en/information-and-services/business/important-digital-services/reporting-economic-crimes
+    covers: [scams, fines]
+    phone: "999"
+    phone_source: https://u.ae/en/information-and-services/justice-safety-and-the-law/cyber-safety-and-digital-security
+  - id: icp
+    name: Federal Authority for Identity, Citizenship, Customs and Port Security
+    url: https://icp.gov.ae/en/faq/
+    covers: [immigration]
+  - id: dld
+    name: Dubai Land Department (Ejari, Rental Index, Rental Disputes Centre)
+    url: https://dubailand.gov.ae/en/
+    covers: [tenancy]
+  - id: adjd
+    name: Abu Dhabi Judicial Department (Rental Dispute Settlement Committees)
+    url: https://www.adjd.gov.ae/EN/Pages/courts/Rental-Dispute-Settlement-Committees.aspx
+    covers: [tenancy]
+    phone: "600599799"
+    phone_source: https://www.adjd.gov.ae/EN/Pages/courts/Rental-Dispute-Settlement-Committees.aspx
+topics:
+  tenancy:
+    sources:
+      - {url: https://dubailand.gov.ae/media/051bem5a/tenancyguideen.pdf, title: Tenancy guide, publisher: Dubai Land Department, language: en}
+      - {url: https://dubailand.gov.ae/en/frequently-asked-questions/, title: Frequently Asked Questions, publisher: Dubai Land Department, language: en}
+      - {url: https://dubailand.gov.ae/en/eservices/rental-index/, title: Rental Index, publisher: Dubai Land Department, language: en}
+      - {url: https://u.ae/en/information-and-services/moving-to-the-uae/leasing-a-property-in-the-uae, title: Leasing a property in the UAE, publisher: UAE Government Portal, language: en}
+      - {url: https://www.adjd.gov.ae/EN/Pages/courts/Rental-Dispute-Settlement-Committees.aspx, title: Rental Dispute Settlement Committees, publisher: Abu Dhabi Judicial Department, language: en}
+    facts:
+      - id: dubai_ejari_mandatory
+        statement: In Dubai, tenancy contracts must be registered through the Ejari system run by the Real Estate Regulatory Agency.
+        source_url: https://dubailand.gov.ae/media/051bem5a/tenancyguideen.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_rent_increase_notice
+        statement: In Dubai, a party who wants to change the rent or other terms at renewal must notify the other at least 90 days before the contract expires, unless both agree otherwise.
+        source_url: https://dubailand.gov.ae/en/frequently-asked-questions/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_rent_index
+        statement: In Dubai, the Rental Index is indicative and not mandatory for a new lease, but it is the reference when landlord and tenant disagree on a rent increase, and it can be checked on the Dubai Land Department website or the Dubai REST app.
+        source_url: https://dubailand.gov.ae/en/frequently-asked-questions/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_rent_index_tool
+        statement: In Dubai, the Dubai Land Department Rental Index service calculates the rental increase and the average rent from the contract expiry date, property type, area, rooms and current annual rent.
+        source_url: https://dubailand.gov.ae/en/eservices/rental-index/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_eviction_notice_12_months
+        statement: In Dubai, a landlord who wants the tenant to leave for personal use, sale or demolition must give the reason and notify the tenant through a notary public or registered mail at least 12 months before the eviction date.
+        source_url: https://dubailand.gov.ae/en/frequently-asked-questions/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_eviction_nonpayment
+        statement: In Dubai, for unpaid rent the landlord must first demand payment with a deadline of no less than 30 days.
+        source_url: https://dubailand.gov.ae/en/frequently-asked-questions/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_security_deposit
+        statement: In Dubai, a landlord may take a security deposit to cover damage to the property, the deposit must be refunded at the end of the contract, and tenants are not responsible for normal wear from daily use.
+        source_url: https://dubailand.gov.ae/en/frequently-asked-questions/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_disputes_rdc
+        statement: In Dubai, a tenant who faces unlawful eviction can file a complaint at the Rental Disputes Centre of the Dubai Land Department, and a tenant whose landlord refuses rent can deposit the rent with the centre.
+        source_url: https://dubailand.gov.ae/en/frequently-asked-questions/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: abudhabi_tawtheeq
+        statement: In Abu Dhabi, landlords must register leases in the Tawtheeq system, which is the city's register for tenancy contracts.
+        source_url: https://u.ae/en/information-and-services/moving-to-the-uae/leasing-a-property-in-the-uae
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: abudhabi_rent_disputes
+        statement: In Abu Dhabi, the Rental Dispute Settlement Committees under the Abu Dhabi Judicial Department consider urgent disputes arising from a rental relationship between landlord and tenant.
+        source_url: https://www.adjd.gov.ae/EN/Pages/courts/Rental-Dispute-Settlement-Committees.aspx
+        quote: "competent to consider, as a matter of urgency, disputes arising from a rental relationship"
+        confidence: quoted
+        verified_on: 2026-10-11
+  employment:
+    sources:
+      - {url: "https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78", title: Federal Decree-Law regarding the regulation of employment relationship, publisher: UAE Government Portal, language: en}
+      - {url: https://mohre.gov.ae/en/media-center/awareness-and-guidance/workers-rights.aspx, title: Dear Worker, publisher: MoHRE, language: en}
+      - {url: https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/terminating-employment-contracts, title: Terminating employment contracts, publisher: UAE Government Portal, language: en}
+      - {url: https://u.ae/en/information-and-services/moving-to-the-uae/expatriates-working-in-the-uae/employment-of-expatriates-in-privately-held-companies, title: Employment of expatriates in privately held companies, publisher: UAE Government Portal, language: en}
+      - {url: https://u.ae/cy/information-and-services/jobs/employment-in-the-private-sector/job-offers-and-work-permits-and-contracts/employment-contracts-duration-and-models-in-the-private-sector, title: Employment contracts duration and models, publisher: UAE Government Portal, language: en}
+    facts:
+      - id: written_contract_two_copies
+        statement: In the UAE private sector the employer must conclude an employment contract with the worker, made in two copies with one kept by each party.
+        source_url: https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: offer_signed_by_both
+        statement: A work offer for a worker coming to the UAE must be signed by both employer and employee and follow the standard MoHRE contract template.
+        source_url: https://u.ae/en/information-and-services/moving-to-the-uae/expatriates-working-in-the-uae/employment-of-expatriates-in-privately-held-companies
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: employer_pays_visa_travel
+        statement: UAE law requires the employer to pay the costs of the entry visa and travel to the UAE.
+        source_url: https://u.ae/en/information-and-services/moving-to-the-uae/expatriates-working-in-the-uae/employment-of-expatriates-in-privately-held-companies
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: probation_six_months
+        statement: Probation must not exceed six months, and an employer ending employment during probation must give 14 days of written notice.
+        source_url: https://u.ae/cy/information-and-services/jobs/employment-in-the-private-sector/job-offers-and-work-permits-and-contracts/employment-contracts-duration-and-models-in-the-private-sector
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: working_hours
+        statement: Normal working hours are at most 8 hours per day or 48 hours per week.
+        source_url: https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: overtime_pay
+        statement: Overtime is paid at the basic wage plus at least 25 percent, and at least 50 percent extra for overtime between 10 pm and 4 am (not for shift workers).
+        source_url: https://mohre.gov.ae/en/media-center/awareness-and-guidance/workers-rights.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wages_on_due_date_dirham
+        statement: The employer must pay wages on their due dates, normally in UAE dirhams unless the contract agrees another currency, and the wage must be stated in the contract.
+        source_url: https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wps_wages_on_time
+        statement: Workers have the right to receive their wages on time and as agreed in the contract, under the Wage Protection System.
+        source_url: https://mohre.gov.ae/en/media-center/awareness-and-guidance/workers-rights.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_recruitment_fees_from_worker
+        statement: The employer is prohibited from charging the worker the fees and costs of recruitment and employment, directly or indirectly.
+        source_url: https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_document_withholding
+        statement: The employer must not withhold the worker's official documents.
+        source_url: https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: annual_leave_30_days
+        statement: A worker is entitled to annual leave with full wage of thirty days for each year of service.
+        source_url: https://mohre.gov.ae/en/media-center/awareness-and-guidance/workers-rights.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: notice_period_30_90
+        statement: When either party ends an employment contract, written notice is required and the notice period must be at least 30 days and no more than 90 days, with full wage paid during it.
+        source_url: https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/terminating-employment-contracts
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: gratuity_21_30_days
+        statement: A full-time foreign worker with at least one year of continuous service gets end-of-service benefits of 21 days of wage per year for the first five years and 30 days per year after that, capped at two years of wage.
+        source_url: https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: final_settlement_14_days
+        statement: The employer must pay the worker's wages and other entitlements within 14 days from the end date of the contract.
+        source_url: https://assets.u.ae/api/public/content/eb65a60bbff949fa912eddd566613014?v=7174ed78
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: mohre_complaint_route
+        statement: Both worker and employer can file a labour complaint with MoHRE through its website or app, MoHRE first tries a friendly settlement, and if none is reached within 14 days it refers the dispute to the court.
+        source_url: https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/labour-dispute
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: mohre_helpline
+        statement: The MoHRE Labour Claims and Advisory Call Centre is toll-free 80084, for labour grievances or legal questions.
+        source_url: https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/labour-dispute
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: labour_claim_time_limit
+        statement: No claim for rights due under the labour dispute procedure is heard after one year from the date of the violation.
+        source_url: https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/labour-dispute
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  fines:
+    sources:
+      - {url: https://www.dubai.ae/living/driving-transportation/traffic-fines, title: Traffic Fines, publisher: Dubai Government (dubai.ae), language: en}
+    facts:
+      - id: dubai_fine_channels
+        statement: In Dubai, traffic fines are checked and paid on the official websites of the RTA, Dubai Police, the Ministry of Interior and Emirates Vehicle Gate.
+        source_url: https://www.dubai.ae/living/driving-transportation/traffic-fines
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: fines_before_renewal
+        statement: In Dubai, outstanding traffic fines must be settled before renewing a driving licence or vehicle ownership card.
+        source_url: https://www.dubai.ae/living/driving-transportation/traffic-fines
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://u.ae/en/information-and-services/business/important-digital-services/reporting-economic-crimes, title: Reporting economic crimes, publisher: UAE Government Portal, language: en}
+      - {url: https://u.ae/en/information-and-services/justice-safety-and-the-law/cyber-safety-and-digital-security, title: Cyber safety and digital security, publisher: UAE Government Portal, language: en}
+      - {url: https://centralbank.ae/media/avkdwwpj/cbuae-ubf-abu-dhabi-police-and-dubai-police-join-forces-to-launch-uaes-first-national-fraud-awareness-campaign_1.pdf, title: National fraud awareness campaign, publisher: Central Bank of the UAE, language: en}
+    facts:
+      - id: report_fraud_police
+        statement: Fraud, scams and cybercrime are reported to the local police such as Dubai Police or Abu Dhabi Police, and Dubai Police also accept cyber-enabled financial crime reports on their eCrime platform.
+        source_url: https://u.ae/en/information-and-services/business/important-digital-services/reporting-economic-crimes
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: police_999
+        statement: Cybercrimes can be reported at the nearest police station or by calling 999.
+        source_url: https://u.ae/en/information-and-services/justice-safety-and-the-law/cyber-safety-and-digital-security
+        quote: "You can also report cybercrimes to the nearest police station in your area, or call 999 for help."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: no_threat_efraud
+        statement: Victims of electronic fraud should not give in to threats and should report right away.
+        source_url: https://u.ae/en/information-and-services/justice-safety-and-the-law/cyber-safety-and-digital-security
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: central_bank_campaign_caution
+        statement: Dubai Police and Abu Dhabi Police, with the Central Bank and UAE Banks Federation, urge residents to be careful sharing account numbers, bank card numbers, passwords, personal identification codes and card security codes, and not to be misled by fraudulent calls and SMS or social media messages.
+        source_url: https://centralbank.ae/media/avkdwwpj/cbuae-ubf-abu-dhabi-police-and-dubai-police-join-forces-to-launch-uaes-first-national-fraud-awareness-campaign_1.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: report_bank_fraud_ubf
+        statement: Bank customers can report bank fraud through the UAE Banks Federation page, and anonymous or unreliable messages or calls should be reported to the police immediately.
+        source_url: https://centralbank.ae/media/avkdwwpj/cbuae-ubf-abu-dhabi-police-and-dubai-police-join-forces-to-launch-uaes-first-national-fraud-awareness-campaign_1.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://www.moet.gov.ae/en/w/consumer-complaints-2, title: Resolve Consumers Complaints, publisher: Ministry of Economy and Tourism, language: en}
+      - {url: https://u.ae/en/information-and-services/justice-safety-and-the-law/consumer-protection, title: Consumer protection, publisher: UAE Government Portal, language: en}
+    facts:
+      - id: moet_complaint_route
+        statement: The Ministry of Economy and Tourism receives consumer complaints from all emirates except Abu Dhabi, Dubai and Ajman through its website or app, tries to settle them amicably and otherwise refers them to the courts.
+        source_url: https://www.moet.gov.ae/en/w/consumer-complaints-2
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: moet_complaint_documents
+        statement: A consumer complaint needs the other party's details, a summary of the complaint and copies of documents such as the purchase invoice or contract, and the service is free.
+        source_url: https://www.moet.gov.ae/en/w/consumer-complaints-2
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: dubai_consumer_complaint
+        statement: Consumer complaints in Dubai go to the Department of Economic Development through the consumerrights.ae Consumer Complaint page, not to the federal ministry.
+        source_url: https://u.ae/en/information-and-services/justice-safety-and-the-law/consumer-protection
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: consumer_invoice
+        statement: A supplier must give the consumer a dated invoice showing the trade name, address, and the type, price and quantity of the goods or service, in Arabic and optionally other languages.
+        source_url: https://u.ae/en/information-and-services/justice-safety-and-the-law/consumer-protection
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  immigration:
+    sources:
+      - {url: https://u.ae/en/information-and-services/visa-and-emirates-id/Visa-information/general-provisions-for-the-residence-visa, title: General provisions for the residence visa, publisher: UAE Government Portal, language: en}
+      - {url: https://icp.gov.ae/en/faq/, title: FAQ, publisher: Federal Authority for Identity Citizenship Customs and Port Security, language: en}
+    facts:
+      - id: visa_emirates_id_expiry
+        statement: A residence visa applicant aged 18 or over needs a medical test and security check and must apply for an Emirates ID, and the Emirates ID expires when the visa expires.
+        source_url: https://u.ae/en/information-and-services/visa-and-emirates-id/Visa-information/general-provisions-for-the-residence-visa
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: visa_sponsor_renew_cancel
+        statement: The sponsor must renew a sponsored residence visa before it expires, and normally only the sponsor can cancel it.
+        source_url: https://u.ae/en/information-and-services/visa-and-emirates-id/Visa-information/general-provisions-for-the-residence-visa
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: emirates_id_late_fine
+        statement: A fine of AED 20 per day of delay, up to AED 1,000, applies for renewing an Emirates ID late, starting 30 days after expiry.
+        source_url: https://icp.gov.ae/en/faq/
+        quote: "A fine of AED 20 is imposed for each day of delay, up to a maximum of AED 1,000."
+        confidence: quoted
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: https://u.ae/en/about-the-uae/digital-uae/data/data-protection-laws, title: Data protection laws, publisher: UAE Government Portal, language: en}
+    facts:
+      - id: pdpl_consent
+        statement: The UAE Personal Data Protection Law (Federal Decree-Law 45 of 2021) generally bars processing personal data without the data owner's consent, with exceptions such as public interest or legal procedures.
+        source_url: https://u.ae/en/about-the-uae/digital-uae/data/data-protection-laws
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: pdpl_regulator
+        statement: The UAE Data Office acts as the federal data regulator and handles data-related complaints and grievances.
+        source_url: https://u.ae/en/about-the-uae/digital-uae/data/data-protection-laws
+        quote: "The UAE Data Office will act as the federal data regulator in the UAE."
+        confidence: quoted
+        verified_on: 2026-10-11
+notes: "Gaps: no official page confirming a fake traffic-fine SMS or payment-link warning could be read (Dubai Police news pages and the Cyber Security Council phishing page failed or were blocked). Abu Dhabi traffic-fine payment channels not confirmed (TAMM and Abu Dhabi Police pages returned no text). Passport retention on the immigration side beyond the labour-law rule on withholding documents not separately confirmed. Abu Dhabi rent increase and notice rules not confirmed. Dubai tenancy facts are from the Dubai Land Department FAQ and an older tenancy guide, so check current law. MoHRE contact-us page showed no phone number; 80084 comes from the u.ae labour dispute page. Tawtheeq (Abu Dhabi) tenancy details beyond registration and the TAMM lease pages could not be read (TAMM pages return no text). MoHRE legal pages under /laws-and-regulations are blocked to the fetch tool (robots), so the labour law was read from assets.u.ae."

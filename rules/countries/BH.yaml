@@ -1,0 +1,141 @@
+country: BH
+name: Bahrain
+last_verified: 2026-10-11
+portal: {name: Bahrain National Portal, url: https://www.bahrain.bh/}
+official_domains: [lmra.gov.bh, bahrain.bh, moic.gov.bh, cbb.gov.bh, pdp.gov.bh]
+authorities:
+  - id: lmra
+    name: Labour Market Regulatory Authority
+    url: https://www.lmra.gov.bh/en
+    covers: [employment]
+    phone: "995"
+    phone_source: https://www.lmra.gov.bh/files/cms/shared/wt-a6-booklet-wages-and-indemnity.pdf
+  - id: moic
+    name: Ministry of Industry and Commerce (Consumer Protection)
+    url: https://www.moic.gov.bh/en/node/2758
+    covers: [consumer]
+    phone: "17007003"
+    phone_source: https://www.moic.gov.bh/en/node/2758
+  - id: cbb
+    name: Central Bank of Bahrain
+    url: https://www.cbb.gov.bh/media-center/cbb-warns-consumers-when-dealing-with-personal-and-banking-information/
+    covers: [scams]
+  - id: pdpa
+    name: Personal Data Protection Authority
+    url: https://www.pdp.gov.bh/en/about-PDPA.html
+    covers: [privacy]
+    phone: "17513241"
+    phone_source: https://www.pdp.gov.bh/en/about-PDPA.html
+topics:
+  tenancy:
+    sources:
+      - {url: "https://www.bahrain.bh/wps/portal/en/BNP/ServicesCatalogue/GSX-UI-PServiceDetails?psID=2233", title: Deposit of rent for a leased property, publisher: Bahrain National Portal, language: en}
+    facts:
+      - id: rent_deposit_court_service
+        statement: In a rent dispute, a landlord or tenant can ask the relevant judge at the Ministry of Justice to open a file to deposit the rent, which is handled as a government service with a stated 3 working days processing time.
+        source_url: https://www.bahrain.bh/wps/portal/en/BNP/ServicesCatalogue/GSX-UI-PServiceDetails?psID=2233
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  employment:
+    sources:
+      - {url: "https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf", title: Labour Law for the private sector (Law 36 of 2012, unofficial English translation), publisher: Labour Market Regulatory Authority, language: en}
+      - {url: "https://www.lmra.gov.bh/files/cms/shared/wt-a6-booklet-wages-and-indemnity.pdf", title: Wages and indemnity booklet, publisher: Labour Market Regulatory Authority, language: en}
+    facts:
+      - id: written_contract
+        statement: An employment contract must be in writing, in Arabic and in duplicate, with an Arabic version if it is in another language.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: probation_limit
+        statement: Probation must be stated in the contract, is capped at three months (six in certain occupations), and a worker cannot be put on probation twice by the same employer.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: daily_hours
+        statement: A worker normally may not actually work more than eight hours a day unless otherwise agreed, with a cap of 48 actual hours a week.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: overtime_pay
+        statement: Each extra hour is paid at the worker's normal wage plus at least 25 percent for daytime hours and at least 50 percent for night hours.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wages_monthly
+        statement: Monthly-paid workers must be paid at least once a month, and when the contract ends the employer must pay wages and entitlements immediately, or within 7 days if the worker resigned.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: notice_period
+        statement: Either party may end a contract by giving the other thirty days' prior notice in writing.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: documents_receipt_return
+        statement: An employer who holds a worker's deposited documents must give a receipt and return them immediately on request after termination.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/file/labour%20law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: end_of_service_indemnity
+        statement: The end-of-service indemnity is half a month's wage for each of the first three years and one month's wage for each later year, and since March 2024 private-sector expatriate workers' indemnity is paid by the Social Insurance Organization from employer contributions.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/wt-a6-booklet-wages-and-indemnity.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wage_complaints_995
+        statement: Workers with unpaid wages or indemnity questions can call the LMRA Grievances and Protection Directorate on 995, email 995@lmra.gov.bh or visit the Expat Protection Center in North Sehla.
+        source_url: https://www.lmra.gov.bh/files/cms/shared/wt-a6-booklet-wages-and-indemnity.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: "https://www.moic.gov.bh/en/node/2758", title: Consumer complaints, publisher: Ministry of Industry and Commerce, language: en}
+    facts:
+      - id: consumer_complaint_channels
+        statement: Consumers can complain to the Ministry of Industry and Commerce by phone on 17007003, by email, through the Tawasul system or in person at the Consumer Protection Center by booking an appointment.
+        source_url: https://www.moic.gov.bh/en/node/2758
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: defective_item_15_days
+        statement: A seller that refuses to return or replace an item with a manufacturing defect within 15 days of purchase, or refuses an invoice, is a situation the ministry lists for filing a complaint.
+        source_url: https://www.moic.gov.bh/en/node/2758
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_refund_sign_complaint
+        statement: Invoices or banners saying goods sold are not refundable or replaced are a situation the ministry lists for filing a complaint.
+        source_url: https://www.moic.gov.bh/en/node/2758
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: "https://www.cbb.gov.bh/media-center/cbb-warns-consumers-when-dealing-with-personal-and-banking-information/", title: CBB warns consumers when dealing with personal and banking information, publisher: Central Bank of Bahrain, language: en}
+    facts:
+      - id: cbb_fake_contact_warning
+        statement: The Central Bank of Bahrain warns about fake websites, emails, phone calls and text messages, and says banks would never use a smartphone app to ask for sensitive information.
+        source_url: https://www.cbb.gov.bh/media-center/cbb-warns-consumers-when-dealing-with-personal-and-banking-information/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: "https://www.pdp.gov.bh/en/about-PDPA.html", title: About the Personal Data Protection Authority, publisher: Personal Data Protection Authority, language: en}
+    facts:
+      - id: pdpl_authority_complaints
+        statement: Personal data is protected by Law No. 30 of 2018, and anyone with a legitimate interest can file a written complaint with the Personal Data Protection Authority.
+        source_url: https://www.pdp.gov.bh/en/about-PDPA.html
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Verified from pages that opened. Gaps: no tenancy facts beyond the rent deposit service (RERA pages and the lease registration page could not be read), no fines or immigration facts, no recruitment-fee or private passport-retention ban found in the readable labour law text, Arabic text prevails over the English labour law translation, the legal services page for the Bahrain Consumer Protection Law could not be read. Phone 995 comes from the LMRA wages booklet and is for workers; the CBB page names no reporting channel."

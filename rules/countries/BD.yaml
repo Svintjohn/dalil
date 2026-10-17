@@ -1,0 +1,36 @@
+country: BD
+name: Bangladesh
+last_verified: 2026-10-11
+portal: {name: Probashi Kalyan (BMET page on the Ministry portal), url: "https://probashi.gov.bd/pages/static-pages/6940329e35ce18e1c055f6cf"}
+official_domains: [bdlaws.minlaw.gov.bd, probashi.gov.bd]
+authorities:
+  - id: bmet
+    name: Bureau of Manpower, Employment and Training (BMET)
+    url: "https://probashi.gov.bd/pages/static-pages/6940329e35ce18e1c055f6cf"
+    covers: [employment, immigration]
+topics:
+  employment:
+    sources:
+      - {url: "https://bdlaws.minlaw.gov.bd/act-952/section-29073.html", title: Bangladesh Labour Act 2006 appointment letter and identity card, publisher: Laws of Bangladesh (Ministry of Law), language: bn}
+      - {url: "https://bdlaws.minlaw.gov.bd/act-952.html", title: Bangladesh Labour Act 2006 table of contents, publisher: Laws of Bangladesh (Ministry of Law), language: bn}
+      - {url: "https://probashi.gov.bd/pages/static-pages/6940329e35ce18e1c055f6cf", title: BMET, publisher: Ministry portal Probashi, language: bn}
+    facts:
+      - id: appointment_letter_required
+        statement: Under the Bangladesh Labour Act an employer may not employ a worker without first giving an appointment letter, and every worker must be given a photo identity card.
+        source_url: "https://bdlaws.minlaw.gov.bd/act-952/section-29073.html"
+        quote: "কোন মালিক নিয়োগপত্র প্রদান না করিয়া কোন শ্রমিককে নিয়োগ করিতে পারিবেন না"
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: labour_act_covers_overtime_wages
+        statement: The Labour Act has separate sections on overtime allowance, time for payment of wages and probation, but the rates and periods in them were not read.
+        source_url: "https://bdlaws.minlaw.gov.bd/act-952.html"
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: bmet_overseas_employment
+        statement: BMET is the government body set up to arrange employment abroad for Bangladeshi workers and to meet domestic manpower needs.
+        source_url: "https://probashi.gov.bd/pages/static-pages/6940329e35ce18e1c055f6cf"
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Thin file: most official Bangladesh pages blocked the fetch tool (robots or redirect loops), so only three facts are confirmed. Blocked or unreadable: bmet.gov.bd (home, contact, notices), dncrp.gov.bd (consumer hotline 16121 appeared in a search result title but no page was opened, so it is not stated), bdlaws.minlaw.gov.bd pages for labour act sections on overtime, wage payment and termination, the Consumer Rights Protection Act 2009, the Cyber Protection Act 2026, and police.gov.bd gave no hotline. NOT covered: tenancy, recruitment fees and complaints against recruiting agencies under the overseas employment law, passport retention, domestic workers (the Labour Act's coverage of domestic workers was not checked), fines, consumer, scams and privacy. The BGD e-GOV CIRT site (cirt.gov.bd) takes incident reports from institutions; whether individuals can use it was not confirmed. A Bangladesh mission page (canberra.mofa.gov.bd) says work permit verification for workers in Australia goes through BMET; not generalised."

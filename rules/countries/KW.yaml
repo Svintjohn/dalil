@@ -1,0 +1,130 @@
+country: KW
+name: Kuwait
+last_verified: 2026-10-11
+portal: {name: Kuwait Government Online, url: https://e.gov.kw/sites/kgoenglish/Pages/Home.aspx}
+official_domains: [moi.gov.kw, manpower.gov.kw, moj.gov.kw, moci.gov.kw, e.gov.kw, cbk.gov.kw]
+authorities:
+  - id: pam
+    name: Public Authority for Manpower
+    url: https://www.manpower.gov.kw/EmploymentServiceEnglish.aspx
+    covers: [employment]
+  - id: moi
+    name: Ministry of Interior
+    url: https://www.moi.gov.kw/main/sections/cyber-crime?culture=en
+    covers: [fines, scams, immigration]
+    phone: "97283939"
+    phone_source: https://www.moi.gov.kw/main/sections/cyber-crime?culture=en
+  - id: moci
+    name: Ministry of Commerce and Industry
+    url: https://www.moci.gov.kw/en/about-us/deputies-and-departments/assistant-agency-supervision-and-consumer-protection/consumer-protection-department2/
+    covers: [consumer]
+    phone: "135"
+    phone_source: https://www.moci.gov.kw/en/about-us/deputies-and-departments/assistant-agency-supervision-and-consumer-protection/consumer-protection-department2/
+  - id: cbk
+    name: Central Bank of Kuwait
+    url: https://www.cbk.gov.kw/en/footer/scam-and-frauds
+    covers: [scams]
+    phone: "22972999"
+    phone_source: https://www.cbk.gov.kw/en/footer/scam-and-frauds
+  - id: moj
+    name: Ministry of Justice
+    url: https://www.moj.gov.kw/EN/pages/DeptProcedure.aspx?ItemID=755
+    covers: [tenancy]
+topics:
+  tenancy:
+    sources:
+      - {url: "https://www.moj.gov.kw/EN/pages/DeptProcedure.aspx?ItemID=755", title: Rent payment, publisher: Ministry of Justice, language: en}
+    facts:
+      - id: rent_warning_enforcement
+        statement: A landlord who wants unpaid rent collected through the Ministry of Justice enforcement departments needs a rent warning, a copy of the rental contract and a copy of the last rent payment if there is one.
+        source_url: https://www.moj.gov.kw/EN/pages/DeptProcedure.aspx?ItemID=755
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  employment:
+    sources:
+      - {url: https://www.moi.gov.kw/main/content/docs/antihumantrafficking/ar/duties-of-the-employer.pdf, title: Duties of the employer, publisher: Ministry of Interior, language: en}
+      - {url: https://www.moi.gov.kw/main/content/docs/antihumantrafficking/ar/guidelines-for-foreignlabour.pdf, title: Guidelines for foreign labour, publisher: Ministry of Interior, language: en}
+      - {url: https://www.manpower.gov.kw/EmploymentServiceEnglish.aspx, title: Employment service, publisher: Public Authority for Manpower, language: en}
+    facts:
+      - id: passport_retention
+        statement: Employers must not retain a worker's passport, and the worker has the right to keep their passport and identity documents.
+        source_url: https://www.moi.gov.kw/main/content/docs/antihumantrafficking/ar/duties-of-the-employer.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: valid_contract_understood
+        statement: Employers must make sure the worker has a valid, legal contract and fully understands its content.
+        source_url: https://www.moi.gov.kw/main/content/docs/antihumantrafficking/ar/duties-of-the-employer.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wages_on_time_bank
+        statement: Employers must pay the worker the agreed salary on time and without delay, and wages should be paid into a personal bank account for each worker.
+        source_url: https://www.moi.gov.kw/main/content/docs/antihumantrafficking/ar/duties-of-the-employer.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: complaints_to_cid
+        statement: The Criminal Investigation Department receives complaints about law violations against foreign workers, investigates them, and keeps the complainant's identity confidential.
+        source_url: https://www.moi.gov.kw/main/content/docs/antihumantrafficking/ar/guidelines-for-foreignlabour.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: labour_dispute_complaints_online
+        statement: Civil-sector workers can register labour dispute and work permit dispute complaints electronically with the Public Authority for Manpower and follow their status.
+        source_url: https://www.manpower.gov.kw/EmploymentServiceEnglish.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  fines:
+    sources:
+      - {url: "https://www.moi.gov.kw/main/eservices/gdt/violation-enquiry?culture=en", title: Traffic violation enquiry, publisher: Ministry of Interior, language: en}
+    facts:
+      - id: traffic_violation_enquiry
+        statement: Traffic violations can be checked on the Ministry of Interior website by Civil ID or national number, and the results are split into payable and non-payable violations.
+        source_url: https://www.moi.gov.kw/main/eservices/gdt/violation-enquiry?culture=en
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://www.moci.gov.kw/en/about-us/deputies-and-departments/assistant-agency-supervision-and-consumer-protection/consumer-protection-department2/, title: Consumer Protection Department, publisher: Ministry of Commerce and Industry, language: en}
+      - {url: https://e.gov.kw/sites/kgoenglish/Pages/Services/MOCI/ReceiveComplaints.aspx, title: Receiving complaints against commercial stores, publisher: Kuwait Government Online, language: en}
+    facts:
+      - id: consumer_complaint_135
+        statement: To file a consumer complaint with the Ministry of Commerce and Industry, call 135.
+        source_url: https://www.moci.gov.kw/en/about-us/deputies-and-departments/assistant-agency-supervision-and-consumer-protection/consumer-protection-department2/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: store_complaint_requirements
+        statement: To complain about a store in person you need the product, the purchase receipt and a personal ID, and the complaint is filed at the police station the store belongs to or at a Commercial Control Department centre.
+        source_url: https://e.gov.kw/sites/kgoenglish/Pages/Services/MOCI/ReceiveComplaints.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://www.cbk.gov.kw/en/footer/scam-and-frauds, title: Scams and frauds, publisher: Central Bank of Kuwait, language: en}
+      - {url: "https://www.moi.gov.kw/main/sections/cyber-crime?culture=en", title: Cyber crime, publisher: Ministry of Interior, language: en}
+    facts:
+      - id: cbk_verify_messages
+        statement: The Central Bank of Kuwait advises caution with people claiming to be its staff and with electronic messages attributed to it, and says to verify the source.
+        source_url: https://www.cbk.gov.kw/en/footer/scam-and-frauds
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: cbk_report_contacts
+        statement: Questions about whether a transaction is legitimate or reports of illegal activity go to the Central Bank of Kuwait on 22972999 or unlicensed@cbk.gov.kw, and suspicious emails to spam-inquiries@cbk.gov.kw.
+        source_url: https://www.cbk.gov.kw/en/footer/scam-and-frauds
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: moi_cyber_crime_line
+        statement: The Ministry of Interior Cyber Crime line is +96597283939, also on WhatsApp at 97283939, and reports are treated confidentially.
+        source_url: https://www.moi.gov.kw/main/sections/cyber-crime?culture=en
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Verified from pages that opened. Gaps: no private-sector labour law facts (the Manpower labour law PDF is blocked to automated reading, so no hours, overtime, probation, notice or end-of-service), no recruitment-fee fact (the MOI guidance page does not mention it), no tenancy deposit or rent-increase facts, no privacy facts (CITRA complaint page does not mention data protection), no immigration facts. The e.gov.kw traffic payment page and a Ministry of Interior warning about fake traffic violation messages did not load. The MOI employer-duties poster is a guidance document, not the law text."

@@ -1,0 +1,25 @@
+name: app
+on:
+  push:
+  pull_request:
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - run: pip install -r requirements.txt pytest
+      - run: python scripts/validate_rules.py
+      - run: pytest -q backend/tests
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable }
+      - run: cd app && flutter create . --platforms=web --project-name dalil_app
+      - run: cd app && flutter pub get
+      - run: cd app && flutter analyze
+      - run: cd app && flutter test
+      - run: cd app && flutter build web --release

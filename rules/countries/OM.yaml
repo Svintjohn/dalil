@@ -1,0 +1,164 @@
+country: OM
+name: Oman
+last_verified: 2026-10-11
+portal: {name: Oman National Portal, url: https://oman.om/en}
+official_domains: [mol.gov.om, cpa.gov.om, oman.om, rop.gov.om, mtcit.gov.om]
+authorities:
+  - id: mol
+    name: Ministry of Labour
+    url: https://mol.gov.om/
+    covers: [employment]
+    phone: "80077000"
+    phone_source: https://mol.gov.om/pages/CallCenter
+  - id: cpa
+    name: Consumer Protection Authority
+    url: https://cpa.gov.om/
+    covers: [consumer]
+  - id: rop
+    name: Royal Oman Police
+    url: https://www.rop.gov.om/english/TrafficFinesPayment.aspx
+    covers: [fines, scams]
+    phone: "80077444"
+    phone_source: https://oman.om/en/home-top-level/eparticipation/don't-be-deceived-campaign
+  - id: mtcit
+    name: Ministry of Transport, Communications and Information Technology
+    url: https://mtcit.gov.om/
+    covers: [privacy]
+topics:
+  employment:
+    sources:
+      - {url: https://mol.gov.om/pages/Employee-Rights-And-Duties, title: Employee rights and duties, publisher: Ministry of Labour, language: ar}
+      - {url: https://www.mol.gov.om/Laborlaw, title: Labour Law, publisher: Ministry of Labour, language: ar}
+      - {url: https://mol.gov.om/pages/ABOUT-WPS, title: Wage Protection System, publisher: Ministry of Labour, language: ar}
+    facts:
+      - id: written_contract
+        statement: The employment contract must be in writing, in Arabic and in two copies, though another language may be used if an approved Arabic version is attached.
+        source_url: https://mol.gov.om/pages/Employee-Rights-And-Duties
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: probation_limit
+        statement: Probation cannot exceed three months for monthly-paid workers, and a worker cannot be placed on probation more than once with the same employer.
+        source_url: https://mol.gov.om/pages/Employee-Rights-And-Duties
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: daily_hours
+        statement: A worker may not work more than eight actual hours a day or forty actual hours a week, with shorter limits for Muslim workers in Ramadan.
+        source_url: https://mol.gov.om/pages/Employee-Rights-And-Duties
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: overtime_pay
+        statement: Overtime is paid at the normal rate plus at least 25 percent for daytime hours and at least 50 percent for night hours, and the worker must agree to do overtime.
+        source_url: https://mol.gov.om/pages/Employee-Rights-And-Duties
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: passport_retention
+        statement: An employer may not keep a worker's passport or personal documents unless the worker gives written consent.
+        source_url: https://www.mol.gov.om/Laborlaw
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: recruitment_fees
+        statement: It is prohibited to collect any money from a worker who was recruited under licence in exchange for employing them.
+        source_url: https://www.mol.gov.om/Laborlaw
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wages_to_bank
+        statement: An employer is only released from the duty to pay wages when it transfers them to the worker's account at a bank or financial institution licensed by the Central Bank of Oman.
+        source_url: https://mol.gov.om/pages/ABOUT-WPS
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: notice_period
+        statement: For a contract with no fixed term, written notice of 30 days is needed for monthly-paid workers and 15 days for other workers, unless the contract sets a longer period.
+        source_url: https://www.mol.gov.om/Laborlaw
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: unpaid_wages_leave
+        statement: A worker may leave without notice if the employer has not paid wages for more than two consecutive months.
+        source_url: https://www.mol.gov.om/Laborlaw
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: end_of_service
+        statement: For workers not covered by the social protection law, the employer must pay an end-of-service gratuity of at least one basic wage for each year of service.
+        source_url: https://www.mol.gov.om/Laborlaw
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: labour_call_center
+        statement: The Ministry of Labour call center on 80077000 answers questions from citizens and residents about the labour law and ministry services, Sunday to Thursday 8:00 to 14:00.
+        source_url: https://mol.gov.om/pages/CallCenter
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://cpa.gov.om/Documents/Laws/Executive_Regulation_PACP_Law.pdf, title: Executive Regulation of the Consumer Protection Law, publisher: Consumer Protection Authority, language: en}
+    facts:
+      - id: invoice_required
+        statement: A supplier must give the consumer an invoice for each purchase or service, written in Arabic, whether or not the consumer asks.
+        source_url: https://cpa.gov.om/Documents/Laws/Executive_Regulation_PACP_Law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: return_defective_15_days
+        statement: For listed goods that are defective or unfit for purpose, the consumer may ask for replacement within fifteen days of receipt, with proof of purchase.
+        source_url: https://cpa.gov.om/Documents/Laws/Executive_Regulation_PACP_Law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_refund_clause_void
+        statement: A clause saying sold items are not refundable, returnable or exchangeable is void.
+        source_url: https://cpa.gov.om/Documents/Laws/Executive_Regulation_PACP_Law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: warranty_three_months
+        statement: Warranty on listed new goods lasts at least three months.
+        source_url: https://cpa.gov.om/Documents/Laws/Executive_Regulation_PACP_Law.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: "https://oman.om/en/home-top-level/eparticipation/don't-be-deceived-campaign", title: Don't Be Deceived campaign, publisher: Oman National Portal, language: en}
+    facts:
+      - id: rop_cyber_fraud_hotline
+        statement: The Royal Oman Police provides a hotline, 80077444, to ask about and report cyber fraud and blackmail.
+        source_url: "https://oman.om/en/home-top-level/eparticipation/don't-be-deceived-campaign"
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  fines:
+    sources:
+      - {url: https://www.rop.gov.om/english/TrafficFinesPayment.aspx, title: Traffic fines payment, publisher: Royal Oman Police, language: en}
+    facts:
+      - id: traffic_fines_rop_service
+        statement: Traffic fines can be checked by civil number, licence number, visa number or vehicle, and paid through the Royal Oman Police website or mobile app, with a receipt issued after payment.
+        source_url: https://www.rop.gov.om/english/TrafficFinesPayment.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: serious_violations_in_person
+        statement: Serious violations such as running a red light do not appear in the online payment service and need a visit to a police station.
+        source_url: https://www.rop.gov.om/english/TrafficFinesPayment.aspx
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: https://mtcit.gov.om/library-3/legislations-policies-8/laws-75/personal-data-protection-law-1034, title: Personal Data Protection Law, publisher: Ministry of Transport Communications and IT, language: en}
+    facts:
+      - id: pdpl_consent
+        statement: Under the Personal Data Protection Law (Royal Decree 6/2022) the controller or processor must get the data subject's consent before processing, and the person can withdraw consent and ask for correction or deletion.
+        source_url: https://mtcit.gov.om/library-3/legislations-policies-8/laws-75/personal-data-protection-law-1034
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Verified from pages that opened. Gaps: no tenancy facts (housing ministry and oman.om rent pages blocked automated reading), no immigration facts, no consumer complaint phone (cpa.gov.om contact page blocked), wage payment deadlines and penalties not read (WPS rules are in linked PDFs not opened), Tajawob page needs JavaScript and could not be read. Labour pages are in Arabic; statements are English summaries and no quotes were used."

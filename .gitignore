@@ -1,0 +1,23 @@
+# secrets: never commit these
+.env
+.env.*
+*.key
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# flutter
+app/.dart_tool/
+app/.flutter-plugins*
+app/.packages
+app/.idea/
+
+# editors / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

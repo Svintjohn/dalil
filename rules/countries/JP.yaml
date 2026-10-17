@@ -1,0 +1,133 @@
+country: JP
+name: Japan
+last_verified: 2026-10-11
+portal: {name: Ministry of Health, Labour and Welfare, url: https://www.mhlw.go.jp/english/}
+official_domains: [mhlw.go.jp, mlit.go.jp, kokusen.go.jp, houterasu.or.jp, npa.go.jp, ppc.go.jp, moj.go.jp, japaneselawtranslation.go.jp]
+authorities:
+  - id: mhlw
+    name: Ministry of Health, Labour and Welfare (MHLW)
+    url: https://www.mhlw.go.jp/english/
+    covers: [employment]
+  - id: houterasu
+    name: Japan Legal Support Center (Houterasu) Multilingual Information Service
+    url: https://www.houterasu.or.jp/site/english/multilingualinformationservice.html
+    covers: [tenancy, employment, consumer, immigration]
+    phone: "0570-078377"
+    phone_source: https://www.houterasu.or.jp/site/english/multilingualinformationservice.html
+  - id: kokusen
+    name: National Consumer Affairs Center of Japan
+    url: https://www.kokusen.go.jp/e-hello/picks/data/coolingoff.html
+    covers: [consumer]
+  - id: npa
+    name: National Police Agency
+    url: https://www.npa.go.jp/english/bureau/community_safety/akushitsushoho_english.pdf
+    covers: [scams, fines]
+  - id: ppc
+    name: Personal Information Protection Commission
+    url: https://www.ppc.go.jp/en/legal/
+    covers: [privacy]
+  - id: isa
+    name: Immigration Services Agency of Japan
+    url: https://www.moj.go.jp/isa/content/930001517.pdf
+    covers: [immigration]
+topics:
+  employment:
+    sources:
+      - {url: https://www.mhlw.go.jp/bunya/koyou/gaikokujin12/pdf/english_0004.pdf, title: Guidelines on employment management of foreign workers (English), publisher: Ministry of Health Labour and Welfare, language: en}
+      - {url: https://jsite.mhlw.go.jp/tokyo-foreigner/english/seekers_1/spec/spec_1c.html, title: Labour rules for foreign workers, publisher: Tokyo Employment Service Center for Foreigners (MHLW), language: en}
+    facts:
+      - id: passport_retention
+        statement: Employers may not retain foreign workers' passports and similar documents.
+        source_url: https://www.mhlw.go.jp/bunya/koyou/gaikokujin12/pdf/english_0004.pdf
+        quote: "Employers shall not retain foreign workers' passports, etc."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: written_working_conditions
+        statement: Employers are to give foreign workers a written document that clarifies basic working conditions such as wages and working hours.
+        source_url: https://www.mhlw.go.jp/bunya/koyou/gaikokujin12/pdf/english_0004.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wage_payment_rules
+        statement: Wages must be paid in currency, directly to the worker, in full, at least once a month and on a fixed date, and must be at least the legal minimum wage for the region and industry.
+        source_url: https://jsite.mhlw.go.jp/tokyo-foreigner/english/seekers_1/spec/spec_1c.html
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: final_wages_on_resignation
+        statement: If a worker resigns and asks for outstanding wages, the employer must pay them within 7 days of the request.
+        source_url: https://jsite.mhlw.go.jp/tokyo-foreigner/english/seekers_1/spec/spec_1c.html
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  tenancy:
+    sources:
+      - {url: https://www.mlit.go.jp/common/001317844.pdf, title: Apartment Search Guidebook (English), publisher: Ministry of Land Infrastructure Transport and Tourism, language: en}
+    facts:
+      - id: security_deposit
+        statement: The security deposit is usually about two months of rent and, in principle, is returned after the tenant leaves, minus restoration and repair costs deducted from it.
+        source_url: https://www.mlit.go.jp/common/001317844.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: key_money
+        statement: Key money paid to the landlord when signing the rental agreement is not returned.
+        source_url: https://www.mlit.go.jp/common/001317844.pdf
+        quote: "Key money is not returned."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: contract_term_renewal
+        statement: A rental contract period is normally 2 years, a landlord cannot refuse to renew a regular agreement without due cause, and a fixed-term lease agreement ends at the end of its period without renewal.
+        source_url: https://www.mlit.go.jp/common/001317844.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: termination_notice
+        statement: A tenant ending the lease must notify the landlord or real estate agent in writing, usually 1 to 2 months before leaving.
+        source_url: https://www.mlit.go.jp/common/001317844.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://www.kokusen.go.jp/e-hello/picks/data/coolingoff.html, title: Cooling-off system, publisher: National Consumer Affairs Center of Japan, language: en}
+    facts:
+      - id: cooling_off_periods
+        statement: The cooling-off system lets consumers cancel certain contracts without conditions within 8 days for door-to-door sales, telemarketing and specified continuous services, or 20 days for multilevel marketing and business opportunity sales, counted from receipt of the written contract; mail-order sales are not covered.
+        source_url: https://www.kokusen.go.jp/e-hello/picks/data/coolingoff.html
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: cooling_off_how_to_cancel
+        statement: To cancel under the cooling-off system, send a written notice within the period by a method that leaves a record such as registered mail, keep copies, and consult the local consumer affairs center if unsure.
+        source_url: https://www.kokusen.go.jp/e-hello/picks/data/coolingoff.html
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://www.npa.go.jp/english/bureau/community_safety/akushitsushoho_english.pdf, title: Fraudulent business practices warning (English), publisher: National Police Agency, language: en}
+    facts:
+      - id: police_advisory_9110
+        statement: People worried about a scam or who have become a victim can call the police non-emergency advisory number #9110 or their nearest police station, and should not sign a contract immediately.
+        source_url: https://www.npa.go.jp/english/bureau/community_safety/akushitsushoho_english.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: scam_paid_notify_bank
+        statement: If you have already paid a scammer, notify the payee's financial institution of the transfer as soon as possible so the account can be frozen.
+        source_url: https://www.npa.go.jp/english/bureau/community_safety/akushitsushoho_english.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: https://www.ppc.go.jp/en/legal/, title: Act on the Protection of Personal Information, publisher: Personal Information Protection Commission, language: en}
+    facts:
+      - id: appi_english_reference_only
+        statement: The Personal Information Protection Commission publishes the Act on the Protection of Personal Information with English translations that are for reference only, because only the original Japanese text has legal effect.
+        source_url: https://www.ppc.go.jp/en/legal/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Gaps: no confirmed official page for fines (traffic or other), residence card or immigration document rules, probation, recruitment fees or notice pay. Houterasu 0570-078377 is the Multilingual Information Service line (VoIP callers: 050-3754-5430). The tokyo-foreigner MHLW page is an older page that still refers to alien registration certificates, so only wage and contract points were used. Japan has no single tenancy dispute office confirmed here; the MLIT guide lists local consultation counters for foreigners."

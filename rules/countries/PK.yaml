@@ -1,0 +1,91 @@
+country: PK
+name: Pakistan
+last_verified: 2026-10-11
+portal: {name: Bureau of Emigration and Overseas Employment, url: https://beoe.gov.pk/}
+official_domains: [beoe.gov.pk, pakistancode.gov.pk, fia.gov.pk, complaint.fia.gov.pk]
+authorities:
+  - id: beoe
+    name: Bureau of Emigration and Overseas Employment (BEOE)
+    url: https://beoe.gov.pk/
+    covers: [employment, immigration]
+  - id: pe
+    name: Protectorates of Emigrants (offices of the BEOE)
+    url: https://beoe.gov.pk/protectorate-of-emigrants
+    covers: [employment, immigration]
+  - id: fia
+    name: Federal Investigation Agency (FIA)
+    url: https://www.fia.gov.pk/overseas
+    covers: [scams, employment, immigration]
+    phone: "051-111-345-786"
+    phone_source: https://www.fia.gov.pk/overseas
+topics:
+  employment:
+    sources:
+      - {url: https://beoe.gov.pk/modes-of-employment, title: Modes of Employment, publisher: Bureau of Emigration and Overseas Employment, language: en}
+      - {url: "https://beoe.gov.pk/faqs?s=3", title: Frequently Asked Questions, publisher: Bureau of Emigration and Overseas Employment, language: en}
+      - {url: https://beoe.gov.pk/protectorate-of-emigrants, title: Protectorate of Emigrants, publisher: Bureau of Emigration and Overseas Employment, language: en}
+    facts:
+      - id: two_routes_abroad
+        statement: Pakistanis go abroad for work either through licensed Overseas Employment Promoters or on a direct employment visa.
+        source_url: https://beoe.gov.pk/modes-of-employment
+        quote: "Pakistani Emigrants proceed abroad through licensed Overseas Employment promoters as well as on Direct Employment Visa."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: register_with_protector
+        statement: Every emigrant is registered with the respective Protector of Emigrants after paying a government fee.
+        source_url: https://beoe.gov.pk/modes-of-employment
+        quote: "Every emigrant is registered with the respective Protector of Emigrant after deposit of Government fee"
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: agreement_countersigned
+        statement: The foreign service agreement is countersigned by the Protectorate of Emigrants so that its terms and conditions are implemented.
+        source_url: https://beoe.gov.pk/faqs?s=3
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: contract_violation_complaint
+        statement: An emigrant can register a complaint if the contract is violated, and complaints about fake recruiting agents are referred to the Federal Investigation Agency.
+        source_url: https://beoe.gov.pk/faqs?s=3
+        quote: "In case of any violation of the contract, emigrant may register a complaint."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: protectorate_supervises_oeps
+        statement: Protectorates of Emigrants supervise the work and conduct of Overseas Employment Promoters towards the public, help emigrants understand the terms of overseas jobs, and inspect promoters' offices.
+        source_url: https://beoe.gov.pk/protectorate-of-emigrants
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  tenancy:
+    sources:
+      - {url: "https://pakistancode.gov.pk/pdffiles/administratorf55c8364472e13dc098d52c71def1f58.pdf", title: Islamabad Rent Restriction Ordinance 2001, publisher: Pakistan Code (Government of Pakistan), language: en}
+    facts:
+      - id: ict_written_tenancy
+        statement: In Islamabad Capital Territory a landlord may let premises only under a written tenancy agreement, which must be presented to the Rent Controller within 30 days of signing.
+        source_url: "https://pakistancode.gov.pk/pdffiles/administratorf55c8364472e13dc098d52c71def1f58.pdf"
+        quote: "A landlord shall not let out a premises to a tenant except by a tenancy agreement in writing."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: ict_rent_increase_ejectment
+        statement: In Islamabad Capital Territory rent normally rises 10 percent each year unless the parties agree otherwise in writing, a landlord may not take a premium on top of fair rent, and a tenant can be evicted only through the Rent Controller on the grounds the Ordinance lists.
+        source_url: "https://pakistancode.gov.pk/pdffiles/administratorf55c8364472e13dc098d52c71def1f58.pdf"
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://www.fia.gov.pk/overseas, title: Overseas Pakistani Complaint Cell, publisher: Federal Investigation Agency, language: en}
+      - {url: https://complaint.fia.gov.pk/, title: Public Services Portal, publisher: Federal Investigation Agency, language: en}
+    facts:
+      - id: fia_complaint_portal
+        statement: Complaints about unlawful activity within the Federal Investigation Agency's jurisdiction can be registered on its portal complaint.fia.gov.pk, and its page lists helplines 051-111-345-786 and 1991 and a cyber crime portal at complaint.nccia.gov.pk.
+        source_url: https://www.fia.gov.pk/overseas
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: overseas_pakistani_cell
+        statement: Overseas Pakistanis can take complaints about federal agencies to the Grievance Commissioner Cell for Overseas Pakistanis set up by the Federal Ombudsman.
+        source_url: https://www.fia.gov.pk/overseas
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Rent law is provincial: the tenancy facts cover Islamabad Capital Territory only, so check the rent law of the province (Punjab, Sindh, Khyber Pakhtunkhwa, Balochistan). The Ordinance text had no deposit rule. Cut off by a rate limit, so only BEOE pages were read. Several pages blocked the fetch tool: beoe.gov.pk general guidelines and home page, labour.punjab.gov.pk (Punjab Domestic Workers Act), nr3c.gov.pk (cybercrime), and the research session limit stopped further fetches. NOT covered and not confirmed: OEP service charge limits, BEOE helpline and complaint contact details (the FAQ refers to a list of Protector offices at beoe.gov.pk/protectorate-of-emigrant-offices that was not read), tenancy deposit and notice rules, domestic worker rules (Punjab Domestic Workers Act 2019 listed on punjablaws.gov.pk but not opened; provincial matter), fines, consumer, consumer and privacy. fia.gov.pk/ccw failed to load."

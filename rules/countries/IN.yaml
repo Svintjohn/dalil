@@ -1,0 +1,133 @@
+country: IN
+name: India
+last_verified: 2026-10-11
+portal: {name: Ministry of External Affairs (overseas employment), url: https://www.mea.gov.in/working-abroad}
+official_domains: [mea.gov.in, consumerhelpline.gov.in, pib.gov.in]
+authorities:
+  - id: pge
+    name: Protector General of Emigrants (Ministry of External Affairs)
+    url: https://www.mea.gov.in/complaints-against-recruiting-agents
+    covers: [employment, immigration]
+  - id: owrc
+    name: Overseas Workers Resource Centre (OWRC) helpline
+    url: https://www.mea.gov.in/oe-faq
+    covers: [employment]
+    phone: "1800-11-3090"
+    phone_source: https://www.mea.gov.in/oe-faq
+  - id: nch
+    name: National Consumer Helpline (Department of Consumer Affairs)
+    url: https://consumerhelpline.gov.in/public/about
+    covers: [consumer]
+    phone: "1915"
+    phone_source: https://consumerhelpline.gov.in/public/about
+  - id: i4c
+    name: National Cyber Crime Reporting Portal and Helpline 1930 (I4C)
+    url: https://www.pib.gov.in/PressReleasePage.aspx?PRID=2085609&reg=3&lang=2
+    covers: [scams]
+    phone: "1930"
+    phone_source: https://www.pib.gov.in/PressReleasePage.aspx?PRID=2085609&reg=3&lang=2
+topics:
+  employment:
+    sources:
+      - {url: https://www.mea.gov.in/complaints-against-recruiting-agents, title: Complaints against Recruiting Agents, publisher: Ministry of External Affairs, language: en}
+      - {url: https://www.mea.gov.in/oe-faq, title: Overseas employment FAQ, publisher: Ministry of External Affairs, language: en}
+      - {url: https://www.mea.gov.in/issues-of-intending-emigrants, title: Issues of intending emigrants, publisher: Ministry of External Affairs, language: en}
+      - {url: https://www.mea.gov.in/emigration-abroad-for-emp, title: Emigration abroad for employment, publisher: Ministry of External Affairs, language: en}
+      - {url: "https://www.pib.gov.in/FactsheetDetails.aspx?Id=150481&reg=3&lang=2", title: Code on Wages 2019 factsheet, publisher: Press Information Bureau, language: en}
+      - {url: "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=1945512", title: Condition of domestic workers, publisher: Press Information Bureau, language: en}
+    facts:
+      - id: registered_agent_only
+        statement: For jobs abroad, deal only with a recruiting agent registered under the Emigration Act, and check the agent's licence number on the eMigrate portal.
+        source_url: https://www.mea.gov.in/complaints-against-recruiting-agents
+        quote: "Always deal with a registered Recruiting Agent"
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: agent_fee_cap
+        statement: Under Protector General of Emigrants guidelines an agent's service charge cannot be more than Rs 20,000 per emigrant (the FAQ also mentions a ceiling of 45 days of wages), so confirm the current rate with the Protector General of Emigrants.
+        source_url: https://www.mea.gov.in/complaints-against-recruiting-agents
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: pge_complaint
+        statement: A worker recruited through a registered agent can complain about the agent to the Protector General of Emigrants, on the eMigrate portal or through the Indian Embassy, the MADAD portal or an Overseas Workers Resource Centre.
+        source_url: https://www.mea.gov.in/complaints-against-recruiting-agents
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: pge_limit_direct_hire
+        statement: The Protector General of Emigrants can help only where the worker was recruited through a licensed recruiting agent, not where the worker dealt directly with an employer who is not accredited.
+        source_url: https://www.mea.gov.in/working-abroad
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: keep_passport_contract
+        statement: Do not hand money, your passport or certificates to the agent until the job and employer are verified, and have a valid employment visa and a copy of your agreement with the foreign employer or agent.
+        source_url: https://www.mea.gov.in/oe-faq
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: emigration_clearance
+        statement: Holders of ECR passports going to ECR countries for employment need emigration clearance from a Protector of Emigrants, and women below 30 years with an ECR passport get none for those 17 countries.
+        source_url: https://www.mea.gov.in/oe-faq
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: owrc_helpline
+        statement: The Overseas Workers Resource Centre toll-free 24x7 helpline is 1800-11-3090, and complaints can also be filed through eMigrate.
+        source_url: https://www.mea.gov.in/oe-faq
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: domestic_workers_labour_codes
+        statement: India's Ministry of Labour says the four Labour Codes provide decent working conditions, wages, safety and grievance redressal for all workers including domestic workers, and domestic workers can register on the e-Shram portal.
+        source_url: https://pib.gov.in/PressReleaseIframePage.aspx?PRID=1945512
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: overtime_double_wage
+        statement: Under the Code on Wages, 2019 overtime must be paid at not less than twice the normal wage rate, and timely-payment rules apply to all employees whatever their pay.
+        source_url: https://www.pib.gov.in/FactsheetDetails.aspx?Id=150481&reg=3&lang=2
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  tenancy:
+    sources:
+      - {url: "https://www.pib.gov.in/PressReleasePage.aspx?PRID=1779681&reg=3&lang=2", title: Model Tenancy Act press release, publisher: Press Information Bureau, language: en}
+    facts:
+      - id: model_tenancy_act_state_law
+        statement: The Model Tenancy Act was only circulated to States and Union Territories for adoption, so tenancy rules depend on the state or territory's own law.
+        source_url: https://www.pib.gov.in/PressReleasePage.aspx?PRID=1779681&reg=3&lang=2
+        quote: "the same was circulated to all States / Union Territories (UTs) on 7th June, 2021 for adoption for future tenancies."
+        confidence: quoted
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://consumerhelpline.gov.in/public/about, title: About National Consumer Helpline, publisher: Department of Consumer Affairs, language: en}
+    facts:
+      - id: nch_1915
+        statement: Consumers can register a grievance with the National Consumer Helpline by calling 1915 or 1800-11-4000, on its portal after one-time registration, by SMS or WhatsApp to 8800001915, or through the NCH or UMANG app.
+        source_url: https://consumerhelpline.gov.in/public/about
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2085609&reg=3&lang=2", title: National Cyber Crime Reporting Portal, publisher: Press Information Bureau, language: en}
+    facts:
+      - id: cybercrime_portal_1930
+        statement: Cybercrimes, including financial fraud, can be reported on cybercrime.gov.in or to the toll-free National Cyber Crime Helpline 1930, which runs 24 hours a day.
+        source_url: https://www.pib.gov.in/PressReleasePage.aspx?PRID=2085609&reg=3&lang=2
+        quote: "A toll-free National Cyber Crime Helpline Number (1930) was introduced in 2020"
+        confidence: quoted
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2190655&reg=3&lang=2", title: DPDP Rules 2025, publisher: Press Information Bureau, language: en}
+    facts:
+      - id: dpdp_board_complaint
+        statement: Under the Digital Personal Data Protection Act and its 2025 Rules, people can file complaints online with the Data Protection Board of India, and the Rules allow an eighteen-month phased compliance period.
+        source_url: https://www.pib.gov.in/PressReleasePage.aspx?PRID=2190655&reg=3&lang=2
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "National-level facts only. Tenancy, rent control, deposits, rent registration, stamp duty and domestic worker minimum wages are set by each state or union territory: look up the state's rent or tenancy act, its labour department and its minimum wage notification. The Model Tenancy Act PDF (mohua.gov.in) could not be read, so no deposit or notice figures are given. cybercrime.gov.in and i4c.mha.gov.in blocked the fetch tool (robots), so 1930 is sourced from a PIB release. The Code on Wages effective date was not stated on the page read. DPDP rules phase-in start date not stated on the page read, so check which obligations already apply. Not covered: fines, written contract and probation rules, immigration beyond emigration clearance. Official domain mea.gov.in pages were summaries; MEA pages give no phone for the Protector General of Emigrants."

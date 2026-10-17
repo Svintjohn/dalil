@@ -1,0 +1,128 @@
+country: KR
+name: South Korea
+last_verified: 2026-10-11
+portal: {name: Ministry of Employment and Labor, url: https://www.moel.go.kr/english/}
+official_domains: [moel.go.kr, eps.go.kr, kca.go.kr, elaw.klri.re.kr]
+authorities:
+  - id: moel
+    name: Ministry of Employment and Labor (MOEL)
+    url: https://www.moel.go.kr/english/
+    covers: [employment]
+    phone: "1350"
+    phone_source: https://www.eps.go.kr/eo/EmployPerSystem.eo?natNm=ph&tabGb=06
+  - id: eps
+    name: Employment Permit System (EPS)
+    url: https://www.eps.go.kr/eo/EmployPerSystem.eo?natNm=ph&tabGb=01
+    covers: [employment, immigration]
+  - id: kca
+    name: Korea Consumer Agency
+    url: https://www.kca.go.kr/eng/sub.do?menukey=6023
+    covers: [consumer]
+topics:
+  employment:
+    sources:
+      - {url: "https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=59932&type=sogan&key=6", title: Labor Standards Act (English translation), publisher: Korea Legal Research Institute (elaw), language: en}
+      - {url: "https://www.eps.go.kr/eo/EmployPerSystem.eo?natNm=ph&tabGb=06", title: Employment Permit System insurance, publisher: Employment Permit System (HRD Korea / MOEL), language: en}
+    facts:
+      - id: wages_paid_directly_monthly
+        statement: Wages must be paid directly to the employee in full in currency, at least once a month on a fixed day.
+        source_url: https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=59932&type=sogan&key=6
+        quote: "Wages shall be paid at least once per month on a fixed day"
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: weekly_hours_overtime
+        statement: Work hours may not exceed 40 hours a week excluding recess, and extended work must be paid at least 50 percent above ordinary wages.
+        source_url: https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=59932&type=sogan&key=6
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_forced_labor
+        statement: An employer may not force an employee to work against his or her own free will.
+        source_url: https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=59932&type=sogan&key=6
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_nationality_discrimination
+        statement: An employer may not discriminate in terms and conditions of employment on the ground of nationality.
+        source_url: https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=59932&type=sogan&key=6
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_penalty_or_forced_savings
+        statement: An employer may not make contracts that set a penalty or damages for breach of the labor contract, or that require compulsory savings.
+        source_url: https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=59932&type=sogan&key=6
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: eps_insurance_employer_duties
+        statement: Under the Employment Permit System, employers must enroll foreign workers in departure guarantee insurance and guarantee insurance within 15 days of the labor contract taking effect, and report health insurance and industrial accident insurance enrollment within 14 days of hiring.
+        source_url: https://www.eps.go.kr/eo/EmployPerSystem.eo?natNm=ph&tabGb=06
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: labor_policy_line_1350
+        statement: Employment and labor policy questions can be directed to the ministry line 1350 on weekdays 09:00 to 18:00, which is a paid call.
+        source_url: https://www.eps.go.kr/eo/EmployPerSystem.eo?natNm=ph&tabGb=06
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  tenancy:
+    sources:
+      - {url: "https://elaw.klri.re.kr/kor_service/lawTwoView.do?hseq=39955", title: Housing Lease Protection Act (English text), publisher: Korea Legal Research Institute (elaw), language: en}
+    facts:
+      - id: lease_effect_registration
+        statement: If a residential tenant is given the house and completes resident registration, the lease takes effect against third persons from the following day.
+        source_url: https://elaw.klri.re.kr/kor_service/lawTwoView.do?hseq=39955
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: lease_minimum_term
+        statement: A residential lease term is deemed to be two years.
+        source_url: https://elaw.klri.re.kr/kor_service/lawTwoView.do?hseq=39955
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: lease_automatic_renewal
+        statement: A residential lease is deemed renewed on the same conditions when its term expires, unless notice of refusal to renew is given between six months and one month before the term ends.
+        source_url: https://elaw.klri.re.kr/kor_service/lawTwoView.do?hseq=39955
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: "https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=25689&key=38&type=sogan", title: Act on Door-to-Door Sales (English text), publisher: Korea Legal Research Institute (elaw), language: en}
+      - {url: "https://www.kca.go.kr/eng/sub.do?menukey=6023", title: Function and role, publisher: Korea Consumer Agency, language: en}
+    facts:
+      - id: door_to_door_14_days
+        statement: A consumer who signed a door-to-door or telemarketing contract may withdraw or cancel it, normally within 14 days of receiving the contract document, and written notice takes effect on the date it is sent.
+        source_url: https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=25689&key=38&type=sogan
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: kca_counseling_dispute
+        statement: The Korea Consumer Agency provides consumer counseling and redress, and unresolved disputes can go to the Consumer Dispute Settlement Commission for a mediation decision.
+        source_url: https://www.kca.go.kr/eng/sub.do?menukey=6023
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  immigration:
+    sources:
+      - {url: "https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=48439&type=part&key=7", title: Immigration Act (English text), publisher: Korea Legal Research Institute (elaw), language: en}
+    facts:
+      - id: carry_passport
+        statement: Foreigners staying in Korea must always carry their passport or alien registration certificate (except under age 17) and show it when an immigration or public official asks.
+        source_url: https://elaw.klri.re.kr/eng_mobile/viewer.do?hseq=48439&type=part&key=7
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: "https://elaw.klri.re.kr/eng_service/lawTwoView.do?hseq=53044", title: Personal Information Protection Act (English text), publisher: Korea Legal Research Institute (elaw), language: en}
+    facts:
+      - id: pipa_exists
+        statement: The Personal Information Protection Act sets the rules for handling personal information in order to protect the freedom and rights of individuals.
+        source_url: https://elaw.klri.re.kr/eng_service/lawTwoView.do?hseq=53044
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Many Korean government sites (pipc.go.kr, law.go.kr, counterscam112.go.kr, hikorea.go.kr, immigration.go.kr, moel FAQ) blocked the fetch tool, so there are no facts for fines, scams, passport retention by employers, recruitment fees, probation or severance, and the privacy regulator (PIPC) page could not be read. Statutes come from the English translations on elaw.klri.re.kr (Korea Legal Research Institute, a government research institute); translation versions may lag current law. The lease facts cover residential leases only. Check kca 1372 and police 112 numbers from an official page before use."

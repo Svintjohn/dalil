@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dalil (دليل) is a free AI agent that explains confusing letters, bills, notices and contracts in plain language, in your own language, and tracks your deadlines.">
+  <meta name="theme-color" content="#060f12">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://dalil-rouge.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Dalil">
+  <meta property="og:title" content="Dalil (دليل) - AI document explainer in your language">
+  <meta property="og:description" content="Photo or paste a confusing letter, bill or contract. Dalil explains it in plain language, flags what matters and tracks your deadlines.">
+  <meta property="og:url" content="https://dalil-rouge.vercel.app/">
+  <meta property="og:image" content="https://dalil-rouge.vercel.app/icons/Icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <title>Dalil (دليل) - AI Document Explainer in Plain Language</title>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication","name":"Dalil","alternateName":"دليل","url":"https://dalil-rouge.vercel.app/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","description":"Free AI agent that explains confusing documents (letters, bills, notices, contracts) in plain language and in the reader's own language, and tracks deadlines.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+  </script>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Dalil">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep:    #060f12;
+      --bg-main:    #0a1a1f;
+      --bg-card:    #0f2329;
+      --teal-100:   #e0f7f4;
+      --teal-200:   #b2ebe4;
+      --teal-400:   #4dd0c4;
+      --teal-500:   #2db8a8;
+      --teal-600:   #1a9e8e;
+      --teal-700:   #147a6e;
+      --gold:       #f5c542;
+      --red-flag:   #e84855;
+      --white:      #f0f6f5;
+      --white-60:   rgba(240,246,245,.6);
+      --white-30:   rgba(240,246,245,.3);
+      --white-10:   rgba(240,246,245,.1);
+      --font-en:    'Inter', sans-serif;
+      --font-ar:    'Noto Sans Arabic', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { margin: 0; height: 100%; background: var(--bg-deep); }
+
+    #dalil-loader {
+      position: fixed; inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-deep);
+      transition: opacity .45s ease, visibility .45s ease;
+    }
+    #dalil-loader.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--white-10) 1px, transparent 1px),
+        linear-gradient(90deg, var(--white-10) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0;
+      animation: gridFadeIn .75s ease .12s forwards;
+    }
+    .loader-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, transparent 30%, var(--bg-deep) 75%);
+    }
+    @keyframes gridFadeIn { to { opacity: .35; } }
+
+    .particles {
+      position: absolute; inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--teal-400);
+      opacity: 0;
+      animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+      0%   { opacity: 0; transform: translateY(0) scale(.5); }
+      10%  { opacity: .7; }
+      90%  { opacity: .7; }
+      100% { opacity: 0; transform: translateY(-100vh) scale(1.2); }
+    }
+
+    .loader-scene {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .doc-container {
+      position: relative;
+      width: 120px; height: 156px;
+      perspective: 600px;
+    }
+
+    .doc-icon {
+      position: relative;
+      width: 100%; height: 100%;
+      border-radius: 10px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--white-10);
+      overflow: hidden;
+      opacity: 0;
+      transform: scale(.7) rotateY(-15deg);
+      animation: docAppear .5s cubic-bezier(.22,1,.36,1) .19s forwards;
+      box-shadow:
+        0 4px 24px rgba(0,0,0,.4),
+        0 0 60px rgba(45,184,168,.08);
+    }
+    @keyframes docAppear {
+      to { opacity: 1; transform: scale(1) rotateY(0deg); }
+    }
+
+    .doc-lines {
+      position: absolute;
+      top: 24px; left: 16px; right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .doc-line {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--white-30);
+      opacity: 0;
+      animation: lineBlur .38s ease forwards;
+    }
+    .doc-line:nth-child(1) { width: 70%; animation-delay: .38s; }
+    .doc-line:nth-child(2) { width: 90%; animation-delay: .44s; }
+    .doc-line:nth-child(3) { width: 55%; animation-delay: .5s; }
+    .doc-line:nth-child(4) { width: 80%; animation-delay: .56s; }
+    .doc-line:nth-child(5) { width: 65%; animation-delay: .62s; }
+    .doc-line:nth-child(6) { width: 75%; animation-delay: .69s; }
+    .doc-line:nth-child(7) { width: 45%; animation-delay: .75s; }
+    .doc-line:nth-child(8) { width: 85%; animation-delay: .81s; }
+
+    @keyframes lineBlur {
+      0%   { opacity: 0; filter: blur(4px); transform: translateX(-6px); }
+      100% { opacity: 1; filter: blur(0); transform: translateX(0); }
+    }
+
+    .scan-beam {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--teal-400), var(--teal-200), var(--teal-400), transparent);
+      box-shadow: 0 0 20px var(--teal-400), 0 0 40px rgba(77,208,196,.3);
+      opacity: 0;
+      animation: scanDown 1.25s ease-in-out .88s forwards;
+    }
+    @keyframes scanDown {
+      0%   { top: 0;    opacity: 0; }
+      5%   { opacity: 1; }
+      50%  { top: 100%; opacity: 1; }
+      55%  { top: 100%; opacity: 0; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .scan-highlight {
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      opacity: 0;
+      animation: scanFlash .25s ease 1.56s forwards;
+    }
+    @keyframes scanFlash {
+      0%   { opacity: 0; box-shadow: inset 0 0 0 2px var(--teal-400); }
+      50%  { opacity: 1; box-shadow: inset 0 0 0 2px var(--teal-400), 0 0 30px rgba(77,208,196,.25); }
+      100% { opacity: .6; box-shadow: inset 0 0 0 1.5px var(--teal-500), 0 0 15px rgba(77,208,196,.1); }
+    }
+
+    .red-flag-badge {
+      position: absolute;
+      top: 78px; right: -6px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--red-flag);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      animation: flagPop .31s cubic-bezier(.34,1.56,.64,1) 1.75s forwards;
+      box-shadow: 0 2px 12px rgba(232,72,85,.4);
+    }
+    .red-flag-badge svg {
+      width: 14px; height: 14px;
+      fill: white;
+    }
+    @keyframes flagPop {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .check-badge {
+      position: absolute;
+      top: -8px; right: -8px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--teal-500);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      animation: checkPop .31s cubic-bezier(.34,1.56,.64,1) 2s forwards;
+      box-shadow: 0 2px 12px rgba(45,184,168,.4);
+    }
+    .check-badge svg {
+      width: 16px; height: 16px;
+      fill: white;
+      stroke: white;
+      stroke-width: 1;
+    }
+    @keyframes checkPop {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .glow-ring {
+      position: absolute;
+      inset: -20px;
+      border-radius: 20px;
+      border: 1.5px solid transparent;
+      opacity: 0;
+      animation: ringGlow .94s ease 1.62s forwards;
+    }
+    @keyframes ringGlow {
+      0%   { opacity: 0; border-color: transparent; }
+      50%  { opacity: .5; border-color: var(--teal-400); box-shadow: 0 0 30px rgba(77,208,196,.15); }
+      100% { opacity: .25; border-color: var(--teal-600); box-shadow: 0 0 15px rgba(77,208,196,.08); }
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-arabic {
+      font-family: var(--font-ar);
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--teal-200);
+      letter-spacing: 2px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: brandReveal .5s cubic-bezier(.22,1,.36,1) .06s forwards;
+      text-shadow: 0 0 40px rgba(77,208,196,.3);
+    }
+
+    .brand-english {
+      font-family: var(--font-en);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--white-60);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: brandReveal .5s cubic-bezier(.22,1,.36,1) .19s forwards;
+    }
+
+    @keyframes brandReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .status-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      min-height: 50px;
+    }
+
+    .status-text {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--white-60);
+      letter-spacing: 1px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity .3s ease;
+      min-height: 20px;
+    }
+    .status-text.visible { opacity: 1; }
+
+    .progress-track {
+      width: 200px;
+      height: 2px;
+      background: var(--white-10);
+      border-radius: 2px;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn .25s ease .5s forwards;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--teal-600), var(--teal-400), var(--teal-200));
+      border-radius: 2px;
+      transition: width .3s ease;
+      box-shadow: 0 0 8px rgba(77,208,196,.4);
+    }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .privacy-badge {
+      position: absolute;
+      bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeIn .31s ease 2.12s forwards;
+    }
+    .privacy-badge .lock-icon {
+      width: 14px; height: 14px;
+      fill: var(--teal-400);
+    }
+    .privacy-badge span {
+      font-size: 11px;
+      color: var(--white-30);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .orbit-container {
+      position: absolute;
+      width: 220px; height: 220px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, calc(-50% - 30px));
+      pointer-events: none;
+    }
+    .orbit-dot {
+      position: absolute;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--teal-400);
+      opacity: 0;
+    }
+    .orbit-dot:nth-child(1) {
+      animation: orbit1 3s linear 1s infinite;
+    }
+    .orbit-dot:nth-child(2) {
+      animation: orbit2 4s linear 1.5s infinite;
+    }
+    .orbit-dot:nth-child(3) {
+      animation: orbit3 3.5s linear 2s infinite;
+    }
+
+    @keyframes orbit1 {
+      0%   { opacity: 0; top: 50%; left: 0; }
+      10%  { opacity: .6; }
+      50%  { top: 0; left: 50%; }
+      90%  { opacity: .6; }
+      100% { opacity: 0; top: 50%; left: 100%; }
+    }
+    @keyframes orbit2 {
+      0%   { opacity: 0; top: 100%; left: 50%; }
+      10%  { opacity: .4; }
+      50%  { top: 50%; left: 0; }
+      90%  { opacity: .4; }
+      100% { opacity: 0; top: 0; left: 50%; }
+    }
+    @keyframes orbit3 {
+      0%   { opacity: 0; top: 0; left: 20%; }
+      10%  { opacity: .5; }
+      50%  { top: 100%; left: 80%; }
+      90%  { opacity: .5; }
+      100% { opacity: 0; top: 0; left: 20%; }
+    }
+
+    .corner {
+      position: absolute;
+      width: 40px; height: 40px;
+      opacity: 0;
+      animation: cornerIn .38s ease 1.12s forwards;
+    }
+    .corner::before, .corner::after {
+      content: '';
+      position: absolute;
+      background: var(--teal-600);
+    }
+    .corner--tl { top: 30px; left: 30px; }
+    .corner--tl::before { top: 0; left: 0; width: 20px; height: 1.5px; }
+    .corner--tl::after  { top: 0; left: 0; width: 1.5px; height: 20px; }
+
+    .corner--tr { top: 30px; right: 30px; }
+    .corner--tr::before { top: 0; right: 0; width: 20px; height: 1.5px; }
+    .corner--tr::after  { top: 0; right: 0; width: 1.5px; height: 20px; }
+
+    .corner--bl { bottom: 30px; left: 30px; }
+    .corner--bl::before { bottom: 0; left: 0; width: 20px; height: 1.5px; }
+    .corner--bl::after  { bottom: 0; left: 0; width: 1.5px; height: 20px; }
+
+    .corner--br { bottom: 30px; right: 30px; }
+    .corner--br::before { bottom: 0; right: 0; width: 20px; height: 1.5px; }
+    .corner--br::after  { bottom: 0; right: 0; width: 1.5px; height: 20px; }
+
+    @keyframes cornerIn {
+      from { opacity: 0; }
+      to   { opacity: .4; }
+    }
+
+    @media (max-width: 480px) {
+      .brand-arabic { font-size: 36px; }
+      .brand-english { font-size: 14px; letter-spacing: 4px; }
+      .doc-container { width: 96px; height: 125px; }
+      .doc-lines { top: 18px; left: 12px; right: 12px; gap: 6px; }
+      .doc-line { height: 3px; }
+      .orbit-container { width: 180px; height: 180px; }
+      .red-flag-badge { width: 22px; height: 22px; top: 60px; }
+      .red-flag-badge svg { width: 11px; height: 11px; }
+      .check-badge { width: 26px; height: 26px; }
+      .check-badge svg { width: 13px; height: 13px; }
+    }
+
+    
+    @media (prefers-reduced-motion: reduce) {
+      #dalil-loader *, #dalil-loader *::before, #dalil-loader *::after { animation-duration: .01s !important; animation-delay: 0s !important; }
+    }
+</style>
+</head>
+<body>
+  <noscript>
+    <h1>Dalil (دليل) - AI document explainer</h1>
+    <p>Dalil explains confusing letters, bills, notices and contracts in plain language, in your own language. Take a photo or paste the text, and Dalil tells you what it says, what you must do and by when. Turn on JavaScript to use it.</p>
+  </noscript>
+  <div id="dalil-loader">
+
+    <div class="loader-bg"></div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="corner corner--tl"></div>
+    <div class="corner corner--tr"></div>
+    <div class="corner corner--bl"></div>
+    <div class="corner corner--br"></div>
+
+    <div class="orbit-container">
+      <div class="orbit-dot"></div>
+      <div class="orbit-dot"></div>
+      <div class="orbit-dot"></div>
+    </div>
+
+    <div class="loader-scene">
+
+      <div class="brand-group">
+        <div class="brand-arabic">دليل</div>
+        <div class="brand-english">Dalil</div>
+      </div>
+
+      <div class="doc-container">
+        <div class="glow-ring"></div>
+        <div class="doc-icon">
+          <div class="doc-lines">
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+          </div>
+          <div class="scan-beam"></div>
+          <div class="scan-highlight"></div>
+        </div>
+        <div class="red-flag-badge">
+          <svg viewBox="0 0 24 24"><path d="M14.4 6 14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>
+        </div>
+        <div class="check-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" stroke="white" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="status-area">
+        <div class="status-text" id="statusText"></div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="privacy-badge">
+      <svg class="lock-icon" viewBox="0 0 24 24">
+        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3-9H9V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2z"/>
+      </svg>
+      <span>Nothing saved · Privacy first</span>
+    </div>
+
+  </div>
+
+  <script>
+    (function () {
+      var loader = document.getElementById('dalil-loader');
+      var statusEl = document.getElementById('statusText');
+      var bar = document.getElementById('progressFill');
+      var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var seen = false;
+      try { seen = sessionStorage.getItem('dalil-intro') === '1'; sessionStorage.setItem('dalil-intro', '1'); } catch (e) {}
+      // full intro on the first visit, quick on reloads
+      var MIN_MS = reduced ? 300 : (seen ? 600 : 1800);
+      var started = Date.now(), ready = false, closed = false;
+
+      var box = document.getElementById('particles');
+      for (var i = 0; i < 30; i++) {
+        var p = document.createElement('div');
+        p.className = 'particle';
+        var s = (2 + Math.random() * 3) + 'px';
+        p.style.cssText = 'left:' + Math.random() * 100 + '%;bottom:-10px;width:' + s + ';height:' + s +
+          ';animation-duration:' + (4 + Math.random() * 6) + 's;animation-delay:' + Math.random() * 4 + 's';
+        box.appendChild(p);
+      }
+
+      function say(t) {
+        statusEl.classList.remove('visible');
+        setTimeout(function () { statusEl.textContent = t; statusEl.classList.add('visible'); }, 150);
+      }
+      [['Reading your document…', 350], ['Scanning for key terms…', 750],
+       ['Checking official sources…', 1100], ['Flagging important details…', 1450]]
+        .forEach(function (m) { setTimeout(function () { if (!closed && !ready) say(m[0]); }, m[1]); });
+      [[15, 350], [35, 650], [55, 950], [75, 1250], [90, 1550]]
+        .forEach(function (m) { setTimeout(function () { if (!ready) bar.style.width = m[0] + '%'; }, m[1]); });
+
+      function close() {
+        if (closed) return;
+        closed = true;
+        bar.style.width = '100%';
+        say('Ready.');
+        setTimeout(function () {
+          loader.classList.add('fade-out');
+          setTimeout(function () { loader.remove(); }, 500);
+        }, 250);
+      }
+      function tryClose() {
+        if (!ready) return;
+        var wait = MIN_MS - (Date.now() - started);
+        setTimeout(close, Math.max(0, wait));
+      }
+
+      // Flutter fires this when its first frame is on screen.
+      window.addEventListener('flutter-first-frame', function () { ready = true; tryClose(); });
+      // Safety net: never trap the person behind the loader.
+      setTimeout(function () { ready = true; tryClose(); }, 20000);
+    })();
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

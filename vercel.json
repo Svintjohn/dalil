@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pip install -r requirements.txt >/dev/null 2>&1 || true",
+  "buildCommand": "bash scripts/vercel_build.sh",
+  "outputDirectory": "app/build/web",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" }
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "includeFiles": "{backend/**,rules/**}"
+    }
+  }
+}

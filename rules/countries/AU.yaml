@@ -1,0 +1,126 @@
+country: AU
+name: Australia
+last_verified: 2026-10-11
+portal: {name: Fair Work Ombudsman, url: https://www.fairwork.gov.au/}
+official_domains: [fairwork.gov.au, immi.homeaffairs.gov.au, scamwatch.gov.au, accc.gov.au, oaic.gov.au, ato.gov.au, rta.qld.gov.au, consumer.vic.gov.au, nsw.gov.au]
+authorities:
+  - id: fwo
+    name: Fair Work Ombudsman
+    url: https://www.fairwork.gov.au/
+    covers: [employment]
+    phone: "13 13 94"
+    phone_source: https://www.fairwork.gov.au/
+  - id: homeaffairs
+    name: Department of Home Affairs (Immigration and citizenship)
+    url: https://immi.homeaffairs.gov.au/
+    covers: [immigration]
+  - id: scamwatch
+    name: Scamwatch (National Anti-Scam Centre, ACCC)
+    url: https://www.scamwatch.gov.au/report-a-scam
+    covers: [scams]
+  - id: accc
+    name: Australian Competition and Consumer Commission
+    url: https://www.accc.gov.au/consumers
+    covers: [consumer]
+  - id: oaic
+    name: Office of the Australian Information Commissioner
+    url: https://www.oaic.gov.au/
+    covers: [privacy]
+  - id: ato
+    name: Australian Taxation Office
+    url: https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/scam-alerts
+    covers: [scams]
+    phone: "1800 008 540"
+    phone_source: https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/scam-alerts
+topics:
+  employment:
+    sources:
+      - {url: https://www.fairwork.gov.au/employment-conditions/national-employment-standards, title: National Employment Standards, publisher: Fair Work Ombudsman, language: en}
+      - {url: https://www.fairwork.gov.au/employment-conditions/hours-of-work-breaks-and-rosters/hours-of-work, title: Hours of work, publisher: Fair Work Ombudsman, language: en}
+      - {url: https://www.fairwork.gov.au/pay-and-wages/paying-wages/pay-slips, title: Pay slips, publisher: Fair Work Ombudsman, language: en}
+      - {url: https://www.fairwork.gov.au/find-help-for/visa-holders-migrants, title: Visa holders and migrants, publisher: Fair Work Ombudsman, language: en}
+    facts:
+      - id: nes_minimum
+        statement: The National Employment Standards are minimum employment entitlements that must be provided to all employees in the national workplace relations system, and contracts cannot go below them.
+        source_url: https://www.fairwork.gov.au/employment-conditions/national-employment-standards
+        quote: "The National Employment Standards (NES) are the minimum employment entitlements that have to be provided to all employees."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: information_statement
+        statement: New employees must be given the Fair Work Information Statement, and new casual employees must also be given the Casual Employment Information Statement.
+        source_url: https://www.fairwork.gov.au/employment-conditions/national-employment-standards
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: max_weekly_hours
+        statement: An employee can work a maximum of 38 hours a week unless the employer asks for reasonable extra hours.
+        source_url: https://www.fairwork.gov.au/employment-conditions/hours-of-work-breaks-and-rosters/hours-of-work
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: payslip_timing
+        statement: Employers must give an employee a pay slip within 1 working day of pay day, even if the employee is on leave.
+        source_url: https://www.fairwork.gov.au/pay-and-wages/paying-wages/pay-slips
+        quote: "Pay slips have to be given to an employee within 1 working day of pay day, even if an employee is on leave."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: visa_holders_same_rights
+        statement: Visa holders and migrant workers have the same workplace rights and protections as all other employees in Australia, regardless of their migration status.
+        source_url: https://www.fairwork.gov.au/find-help-for/visa-holders-migrants
+        quote: "Visa holders and migrant workers have the same workplace rights and protections as all other employees in Australia."
+        confidence: quoted
+        verified_on: 2026-10-11
+  immigration:
+    sources:
+      - {url: https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/migrant-worker-protections/information-for-migrant-workers, title: Information for migrant workers, publisher: Department of Home Affairs, language: en}
+    facts:
+      - id: passport_retention
+        statement: It is a crime for an employer to keep a worker's passport as a condition of employment, and such cases can be reported to Border Watch without giving your name.
+        source_url: https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/migrant-worker-protections/information-for-migrant-workers
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: no_money_for_sponsorship
+        statement: Employers must not ask workers for money in exchange for visa sponsorship or ask them to repay sponsorship, nomination or recruitment costs.
+        source_url: https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/migrant-worker-protections/information-for-migrant-workers
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://www.accc.gov.au/consumers/buying-products-and-services/consumer-rights-and-guarantees, title: Consumer rights and guarantees, publisher: ACCC, language: en}
+    facts:
+      - id: consumer_guarantees
+        statement: Under the Australian Consumer Law, buyers automatically get consumer guarantees such as acceptable quality, and a business cannot remove them with a no refunds sign; the first step is to contact the seller, and the ACCC does not resolve individual disputes.
+        source_url: https://www.accc.gov.au/consumers/buying-products-and-services/consumer-rights-and-guarantees
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://www.scamwatch.gov.au/report-a-scam, title: Report a scam, publisher: Scamwatch, language: en}
+      - {url: https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/scam-alerts, title: ATO scam alerts, publisher: Australian Taxation Office, language: en}
+    facts:
+      - id: report_scam_form
+        statement: Suspicious contact or scams are reported to Scamwatch using its online form, and anyone in immediate danger should call 000.
+        source_url: https://www.scamwatch.gov.au/report-a-scam
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: ato_no_payment_links
+        statement: The ATO says it will not request payment or personal details through unsolicited communication, and suspicious messages can be checked by calling 1800 008 540.
+        source_url: https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/scam-alerts
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: https://www.oaic.gov.au/privacy/privacy-legislation/the-privacy-act, title: The Privacy Act, publisher: OAIC, language: en}
+    facts:
+      - id: privacy_act_oaic
+        statement: The Privacy Act 1988 promotes and protects the privacy of individuals, and the Office of the Australian Information Commissioner is the independent national regulator for privacy.
+        source_url: https://www.oaic.gov.au/privacy/privacy-legislation/the-privacy-act
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "Tenancy and fines: no facts recorded; these are state and territory matters. Pointers opened: Queensland RTA https://www.rta.qld.gov.au/ (bond, dispute resolution, phone 1300 366 311), Consumer Affairs Victoria https://www.consumer.vic.gov.au/housing/renting, NSW https://www.nsw.gov.au/housing-and-construction/renting-a-place-to-live (bond and rental dispute pages linked from the NSW housing page, not themselves read). Other states and territories not checked. Cooling-off rules (ACCC door-to-door page) and the Home Affairs VEVO page could not be read. The Fair Work minimum wage page showed a 2023 figure, so no minimum wage fact is recorded; check the current rate with Fair Work. Fair Work notice-of-termination page blocked fetching."

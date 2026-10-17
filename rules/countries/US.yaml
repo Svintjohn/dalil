@@ -1,0 +1,125 @@
+country: US
+name: United States
+last_verified: 2026-10-11
+portal: {name: USA.gov, url: https://www.usa.gov/}
+official_domains: [usa.gov, dol.gov, ftc.gov, hud.gov]
+authorities:
+  - id: dol_whd
+    name: U.S. Department of Labor Wage and Hour Division
+    url: https://www.dol.gov/agencies/whd/contact/complaints
+    covers: [employment]
+    phone: "1-866-487-9243"
+    phone_source: https://www.dol.gov/agencies/whd/contact/complaints
+  - id: dol_state_labor_offices
+    name: State labor offices (list kept by the Department of Labor)
+    url: https://www.dol.gov/agencies/whd/state/contacts
+    covers: [employment]
+  - id: ftc_reportfraud
+    name: Federal Trade Commission ReportFraud
+    url: https://reportfraud.ftc.gov/
+    covers: [scams, consumer]
+  - id: hud
+    name: U.S. Department of Housing and Urban Development
+    url: https://www.hud.gov/states/montana
+    covers: [tenancy]
+  - id: trafficking_hotline
+    name: National Human Trafficking Hotline
+    url: https://www.dol.gov/general/migrantworker/trafficking
+    covers: [employment, immigration]
+    phone: "1-888-373-7888"
+    phone_source: https://www.dol.gov/general/migrantworker/trafficking
+topics:
+  employment:
+    sources:
+      - {url: https://www.dol.gov/agencies/whd/flsa, title: Fair Labor Standards Act, publisher: US Department of Labor, language: en}
+      - {url: https://www.dol.gov/agencies/whd/overtime, title: Overtime pay, publisher: US Department of Labor, language: en}
+      - {url: https://www.dol.gov/agencies/whd/contact/complaints, title: File a complaint, publisher: US Department of Labor, language: en}
+      - {url: https://www.dol.gov/agencies/whd/minimum-wage/state, title: State minimum wage laws, publisher: US Department of Labor, language: en}
+      - {url: https://www.dol.gov/agencies/whd/state/payday, title: State payday requirements, publisher: US Department of Labor, language: en}
+      - {url: https://www.dol.gov/general/migrantworker/trafficking, title: Trafficking, publisher: US Department of Labor, language: en}
+    facts:
+      - id: federal_minimum_wage
+        statement: The federal minimum wage is 7.25 dollars per hour, in effect since 24 July 2009.
+        source_url: https://www.dol.gov/agencies/whd/flsa
+        quote: "The federal minimum wage is $7.25 per hour effective July 24, 2009."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: overtime_after_40_hours
+        statement: Covered employees who are not exempt must be paid overtime at not less than one and one-half times their regular rate for hours worked over 40 in a workweek.
+        source_url: https://www.dol.gov/agencies/whd/overtime
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: employer_time_pay_records
+        statement: Employers must keep time and pay records for their employees.
+        source_url: https://www.dol.gov/agencies/whd/flsa
+        quote: "Employers must also keep employee time and pay records."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: state_minimum_wage_may_be_higher
+        statement: States set their own minimum wages, and where a state rate is higher than the federal one the higher state rate generally applies; where a state has no minimum wage law, employers covered by the federal law must pay the federal rate.
+        source_url: https://www.dol.gov/agencies/whd/minimum-wage/state
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: payday_set_by_state
+        statement: How often wages must be paid is set mostly by state law, so pay frequency differs from state to state and the state labor office is the place to check.
+        source_url: https://www.dol.gov/agencies/whd/state/payday
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: wage_complaint_whd
+        statement: Wage complaints can be made to the Department of Labor Wage and Hour Division on 1-866-487-9243; complaints are confidential and employers may not retaliate against workers who file one.
+        source_url: https://www.dol.gov/agencies/whd/contact/complaints
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: employer_should_not_hold_documents
+        statement: An employer should not hold a worker's identity documents or passport, and doing so can be a sign of labor trafficking.
+        source_url: https://www.dol.gov/general/migrantworker/trafficking
+        quote: "Your employer should not hold on to your documents."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: trafficking_hotline
+        statement: The National Human Trafficking Hotline is free, runs 24 hours a day on 1-888-373-7888, and can be texted at 233733 with the word BeFree.
+        source_url: https://www.dol.gov/general/migrantworker/trafficking
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://www.ftc.gov/legal-library/browse/rules/cooling-period-sales-made-home-or-other-locations, title: Cooling-off period for sales made at home or other locations, publisher: Federal Trade Commission, language: en}
+    facts:
+      - id: cooling_off_door_to_door
+        statement: Under the FTC Cooling-Off Rule a buyer has the right to cancel a door-to-door sale, or a sale made at certain other non-store locations, within three business days, and the seller must tell the buyer about this right.
+        source_url: https://www.ftc.gov/legal-library/browse/rules/cooling-period-sales-made-home-or-other-locations
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://consumer.ftc.gov/articles/how-recognize-and-avoid-phishing-scams, title: How to recognize and avoid phishing scams, publisher: Federal Trade Commission, language: en}
+    facts:
+      - id: report_phishing_ftc
+        statement: Phishing attempts can be reported to the FTC at ReportFraud.ftc.gov.
+        source_url: https://consumer.ftc.gov/articles/how-recognize-and-avoid-phishing-scams
+        quote: "Report the phishing attempt to the FTC at ReportFraud.ftc.gov."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: forward_spam_texts_7726
+        statement: Phishing text messages can be forwarded to 7726 (SPAM).
+        source_url: https://consumer.ftc.gov/articles/how-recognize-and-avoid-phishing-scams
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  tenancy:
+    sources:
+      - {url: https://www.hud.gov/states/montana, title: HUD Montana page with tenant rights links, publisher: HUD, language: en}
+    facts:
+      - id: tenant_rights_via_state_pages
+        statement: HUD's state pages link to each state's own tenant rights and eviction resources, because landlord and tenant rules are set mostly at state level.
+        source_url: https://www.hud.gov/states/montana
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+notes: "The US is federal: tenancy (deposits, notice, eviction) and most wage-payment rules are set by each state, so no national deposit or notice rule is recorded. For tenancy see HUD state pages at hud.gov/states/<state-name>, and for state labor rules see the Department of Labor list of state labor offices (https://www.dol.gov/agencies/whd/state/contacts). The statement in tenant_rights_via_state_pages that rules are set mostly at state level is an inference from HUD linking to state resources; the HUD page did not say it in those words. The FTC Cooling-Off Rule page opened lists a 25 dollar threshold and a 2012 proposal to raise it to 130 dollars without saying whether it was adopted, so the threshold is not recorded. When opened, reportfraud.ftc.gov displayed a notice that the service was unavailable because of a government shutdown, so its status should be rechecked. Gaps: fines, immigration documents beyond the trafficking page, privacy (no comprehensive federal law page confirmed), written-contract and probation rules, rent increase and notice. The pages consumer.ftc.gov cooling-off articles and hud.gov tenantrights for Maine could not be read."

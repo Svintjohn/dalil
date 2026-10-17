@@ -1,0 +1,122 @@
+country: CA
+name: Canada
+last_verified: 2026-10-11
+portal: {name: Government of Canada, url: https://www.canada.ca/en.html}
+official_domains: [canada.ca, priv.gc.ca, antifraudcentre-centreantifraude.ca]
+authorities:
+  - id: service_canada_tip_line
+    name: Service Canada tip line (temporary foreign worker abuse)
+    url: https://www.canada.ca/en/employment-social-development/services/foreign-workers/protected-rights.html
+    covers: [employment]
+    phone: "1-866-602-9448"
+    phone_source: https://www.canada.ca/en/employment-social-development/services/foreign-workers/protected-rights.html
+  - id: cafc
+    name: Canadian Anti-Fraud Centre
+    url: https://antifraudcentre-centreantifraude.ca/report-signalez-eng.htm
+    covers: [scams]
+    phone: "1-888-495-8501"
+    phone_source: https://antifraudcentre-centreantifraude.ca/report-signalez-eng.htm
+  - id: opc
+    name: Office of the Privacy Commissioner of Canada
+    url: https://www.priv.gc.ca/en/
+    covers: [privacy]
+  - id: consumer_affairs_directory
+    name: Federal, provincial and territorial Consumer Affairs offices (directory)
+    url: https://ised-isde.canada.ca/site/office-consumer-affairs/en/federal-provincial-and-territorial-consumer-affairs-offices
+    covers: [consumer, tenancy]
+  - id: human_trafficking_hotline
+    name: Canadian Human Trafficking Hotline
+    url: https://www.canada.ca/en/immigration-refugees-citizenship/services/protect-fraud/report-fraud.html
+    covers: [employment, immigration]
+    phone: "1-833-900-1010"
+    phone_source: https://www.canada.ca/en/immigration-refugees-citizenship/services/protect-fraud/report-fraud.html
+topics:
+  tenancy:
+    sources:
+      - {url: https://ised-isde.canada.ca/site/office-consumer-affairs/en/buying-and-leasing-big-ticket-items/landlord-and-tenant-relations, title: Landlord and tenant relations, publisher: Office of Consumer Affairs, language: en}
+    facts:
+      - id: tenancy_is_provincial
+        statement: Landlord and tenant rules vary across Canada and are set by each province and territory, so deposit, notice and dispute rules depend on where the home is.
+        source_url: https://ised-isde.canada.ca/site/office-consumer-affairs/en/buying-and-leasing-big-ticket-items/landlord-and-tenant-relations
+        quote: "Landlord and tenant regulations vary across Canada."
+        confidence: quoted
+        verified_on: 2026-10-11
+  employment:
+    sources:
+      - {url: https://www.canada.ca/en/employment-social-development/services/foreign-workers/protected-rights.html, title: "Temporary foreign workers: Your rights are protected", publisher: Employment and Social Development Canada, language: en}
+      - {url: https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada/worker-rights.html, title: Temporary foreign worker rights and labour standards, publisher: Immigration, Refugees and Citizenship Canada, language: en}
+    facts:
+      - id: tfw_no_document_retention
+        statement: Employers and supervisors may not take away a temporary foreign worker's personal documents such as passport, work permit, social insurance number, health card or bank card.
+        source_url: https://www.canada.ca/en/employment-social-development/services/foreign-workers/protected-rights.html
+        quote: "take away your personal documents (passport, work permit, social insurance number [SIN], health card, bank card, etc.)"
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: tfw_no_recruitment_fees
+        statement: Employers may not make a temporary foreign worker pay to get or keep the job or reimburse recruitment fees the employer paid; workers pay only for the work permit, medical exam and biometrics if required.
+        source_url: https://www.canada.ca/en/employment-social-development/services/foreign-workers/protected-rights.html
+        quote: "make you pay to get or keep your job or reimburse any recruitment fees they may have paid for your current position."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: tfw_written_agreement
+        statement: A temporary foreign worker's employer must give them a copy of the employment agreement on or before the first day of work, in English or French as the worker chooses.
+        source_url: https://www.canada.ca/en/employment-social-development/services/foreign-workers/protected-rights.html
+        quote: "On or before your first day of work, your employer must give you a copy of your employment agreement."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: tfw_tip_line
+        statement: Abuse of temporary foreign workers can be reported to the Service Canada tip line, which is confidential and accepts anonymous messages.
+        source_url: https://www.canada.ca/en/employment-social-development/services/foreign-workers/protected-rights.html
+        quote: "Call Service Canada's tip line at 1-866-602-9448."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: labour_standards_provincial
+        statement: Most occupations are covered by provincial and territorial labour laws, so wages, hours, overtime and notice rules depend on the province or territory.
+        source_url: https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada/worker-rights.html
+        quote: "Most occupations are covered under provincial and territorial laws."
+        confidence: quoted
+        verified_on: 2026-10-11
+  consumer:
+    sources:
+      - {url: https://ised-isde.canada.ca/site/office-consumer-affairs/en/complaint-roadmap/consumer-protection-legislation-canada, title: Consumer protection legislation in Canada, publisher: Office of Consumer Affairs, language: en}
+    facts:
+      - id: consumer_provincial_jurisdiction
+        statement: Many consumer complaints, including about contracts and buying goods and services, fall under provincial and territorial law, and the provincial or territorial consumer affairs office is the place to ask.
+        source_url: https://ised-isde.canada.ca/site/office-consumer-affairs/en/complaint-roadmap/consumer-protection-legislation-canada
+        quote: "Many consumer complaints fall under provincial and territorial jurisdiction, including issues related to:"
+        confidence: quoted
+        verified_on: 2026-10-11
+  scams:
+    sources:
+      - {url: https://antifraudcentre-centreantifraude.ca/report-signalez-eng.htm, title: Report fraud and cybercrime, publisher: Canadian Anti-Fraud Centre, language: en}
+      - {url: https://www.canada.ca/en/immigration-refugees-citizenship/services/protect-fraud/report-fraud.html, title: "How to report scams, fraud or abuse", publisher: Immigration, Refugees and Citizenship Canada, language: en}
+    facts:
+      - id: report_fraud_cafc
+        statement: Victims and witnesses can report fraud or cybercrime online at reportcyberandfraud.canada.ca, anonymously if they wish, or by phone to the Canadian Anti-Fraud Centre.
+        source_url: https://antifraudcentre-centreantifraude.ca/report-signalez-eng.htm
+        quote: "Whether you are a victim or a witness, you can report a fraud or cybercrime online at reportcyberandfraud.canada.ca."
+        confidence: quoted
+        verified_on: 2026-10-11
+      - id: report_immigration_scams
+        statement: Immigration and citizenship scams, including fake documents, should be reported to the Canadian Anti-Fraud Centre, and immigration fraud inside Canada to the Canada Border Services Agency Border Watch Line.
+        source_url: https://www.canada.ca/en/immigration-refugees-citizenship/services/protect-fraud/report-fraud.html
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+  privacy:
+    sources:
+      - {url: https://www.priv.gc.ca/en/privacy-topics/information-and-advice-for-individuals/your-privacy-rights/businesses-and-your-personal-information/, title: Businesses and your personal information, publisher: Office of the Privacy Commissioner of Canada, language: en}
+    facts:
+      - id: pipeda_private_sector
+        statement: The federal privacy law PIPEDA covers private-sector businesses across Canada, but Quebec, British Columbia and Alberta have similar laws that usually apply to most businesses there.
+        source_url: https://www.priv.gc.ca/en/privacy-topics/information-and-advice-for-individuals/your-privacy-rights/businesses-and-your-personal-information/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-11
+      - id: privacy_access_complaint
+        statement: People generally have a right to access the personal information a business holds about them, should first raise concerns with the business, and can then complain to the Office of the Privacy Commissioner.
+        source_url: https://www.priv.gc.ca/en/privacy-topics/information-and-advice-for-individuals/your-privacy-rights/businesses-and-your-personal-information/
+        quote: "Generally speaking, you have a right to access the personal information that an organization holds about you."
+        confidence: quoted
+        verified_on: 2026-10-11
+notes: "Canada is federal: tenancy, most employment standards and most consumer protection are provincial or territorial. Provincial pointers (from the federal Office of Consumer Affairs list, provincial pages not opened here): consumer or tenancy offices include Service Alberta, Consumer Protection BC, Consumer Protection Ontario, Office de la protection du consommateur (Quebec), Access Nova Scotia, Service NL, Financial and Consumer Services Commission (New Brunswick), Consumer Services PEI; full directory at https://ised-isde.canada.ca/site/office-consumer-affairs/en/federal-provincial-and-territorial-consumer-affairs-offices. The IRCC worker rights page links to provincial and territorial employment standards office contacts. Gaps: fines, immigration documents (permit conditions page lacked content), cooling-off periods, deposits and notice periods (all provincial)."

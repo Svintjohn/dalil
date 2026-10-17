@@ -1,0 +1,148 @@
+country: MY
+name: Malaysia
+last_verified: 2026-10-10
+portal: {name: MyGovernment Portal, url: https://www.malaysia.gov.my/en}
+official_domains: [malaysia.gov.my, hasil.gov.my, stamps.hasil.gov.my, imi.gov.my, kpdn.gov.my, jpj.gov.my, rmp.gov.my, nfcc.jpm.gov.my, pdp.gov.my]
+authorities:
+  - id: imm
+    name: Immigration Department of Malaysia
+    url: https://www.imi.gov.my/index.php/en/main-services/foreign-worker/
+    covers: [immigration, employment]
+  - id: lhdn
+    name: Inland Revenue Board (stamp duty)
+    url: https://stamps.hasil.gov.my/stamps/main/faq
+    covers: [tenancy, employment]
+  - id: tribunal
+    name: Tribunal for Consumer Claims (KPDN)
+    url: https://www.kpdn.gov.my/en/corporate-info/department/tksu-2/tribunal-for-consumer-claims
+    covers: [consumer]
+    phone: "03-8882 5822"
+    phone_source: https://www.kpdn.gov.my/en/corporate-info/department/tksu-2/tribunal-for-consumer-claims
+  - id: jpj
+    name: Road Transport Department (JPJ)
+    url: https://www.jpj.gov.my/en/how-to-pay-jpj-summons/
+    covers: [fines]
+  - id: pdrm
+    name: Royal Malaysia Police (PDRM)
+    url: https://www.rmp.gov.my/
+    covers: [fines, scams]
+  - id: nsrc
+    name: National Scam Response Centre (NSRC)
+    url: https://nfcc.jpm.gov.my/index.php/en/about-nsrc
+    covers: [scams]
+    phone: "997"
+    phone_source: https://nfcc.jpm.gov.my/index.php/en/about-nsrc
+  - id: pdp
+    name: Personal Data Protection Department
+    url: https://www.pdp.gov.my/ppdpv1/en/faq/
+    covers: [privacy]
+    phone: "03-7456 3888"
+    phone_source: https://www.pdp.gov.my/ppdpv1/en/faq/
+topics:
+  employment:
+    sources:
+      - {url: https://www.hasil.gov.my/wp-content/uploads/20250703-pkpe_faq-penyeteman-kontrak-penggajian-di-malaysia.pdf, title: FAQ stamping of employment contracts in Malaysia, publisher: Inland Revenue Board of Malaysia, language: ms}
+      - {url: https://www.imi.gov.my/index.php/en/main-services/foreign-worker/, title: Foreign Worker, publisher: Immigration Department of Malaysia, language: en}
+    facts:
+      - id: employment_contract_stamping
+        statement: An employment contract must be stamped under the Stamp Act, the employer normally pays the duty, and stamping is due within 30 days of signing in Malaysia.
+        source_url: https://www.hasil.gov.my/wp-content/uploads/20250703-pkpe_faq-penyeteman-kontrak-penggajian-di-malaysia.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: vpte_no_employer_change
+        statement: A foreign worker on the Visit Pass (Temporary Employment) may not change employer or employment sector, and family members may not accompany or live with the worker.
+        source_url: https://www.imi.gov.my/index.php/en/main-services/foreign-worker/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: vpte_validity_extension
+        statement: The Visit Pass (Temporary Employment) is valid for 12 months and the employer must apply for extension before it expires.
+        source_url: https://www.imi.gov.my/index.php/en/main-services/foreign-worker/
+        quote: "VP(TE) is valid for a period of 12 months."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: absconding_blacklist
+        statement: Foreign workers who abscond are blacklisted by the Immigration Department and their security bond is confiscated.
+        source_url: https://www.imi.gov.my/index.php/en/main-services/foreign-worker/
+        quote: "Foreign workers who commit the act of abscondment will be blacklisted by the Immigration Department."
+        confidence: quoted
+        verified_on: 2026-10-10
+  tenancy:
+    sources:
+      - {url: https://stamps.hasil.gov.my/stamps/main/faq, title: STAMPS frequently asked questions, publisher: Inland Revenue Board of Malaysia, language: ms}
+    facts:
+      - id: tenancy_stamping_deadline
+        statement: A tenancy or lease agreement must be submitted for stamping within 30 days of the date it is signed, and the duty paid within 14 days of the assessment notice.
+        source_url: https://stamps.hasil.gov.my/stamps/main/faq
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: stamping_late_penalty
+        statement: Late stamping attracts a penalty of RM50 or 10 percent of the duty (whichever is higher) within 3 months after the deadline, and RM100 or 20 percent after that.
+        source_url: https://stamps.hasil.gov.my/stamps/main/faq
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  fines:
+    sources:
+      - {url: https://www.jpj.gov.my/en/how-to-pay-jpj-summons/, title: Summons Payment Method, publisher: Road Transport Department Malaysia, language: en}
+      - {url: https://www.rmp.gov.my/news-detail/2023/10/17/besmartstayalert-letsfightscammertogether-posting-pilihan-scam-alert-awas!-phishing-melalui-e-mel-saman-trafik-pdrm-palsu, title: Scam alert fake PDRM traffic summons emails, publisher: Royal Malaysia Police, language: ms}
+    facts:
+      - id: jpj_payment_channels
+        statement: JPJ summonses are paid through the myJPJ app, the JPJ public portal or MyEG, or in person at JPJ offices, branches, UTC centres or JPJ kiosks.
+        source_url: https://www.jpj.gov.my/en/how-to-pay-jpj-summons/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: fake_pdrm_summons_email
+        statement: Scammers send fake emails pretending to be the MyBayar PDRM traffic summons portal to steal banking details, so check summonses on the official agency portal first.
+        source_url: https://www.rmp.gov.my/news-detail/2023/10/17/besmartstayalert-letsfightscammertogether-posting-pilihan-scam-alert-awas!-phishing-melalui-e-mel-saman-trafik-pdrm-palsu
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  consumer:
+    sources:
+      - {url: https://www.kpdn.gov.my/images/2024/awam/akta/ttpm/Act%20599.pdf, title: Consumer Protection Act 1999 (Act 599), publisher: Ministry of Domestic Trade and Cost of Living, language: en}
+      - {url: https://www.kpdn.gov.my/en/corporate-info/department/tksu-2/tribunal-for-consumer-claims, title: Tribunal for Consumer Claims, publisher: Ministry of Domestic Trade and Cost of Living, language: en}
+    facts:
+      - id: unfair_contract_terms
+        statement: Under the Consumer Protection Act, a contract term that causes a significant imbalance in the parties' rights to the consumer's detriment can be declared unfair, and a court or the Tribunal may declare it void or unenforceable.
+        source_url: https://www.kpdn.gov.my/images/2024/awam/akta/ttpm/Act%20599.pdf
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+      - id: consumer_tribunal
+        statement: Consumers can bring claims to the Tribunal for Consumer Claims, which was set up under the Consumer Protection Act 1999 as an alternative to the civil courts.
+        source_url: https://www.kpdn.gov.my/en/corporate-info/department/tksu-2/tribunal-for-consumer-claims
+        quote: "The Tribunal for Consumer Claims established under section 85, Part XII of The Consumer Protection Act 1999 [Act 599]."
+        confidence: quoted
+        verified_on: 2026-10-10
+  scams:
+    sources:
+      - {url: https://nfcc.jpm.gov.my/index.php/en/about-nsrc, title: National Scam Response Centre, publisher: National Financial Crime Centre, language: en}
+      - {url: https://www.malaysia.gov.my/en/categories/safety-and-community/cybersecurity, title: Cybersecurity, publisher: MyGovernment Portal, language: en}
+    facts:
+      - id: nsrc_997
+        statement: Anyone who discovers they have been defrauded should immediately contact their bank or the National Scam Response Centre hotline 997, then make a police report.
+        source_url: https://nfcc.jpm.gov.my/index.php/en/about-nsrc
+        quote: "You should contact your bank or NSRC 997 hotline immediately as soon as you discover that you have been defrauded."
+        confidence: quoted
+        verified_on: 2026-10-10
+      - id: semak_mule
+        statement: The police Semak Mule portal can be used to check whether a phone number, bank account number or company name is linked to fraud.
+        source_url: https://www.malaysia.gov.my/en/categories/safety-and-community/cybersecurity
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+  privacy:
+    sources:
+      - {url: https://www.pdp.gov.my/ppdpv1/en/faq/, title: FAQ, publisher: Personal Data Protection Department, language: en}
+    facts:
+      - id: pdpa_complaint
+        statement: Anyone who believes their personal data was handled in breach of the Personal Data Protection Act can complain to the Personal Data Protection Commissioner, online or by calling 03-7456 3888.
+        source_url: https://www.pdp.gov.my/ppdpv1/en/faq/
+        quote: ""
+        confidence: summary
+        verified_on: 2026-10-10
+notes: "Labour Department (JTKSM) and Ministry of Human Resources pages and the Employment Act PDFs could not be read (blocked to the fetch tool), so wages, working hours, overtime, passport retention, recruitment fees and termination rules are NOT covered. Tenancy deposit, notice and dispute rules not confirmed. NSRC hours differ between sources (8am to 8pm daily on the NSRC page, 24 hours on the MyGovernment page), so none is stated. Tribunal for Consumer Claims limits and time limits were not readable; phone 03-8882 5822 is as shown on the Tribunal page."

@@ -200,6 +200,32 @@ class KeyFact {
   factory KeyFact.fromJson(Map<String, dynamic> j) => KeyFact(_s(j['label']), _s(j['value']));
 }
 
+class BringItem {
+  const BringItem(this.item, this.required);
+  final String item;
+  final bool required; // true only when the document itself asks for it
+}
+
+class ReportPrep {
+  ReportPrep({required this.office, required this.authority, required this.bring, required this.questions});
+  final String office;
+  final Authority? authority;
+  final List<BringItem> bring;
+  final List<String> questions;
+
+  bool get isEmpty => bring.isEmpty && questions.isEmpty;
+
+  factory ReportPrep.fromJson(Map<String, dynamic> j) => ReportPrep(
+        office: _s(j['office']).trim(),
+        authority: j['authority'] is Map ? Authority.fromJson(_m(j['authority'])) : null,
+        bring: _l(j['bring'])
+            .map((e) => BringItem(_s(_m(e)['item']).trim(), _m(e)['required'] == true))
+            .where((b) => b.item.isNotEmpty)
+            .toList(),
+        questions: _l(j['questions']).map((e) => _s(e).trim()).where((q) => q.isNotEmpty).toList(),
+      );
+}
+
 class IgnoredItem {
   IgnoredItem({required this.action, required this.consequence, required this.source, required this.sources});
   final String action, consequence, source; // source: document | rule
@@ -229,6 +255,12 @@ class ReportScam {
   }
 }
 
+ReportPrep? _prepFrom(dynamic v) {
+  if (v is! Map) return null;
+  final p = ReportPrep.fromJson(_m(v));
+  return p.isEmpty ? null : p;
+}
+
 class Report {
   Report({
     required this.json,
@@ -250,6 +282,7 @@ class Report {
     required this.deadlines,
     required this.scam,
     required this.ifIgnored,
+    required this.prep,
     required this.notSure,
     required this.closing,
     required this.labels,
@@ -269,6 +302,7 @@ class Report {
   final List<ReportDeadline> deadlines;
   final ReportScam scam;
   final List<IgnoredItem> ifIgnored;
+  final ReportPrep? prep; // what to bring and ask before a visit or call, when there is one
   final Map<String, String> labels;
   final int hiddenTotal;
 
@@ -304,6 +338,7 @@ class Report {
           .map((e) => IgnoredItem.fromJson(_m(e)))
           .where((i) => i.action.trim().isNotEmpty && i.consequence.trim().isNotEmpty)
           .toList(),
+      prep: _prepFrom(j['prep']),
       notSure: _s(j['not_sure']),
       closing: _s(j['closing']),
       labels: lab,

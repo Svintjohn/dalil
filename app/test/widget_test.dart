@@ -164,4 +164,53 @@ void main() {
     });
     expect(find.text('If you do nothing'), findsNothing);
   });
+
+  testWidgets('before you go shows what to bring and ask, and bring items can be ticked', (tester) async {
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    Future<void> show(Map<String, dynamic> extra) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ReportView(report: Report.fromJson({'summary': 'A school notice.', ...extra}), onOpen: (_) {}),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+    }
+
+    await show({
+      'prep': {
+        'office': 'School accounts office',
+        'bring': [
+          {'item': 'The invoice', 'required': true},
+          {'item': 'Your ID', 'required': false},
+        ],
+        'questions': ['Can I pay in two parts?'],
+      },
+    });
+    expect(find.byKey(const ValueKey('prep')), findsOneWidget);
+    expect(find.text('Before you go'), findsOneWidget);
+    expect(find.text('School accounts office'), findsOneWidget);
+    expect(find.text('The document asks for this'), findsOneWidget);
+    expect(find.text('Suggested'), findsOneWidget);
+    expect(find.text('Can I pay in two parts?'), findsOneWidget);
+    expect(find.byIcon(Icons.radio_button_unchecked), findsNWidgets(2));
+    await tester.tap(find.text('The invoice'));
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.radio_button_unchecked), findsOneWidget);
+
+    await show({});
+    expect(find.byKey(const ValueKey('prep')), findsNothing);
+    expect(find.text('Before you go'), findsNothing);
+
+    final r = Report.fromJson({
+      'summary': 'A school notice.',
+      'prep': {'office': 'School accounts office', 'bring': [{'item': 'The invoice'}], 'questions': ['Can I pay in two parts?']},
+    });
+    expect(reportToText(r), contains('The invoice'));
+    expect(reportToText(r), contains('1. Can I pay in two parts?'));
+  });
 }

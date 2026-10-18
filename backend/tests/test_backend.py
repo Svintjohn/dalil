@@ -707,3 +707,50 @@ def test_if_ignored_labels_and_schema():
 
     assert {"if_ignored", "if_ignored_unstated", "from_document", "from_rule"} <= set(prompts.LABEL_KEYS)
     assert '"if_ignored"' in prompts.REVIEW_SCHEMA
+
+
+# ---- Before you go (pre-meeting prep) ----
+
+def test_prep_lists_what_to_bring_and_ask_with_required_first():
+    out = _fin({"prep": {
+        "office": "School accounts office",
+        "bring": [{"item": "Proof of payment", "required": False}, {"item": "The invoice", "required": True}, {"item": "the invoice", "required": False}],
+        "questions": ["Can I pay in two parts?", "  Can I pay in two parts?  ", "What is the last day to pay?"],
+    }})
+    p = out["prep"]
+    assert p["office"] == "School accounts office"
+    assert [b["item"] for b in p["bring"]] == ["The invoice", "Proof of payment"]
+    assert p["bring"][0]["required"] is True and p["bring"][1]["required"] is False
+    assert p["questions"] == ["Can I pay in two parts?", "What is the last day to pay?"]
+    assert p["authority"] is None
+
+
+def test_prep_is_limited_resolves_offices_and_is_empty_when_nothing_to_show():
+    assert _fin({})["prep"] is None
+    assert _fin({"prep": {"office": "Somewhere"}})["prep"] is None  # an office alone is not a plan
+    many = {"prep": {"bring": [{"item": f"i{n}"} for n in range(9)], "questions": [f"q{n}" for n in range(9)]}}
+    p = _fin(many)["prep"]
+    assert len(p["bring"]) == 6 and len(p["questions"]) == 5
+    assert all(b["required"] is False for b in p["bring"])  # nothing is "required" unless the document says so
+    ref = next(iter(registry.get_country("AE").authorities)).id
+    p = _fin({"prep": {"questions": ["q"], "authority_ref": f"AE:{ref}"}})["prep"]
+    assert p["authority"] and p["authority"]["name"]
+    assert _fin({"prep": {"questions": ["q"], "authority_ref": "AE:not_real"}})["prep"]["authority"] is None
+
+
+def test_prep_survives_bad_model_output_and_is_hidden_for_a_scam():
+    for bad in (None, "text", 5, [], {"bring": "x", "questions": 3}, {"bring": [1, None, "passport", {"item": 5, "required": "yes"}], "questions": [None, 4, "ok"]}):
+        out = _fin({"prep": bad})
+        assert out["prep"] is None or isinstance(out["prep"]["bring"], list)
+    ok = _fin({"prep": {"bring": [1, "passport", {"item": 5, "required": "yes"}], "questions": [None, "ok"]}})["prep"]
+    assert [b["item"] for b in ok["bring"]] == ["passport", "5"] and not any(b["required"] for b in ok["bring"])
+    assert samples.saved_report("fine")["prep"] is None
+    scam = _fin({"prep": {"questions": ["q"]}}, "Pay with gift cards within 2 hours at http://x-pay.top/p or you will be arrested.")
+    assert scam["scam"]["level"] == "stop" and scam["prep"] is None
+
+
+def test_prep_labels_and_schema():
+    from dalil import prompts
+
+    assert {"prep", "prep_bring", "prep_ask", "prep_required", "prep_suggested"} <= set(prompts.LABEL_KEYS)
+    assert '"prep"' in prompts.REVIEW_SCHEMA

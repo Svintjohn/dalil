@@ -29,6 +29,23 @@ String reportToText(Report r) {
       b.writeln('- ${it.action}: ${it.consequence}');
     }
   }
+  final prep = r.prep;
+  if (prep != null) {
+    b.writeln();
+    b.writeln(prep.office.isEmpty ? r.label('prep', 'Before you go') : '${r.label('prep', 'Before you go')}: ${prep.office}');
+    if (prep.bring.isNotEmpty) {
+      b.writeln(r.label('prep_bring', 'Bring'));
+      for (final i in prep.bring) {
+        b.writeln('- ${i.item}');
+      }
+    }
+    if (prep.questions.isNotEmpty) {
+      b.writeln(r.label('prep_ask', 'Ask'));
+      for (var n = 0; n < prep.questions.length; n++) {
+        b.writeln('${n + 1}. ${prep.questions[n]}');
+      }
+    }
+  }
   if (r.deadlines.isNotEmpty) {
     b.writeln();
     b.writeln(r.label('deadlines', 'Deadlines'));

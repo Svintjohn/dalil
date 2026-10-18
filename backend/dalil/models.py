@@ -151,6 +151,58 @@ class RawIgnored(_Lenient):
         return [x for x in v if isinstance(x, str)] if isinstance(v, list) else []
 
 
+def _as_text(v):
+    return v if isinstance(v, str) else (str(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else "")
+
+
+class RawBring(_Lenient):
+    item: str = ""
+    required: bool = False  # true only when the document itself asks for it
+
+    @field_validator("item", mode="before")
+    @classmethod
+    def _item(cls, v):
+        return _as_text(v)
+
+    @field_validator("required", mode="before")
+    @classmethod
+    def _req(cls, v):
+        return v is True
+
+
+class RawPrep(_Lenient):
+    office: str = ""  # who the person meets or contacts, as the document names them
+    authority_ref: str | None = None
+    bring: list[RawBring] = Field(default_factory=list)
+    questions: list[str] = Field(default_factory=list)
+
+    @field_validator("office", mode="before")
+    @classmethod
+    def _office(cls, v):
+        return _as_text(v)
+
+    @field_validator("authority_ref", mode="before")
+    @classmethod
+    def _aref(cls, v):
+        return v if isinstance(v, str) else None
+
+    @field_validator("bring", mode="before")
+    @classmethod
+    def _bring(cls, v):
+        out = []
+        for x in v if isinstance(v, list) else []:
+            if isinstance(x, dict):
+                out.append(x)
+            elif isinstance(x, str):
+                out.append({"item": x})
+        return out
+
+    @field_validator("questions", mode="before")
+    @classmethod
+    def _qs(cls, v):
+        return [x for x in v if isinstance(x, str)] if isinstance(v, list) else []
+
+
 class RawScam(_Lenient):
     level: str = "none"  # none | caution | stop
     reasons: list[str] = Field(default_factory=list)
@@ -184,9 +236,15 @@ class RawReport(_Lenient):
     deadlines: list[RawDeadline] = Field(default_factory=list)
     scam: RawScam = Field(default_factory=RawScam)
     if_ignored: list[RawIgnored] = Field(default_factory=list)
+    prep: RawPrep = Field(default_factory=RawPrep)
     not_sure: str = ""
     closing: str = ""
     labels: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("prep", mode="before")
+    @classmethod
+    def _prep(cls, v):
+        return v if isinstance(v, dict) else {}
 
     @field_validator("if_ignored", mode="before")
     @classmethod

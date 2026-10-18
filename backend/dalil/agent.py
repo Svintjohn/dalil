@@ -227,14 +227,38 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
             ignored.append({"action": action, "consequence": cons, "source": "document", "sources": []})
     ignored = ignored[:4]
 
+    # "Before you go": what to bring and what to ask. Items the document did not ask for are shown as suggestions only.
+    prep_bring, seen_items = [], set()
+    for b in raw.prep.bring:
+        item = " ".join(b.item.split())[:140]
+        if item and item.lower() not in seen_items:
+            seen_items.add(item.lower())
+            prep_bring.append({"item": item, "required": b.required})
+    prep_bring.sort(key=lambda x: not x["required"])  # what the document asks for comes first
+    prep_questions, seen_q = [], set()
+    for q in raw.prep.questions:
+        q = " ".join(q.split())[:220]
+        if q and q.lower() not in seen_q:
+            seen_q.add(q.lower())
+            prep_questions.append(q)
+    prep = None
+    if prep_bring or prep_questions:
+        prep = {
+            "office": " ".join(raw.prep.office.split())[:160],
+            "authority": resolve_authority(raw.prep.authority_ref),
+            "bring": prep_bring[:6],
+            "questions": prep_questions[:5],
+        }
+
     # Scam shield: rule-based signs from the document text and the quoted parts, plus what the model saw.
     quoted = " ".join([doc_text] + [f.quote for f in raw.findings] + [p.original for p in raw.points] + [k.value for k in raw.key_facts])
     scam = scam_mod.assess(
         scam_mod.scan(quoted), raw.scam.level, raw.scam.reasons, sum(1 for f in findings if f["kind"] == "scam_signal")
     )
-    deadlines = [] if scam["level"] == "stop" else clean_deadlines(raw.deadlines)
+    deadlines = clean_deadlines(raw.deadlines)
     if scam["level"] == "stop":
-        ignored = []  # for a likely scam, doing nothing is the safe choice, so no consequences are listed  # never offer to track a payment deadline from a likely scam
+        # For a likely scam, doing nothing is the safe choice: no deadlines to track, no consequences, no visit to prepare for.
+        deadlines, ignored, prep = [], [], None
 
     return {
         "readable": True,
@@ -256,6 +280,7 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
         "deadlines": deadlines,
         "scam": scam,
         "if_ignored": ignored,
+        "prep": prep,
         "not_sure": raw.not_sure,
         "closing": raw.closing,
         "labels": labels,

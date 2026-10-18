@@ -16,6 +16,7 @@ class ReportView extends StatefulWidget {
 
 class _ReportViewState extends State<ReportView> {
   final Set<int> done = {};
+  final Set<int> brought = {};
 
   Report get r => widget.report;
 
@@ -299,6 +300,61 @@ class _ReportViewState extends State<ReportView> {
     );
   }
 
+  Widget _prep(BuildContext context) {
+    final p = Palette.of(context);
+    final prep = r.prep!;
+    Widget sub(String text) => Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 8),
+          child: Text(text, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: p.inkSoft)),
+        );
+    return Container(
+      key: const ValueKey('prep'),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(16)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        if (prep.authority != null) _authority(context, prep.authority!) else if (prep.office.isNotEmpty) Text(prep.office, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        if (prep.bring.isNotEmpty) ...[
+          sub(r.label('prep_bring', 'Bring')),
+          for (var i = 0; i < prep.bring.length; i++)
+            InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => setState(() => brought.contains(i) ? brought.remove(i) : brought.add(i)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Icon(brought.contains(i) ? Icons.check_circle : Icons.radio_button_unchecked, size: 22, color: brought.contains(i) ? p.accent : p.inkSoft),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(
+                        prep.bring[i].item,
+                        style: TextStyle(fontSize: 16, height: 1.45, color: brought.contains(i) ? p.inkSoft : p.ink, decoration: brought.contains(i) ? TextDecoration.lineThrough : TextDecoration.none),
+                      ),
+                      Text(
+                        prep.bring[i].required ? r.label('prep_required', 'The document asks for this') : r.label('prep_suggested', 'Suggested'),
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: prep.bring[i].required ? p.sev('medium') : p.inkSoft),
+                      ),
+                    ]),
+                  ),
+                ]),
+              ),
+            ),
+        ],
+        if (prep.questions.isNotEmpty) ...[
+          sub(r.label('prep_ask', 'Ask')),
+          for (var i = 0; i < prep.questions.length; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                SizedBox(width: 24, child: Text('${i + 1}.', style: TextStyle(fontWeight: FontWeight.w700, color: p.inkSoft))),
+                Expanded(child: SelectableText(prep.questions[i], style: const TextStyle(fontSize: 16, height: 1.45))),
+              ]),
+            ),
+        ],
+      ]),
+    );
+  }
+
   Widget _authority(BuildContext context, Authority a) {
     final p = Palette.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -410,6 +466,7 @@ class _ReportViewState extends State<ReportView> {
             _overview(context),
             if (r.nextSteps.isNotEmpty) ...[_heading(context, r.label('next_steps', 'What to do')), _nextSteps(context)],
             if (r.ifIgnored.isNotEmpty || (r.deadlines.isNotEmpty && !r.scam.stop)) ...[_heading(context, r.label('if_ignored', 'If you do nothing')), _ifIgnored(context)],
+            if (r.prep != null) ...[_heading(context, r.label('prep', 'Before you go')), _prep(context)],
             if (r.points.isNotEmpty) ...[_heading(context, r.label('plain_words', 'In plain words')), _plainWords(context)],
             if (r.keyFacts.isNotEmpty) ...[_heading(context, r.label('key_facts', 'Key details')), _keyFacts(context)],
             if (r.findings.isNotEmpty) ...[_heading(context, r.label('watch_out', 'Watch out')), for (final f in r.findings) _finding(context, f)],

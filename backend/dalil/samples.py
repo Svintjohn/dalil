@@ -61,6 +61,18 @@ SAMPLES: dict[str, dict] = {
                 {"action": "If the landlord refuses, ask the Dubai Land Department about Ejari registration and rental disputes.",
                  "deadline": "", "authority_ref": "AE:dld"},
             ],
+            "prep": {
+                "office": "The landlord or agent",
+                "bring": [
+                    {"item": "A copy of the contract", "required": False},
+                    {"item": "Your ID", "required": False},
+                ],
+                "questions": [
+                    "Will you register this contract in Ejari before I pay anything?",
+                    "Can the AED 8,000 deposit be refunded at the end of the contract?",
+                    "Can I pay the AED 4,500 agent fee by bank transfer and get a receipt?",
+                ],
+            },
             "checklist": [
                 {"task": "Get the contract registered in Ejari before you pay anything", "due": ""},
                 {"task": "Keep a receipt for every payment, including the agent fee", "due": ""},
@@ -214,6 +226,20 @@ SAMPLES: dict[str, dict] = {
                 {"task": "Find the invoice reference number", "due": ""},
                 {"task": "Keep the bank transfer receipt", "due": ""},
             ],
+            "prep": {
+                "office": "School accounts office",
+                "bring": [
+                    {"item": "The invoice with your reference number", "required": True},
+                    {"item": "The signed trip permission slip", "required": True},
+                    {"item": "Your ID", "required": False},
+                    {"item": "A way to keep the payment receipt", "required": False},
+                ],
+                "questions": [
+                    "Can I pay the fee in two parts?",
+                    "Is the late charge added automatically, or can it be waived if I pay a few days late?",
+                    "Will I get a receipt for the payment?",
+                ],
+            },
             "if_ignored": [
                 {"action": "Pay the Term 2 fee of AED 4,200 by the due date",
                  "consequence": "A late charge of AED 150 will be added.", "source": "document"},

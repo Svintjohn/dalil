@@ -174,6 +174,15 @@ For each thing the person must do or pay, Dalil shows what happens if they do no
 - When a document has a deadline but states no consequence, Dalil says so and tells the person to ask the office that sent it.
 - For a likely scam the section is hidden, because doing nothing is the safe choice.
 
+## Before you go
+
+When the person will probably have to visit, call or write to an office, school, bank or landlord, Dalil adds a "Before you go" card: who to meet, what to bring and what to ask.
+
+- Bring items the document itself asks for are marked "The document asks for this". Everything else is marked "Suggested". Dalil does not name a law, form or fee that the document or the rules registry did not give.
+- Questions are short and practical (the exact amount, the last day, how to pay, what proof is accepted).
+- The person can tick items off as they pack. The card is included in Copy.
+- It is hidden for a likely scam.
+
 ## Rules registry
 
 Countries covered so far: AE, GB, SG, MY, SA, AU, US, QA, KW, BH, OM, PH, IN, PK, CA, JP, KR and BD.

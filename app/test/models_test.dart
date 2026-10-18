@@ -80,4 +80,31 @@ void main() {
     expect(r.ifIgnored[1].sources.first.url, 'https://u.ae');
     expect(Report.fromJson({'summary': 's', 'if_ignored': 'x'}).ifIgnored, isEmpty);
   });
+
+  test('Report parser reads the prep card and ignores empty or bad prep', () {
+    expect(Report.fromJson({'summary': 's'}).prep, isNull);
+    expect(Report.fromJson({'summary': 's', 'prep': 'x'}).prep, isNull);
+    expect(Report.fromJson({'summary': 's', 'prep': {'office': 'Somewhere'}}).prep, isNull);
+    final r = Report.fromJson({
+      'summary': 's',
+      'prep': {
+        'office': 'School accounts office',
+        'authority': {'name': 'DLD', 'url': 'https://dubailand.gov.ae'},
+        'bring': [
+          {'item': 'The invoice', 'required': true},
+          {'item': 'Your ID'},
+          {'item': ''},
+          'junk',
+        ],
+        'questions': ['Can I pay in two parts?', '', 5],
+      },
+    });
+    final p = r.prep!;
+    expect(p.office, 'School accounts office');
+    expect(p.authority!.name, 'DLD');
+    expect(p.bring.length, 2);
+    expect(p.bring[0].required, isTrue);
+    expect(p.bring[1].required, isFalse);
+    expect(p.questions.first, 'Can I pay in two parts?');
+  });
 }

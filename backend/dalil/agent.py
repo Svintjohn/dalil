@@ -10,6 +10,7 @@ from typing import Any
 import anthropic
 
 from . import config, deadline, registry
+from . import numbers as numbers_mod
 from . import scam as scam_mod
 from .failover import FailoverClient
 from .gemini import GeminiClient, LLMError
@@ -250,6 +251,9 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
             "questions": prep_questions[:5],
         }
 
+    # Number check: the arithmetic is done here, the model only read the figures.
+    number_check = numbers_mod.check(raw.amounts.currency, [ln.model_dump() for ln in raw.amounts.lines])
+
     # Scam shield: rule-based signs from the document text and the quoted parts, plus what the model saw.
     quoted = " ".join([doc_text] + [f.quote for f in raw.findings] + [p.original for p in raw.points] + [k.value for k in raw.key_facts])
     scam = scam_mod.assess(
@@ -259,6 +263,10 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
     if scam["level"] == "stop":
         # For a likely scam, doing nothing is the safe choice: no deadlines to track, no consequences, no visit to prepare for.
         deadlines, ignored, prep = [], [], None
+    if number_check and scam["level"] != "none" and number_check["status"] == "ok":
+        number_check = None  # "the numbers add up" must never lend a suspicious message an air of being genuine
+    if scam["level"] == "stop":
+        number_check = None
 
     return {
         "readable": True,
@@ -281,6 +289,7 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
         "scam": scam,
         "if_ignored": ignored,
         "prep": prep,
+        "number_check": number_check,
         "not_sure": raw.not_sure,
         "closing": raw.closing,
         "labels": labels,

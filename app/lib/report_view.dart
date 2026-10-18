@@ -355,6 +355,72 @@ class _ReportViewState extends State<ReportView> {
     );
   }
 
+  String _issueText(NumberIssue i) {
+    switch (i.code) {
+      case 'tax_mismatch':
+        return r.label('numbers_tax', 'The tax shown does not match the tax rate.');
+      case 'subtotal_mismatch':
+        return r.label('numbers_subtotal', 'The subtotal does not match the items.');
+      default:
+        return r.label('numbers_bad', 'The amounts shown do not add up to the total on the document.');
+    }
+  }
+
+  Widget _numberCheck(BuildContext context) {
+    final p = Palette.of(context);
+    final n = r.numberCheck!;
+    final color = n.ok ? p.ok : p.sev('medium');
+    return Container(
+      key: const ValueKey('number-check'),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(color: n.ok ? p.okTint : p.sevTint('medium'), borderRadius: BorderRadius.circular(16)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(n.ok ? Icons.check_circle_outline : Icons.warning_amber_rounded, size: 22, color: color),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              n.ok ? r.label('numbers_ok', 'The amounts shown add up to the total on the document.') : _issueText(n.issues.first),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color, height: 1.4),
+            ),
+          ),
+        ]),
+        const SizedBox(height: 12),
+        for (final ln in n.lines)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                child: Text(ln.label.isEmpty ? ln.role : ln.label, style: TextStyle(fontSize: 15, height: 1.4, fontWeight: (ln.role == 'total' || ln.role == 'subtotal') ? FontWeight.w700 : FontWeight.w400)),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${ln.role == 'discount' ? '-' : ''}${n.money(ln.amount)}',
+                textDirection: TextDirection.ltr,
+                style: TextStyle(fontSize: 15, fontWeight: (ln.role == 'total' || ln.role == 'subtotal') ? FontWeight.w700 : FontWeight.w400),
+              ),
+            ]),
+          ),
+        if (!n.ok)
+          for (var k = 0; k < n.issues.length; k++) ...[
+            const SizedBox(height: 10),
+            if (k > 0) Text(_issueText(n.issues[k]), style: TextStyle(fontWeight: FontWeight.w600, color: color, height: 1.4)),
+            Text(
+              '${r.label('numbers_stated', 'On the document')}: ${n.money(n.issues[k].stated)}  ·  ${r.label('numbers_computed', 'Added up')}: ${n.money(n.issues[k].computed)}${n.issues[k].code == 'total_mismatch' ? '  ·  ${r.label('numbers_diff', 'Difference')}: ${n.money(n.issues[k].difference.abs())}' : ''}',
+              textDirection: TextDirection.ltr,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, height: 1.5),
+            ),
+          ],
+        if (!n.ok) ...[
+          const SizedBox(height: 10),
+          Text(r.label('numbers_hint', 'This can also be a reading mistake. Compare each figure with the paper, and if it still differs, ask the sender to explain.'), style: TextStyle(color: p.inkSoft, height: 1.45)),
+        ],
+        const SizedBox(height: 8),
+        Text(r.label('numbers_note', 'Dalil checked the arithmetic only, not whether the prices are fair.'), style: TextStyle(fontSize: 13, color: p.inkSoft, height: 1.4)),
+      ]),
+    );
+  }
+
   Widget _authority(BuildContext context, Authority a) {
     final p = Palette.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -469,6 +535,7 @@ class _ReportViewState extends State<ReportView> {
             if (r.prep != null) ...[_heading(context, r.label('prep', 'Before you go')), _prep(context)],
             if (r.points.isNotEmpty) ...[_heading(context, r.label('plain_words', 'In plain words')), _plainWords(context)],
             if (r.keyFacts.isNotEmpty) ...[_heading(context, r.label('key_facts', 'Key details')), _keyFacts(context)],
+            if (r.numberCheck != null) ...[_heading(context, r.label('numbers', 'Number check')), _numberCheck(context)],
             if (r.findings.isNotEmpty) ...[_heading(context, r.label('watch_out', 'Watch out')), for (final f in r.findings) _finding(context, f)],
             if (r.terms.isNotEmpty) ...[_heading(context, r.label('terms', 'Hard words explained')), _terms(context)],
             if (r.checklist.isNotEmpty) ...[_heading(context, r.label('checklist', 'Your checklist')), _checklist(context)],

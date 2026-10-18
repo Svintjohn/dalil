@@ -125,7 +125,7 @@ def test_run_tool_survives_bad_input():
     assert tools.run_tool("lookup_rules", {})  # missing country must not raise
 
 
-@pytest.mark.parametrize("sid", [k for k in samples.SAMPLES if k != "school"])
+@pytest.mark.parametrize("sid", [k for k in samples.SAMPLES if k not in ("school", "bill")])
 def test_saved_samples_resolve_against_registry(sid):
     r = samples.saved_report(sid)
     assert r["saved"] and r["coverage"] == "verified" and r["findings"]
@@ -754,3 +754,97 @@ def test_prep_labels_and_schema():
 
     assert {"prep", "prep_bring", "prep_ask", "prep_required", "prep_suggested"} <= set(prompts.LABEL_KEYS)
     assert '"prep"' in prompts.REVIEW_SCHEMA
+
+
+# ---- Number check ----
+
+def _lines(*rows):
+    return [{"label": l, "amount": a, "role": r, **({"rate": rate} if rate else {})} for l, a, r, rate in [(x + (None,))[:4] for x in rows]]
+
+
+def test_numbers_ok_when_items_tax_and_total_add_up():
+    from dalil import numbers
+
+    out = numbers.check("AED", _lines(("A", 100, "item"), ("B", 50, "item"), ("VAT", 7.5, "tax", 5), ("Total", 157.5, "total")))
+    assert out["status"] == "ok" and out["issues"] == [] and out["currency"] == "AED" and len(out["lines"]) == 4
+
+
+def test_numbers_flags_a_wrong_total_with_the_difference():
+    from dalil import numbers
+
+    out = numbers.check("AED", _lines(("A", 100, "item"), ("B", 50, "item"), ("Total", 170, "total")))
+    assert out["status"] == "mismatch"
+    i = out["issues"][0]
+    assert i["code"] == "total_mismatch" and i["stated"] == 170 and i["computed"] == 150 and i["difference"] == 20
+
+
+def test_numbers_checks_subtotal_tax_rate_and_discount():
+    from dalil import numbers
+
+    bad_sub = numbers.check("", _lines(("A", 100, "item"), ("B", 50, "item"), ("Subtotal", 160, "subtotal"), ("Total", 160, "total")))
+    assert [i["code"] for i in bad_sub["issues"]] == ["subtotal_mismatch"]
+    bad_tax = numbers.check("", _lines(("A", 200, "item"), ("VAT", 12, "tax", 5), ("Total", 212, "total")))
+    assert "tax_mismatch" in [i["code"] for i in bad_tax["issues"]]
+    disc = numbers.check("", _lines(("A", 200, "item"), ("Promo", 20, "discount"), ("VAT", 9, "tax", 5), ("Total", 189, "total")))
+    assert disc["status"] == "ok"  # 200 - 20 + 9
+    neg = numbers.check("", _lines(("A", 200, "item"), ("Promo", -20, "discount"), ("Total", 180, "total")))
+    assert neg["status"] == "ok"  # a discount written as a negative number still counts as a discount
+
+
+def test_numbers_accepts_rounding_but_not_a_real_gap_and_instalments():
+    from dalil import numbers
+
+    assert numbers.check("", _lines(("A", 33.33, "item"), ("B", 33.33, "item"), ("C", 33.33, "item"), ("Total", 100, "total")))["status"] == "ok"
+    assert numbers.check("", _lines(("A", 33.33, "item"), ("B", 33.33, "item"), ("C", 33.33, "item"), ("Total", 100.5, "total")))["status"] == "mismatch"
+    cheques = numbers.check("AED", _lines(("Cheque 1", 19500, "item"), ("Cheque 2", 19500, "item"), ("Cheque 3", 19500, "item"), ("Cheque 4", 19500, "item"), ("Annual rent", 78000, "total")))
+    assert cheques["status"] == "ok"
+
+
+def test_numbers_returns_nothing_when_there_is_nothing_to_check():
+    from dalil import numbers
+
+    assert numbers.check("", []) is None
+    assert numbers.check("", _lines(("Total", 100, "total"))) is None  # one amount only
+    assert numbers.check("", _lines(("A", 100, "item"), ("B", 50, "item"))) is None  # no stated total
+    assert numbers.check("", _lines(("A", 100, "weird"), ("B", 50, "item"), ("T", 150, "total"))) is None  # a line that cannot be placed: do not guess
+    assert numbers.check("", [{"label": "A", "amount": None, "role": "item"}, {"label": "T", "amount": 5, "role": "total"}]) is None
+    assert numbers.check("", [{"label": "A", "amount": float("nan"), "role": "item"}, {"label": "B", "amount": 1, "role": "item"}, {"label": "T", "amount": 1, "role": "total"}]) is None
+
+
+def test_numbers_reads_amounts_written_as_text():
+    out = _fin({"amounts": {"currency": "AED", "lines": [
+        {"label": "Rent", "amount": "AED 1,200.50", "role": "item"},
+        {"label": "Fee", "amount": "99,5", "role": "item"},
+        {"label": "Total", "amount": 1300, "role": "total"},
+    ]}})
+    n = out["number_check"]
+    assert n["status"] == "ok" and [ln["amount"] for ln in n["lines"]] == [1200.5, 99.5, 1300.0]
+
+
+def test_numbers_survives_bad_model_output():
+    for bad in (None, "x", 5, [], {"lines": "x"}, {"lines": [1, None, "a"]}, {"lines": [{"amount": [1], "role": 7, "label": {}}]}, {"currency": 3, "lines": [{"amount": True, "role": "total"}]}):
+        out = _fin({"amounts": bad})
+        assert out["number_check"] is None
+
+
+def test_number_check_in_the_bill_sample_and_scam_rules():
+    r = samples.saved_report("bill")
+    n = r["number_check"]
+    assert n["status"] == "mismatch" and n["issues"][0]["computed"] == 661.5 and n["issues"][0]["difference"] == 58.5
+    for k in ("rent", "school", "fine"):
+        assert samples.saved_report(k)["number_check"] is None
+    ok_lines = {"amounts": {"currency": "AED", "lines": [{"label": "A", "amount": 10, "role": "item"}, {"label": "Total", "amount": 10, "role": "total"}]}}
+    assert _fin(ok_lines)["number_check"]["status"] == "ok"
+    # a "numbers add up" tick must not appear on a message with scam warning signs
+    risky = _fin(ok_lines, "Send us your OTP code to confirm.")
+    assert risky["scam"]["level"] == "caution" and risky["number_check"] is None
+    stop = _fin(ok_lines, "Pay with gift cards within 2 hours at http://x-pay.top/p or you will be arrested.")
+    assert stop["scam"]["level"] == "stop" and stop["number_check"] is None
+
+
+def test_number_check_labels_and_schema():
+    from dalil import prompts
+
+    need = {"numbers", "numbers_ok", "numbers_bad", "numbers_hint", "numbers_stated", "numbers_computed", "numbers_diff", "numbers_note", "numbers_tax", "numbers_subtotal"}
+    assert need <= set(prompts.LABEL_KEYS)
+    assert '"amounts"' in prompts.REVIEW_SCHEMA

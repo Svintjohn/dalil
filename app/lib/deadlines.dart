@@ -241,6 +241,12 @@ class DeadlineStore {
     }
   }
 
+  /// Deletes every saved deadline from this device.
+  void clearAll() {
+    items.value = const [];
+    LocalStore.remove(storageKey);
+  }
+
   void _commit(List<TrackedDeadline> next) {
     items.value = next;
     LocalStore.write(storageKey, jsonEncode({'v': 1, 'items': next.map((e) => e.toJson()).toList()}));

@@ -107,4 +107,53 @@ void main() {
     expect(p.bring[1].required, isFalse);
     expect(p.questions.first, 'Can I pay in two parts?');
   });
+
+  test('amounts are formatted with grouping and two decimals', () {
+    expect(formatAmount(0), '0.00');
+    expect(formatAmount(999), '999.00');
+    expect(formatAmount(1000), '1,000.00');
+    expect(formatAmount(1234567.5), '1,234,567.50');
+    expect(formatAmount(-2500), '-2,500.00');
+  });
+
+  test('Report parser reads the number check and drops unusable ones', () {
+    expect(Report.fromJson({'summary': 's'}).numberCheck, isNull);
+    expect(Report.fromJson({'summary': 's', 'number_check': 'x'}).numberCheck, isNull);
+    expect(Report.fromJson({'summary': 's', 'number_check': {'status': 'ok', 'lines': []}}).numberCheck, isNull);
+    // a mismatch without a stated difference is not shown as a bare warning
+    expect(
+      Report.fromJson({
+        'summary': 's',
+        'number_check': {
+          'status': 'mismatch',
+          'lines': [
+            {'label': 'A', 'amount': 1, 'role': 'item'},
+            {'label': 'T', 'amount': 2, 'role': 'total'},
+          ],
+          'issues': [],
+        }
+      }).numberCheck,
+      isNull,
+    );
+    final r = Report.fromJson({
+      'summary': 's',
+      'number_check': {
+        'status': 'mismatch',
+        'currency': 'AED',
+        'lines': [
+          {'label': 'Electricity', 'amount': 320, 'role': 'item'},
+          {'label': 'Total to pay', 'amount': 720.0, 'role': 'total'},
+          {'label': 'bad', 'amount': 'x', 'role': 'item'},
+        ],
+        'issues': [
+          {'code': 'total_mismatch', 'stated': 720, 'computed': 661.5, 'difference': 58.5},
+        ],
+      },
+    });
+    final n = r.numberCheck!;
+    expect(n.ok, isFalse);
+    expect(n.lines.length, 2);
+    expect(n.money(720), 'AED 720.00');
+    expect(n.issues.first.difference, 58.5);
+  });
 }

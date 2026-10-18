@@ -200,6 +200,61 @@ class KeyFact {
   factory KeyFact.fromJson(Map<String, dynamic> j) => KeyFact(_s(j['label']), _s(j['value']));
 }
 
+double _d(dynamic v) => v is num ? v.toDouble() : (v is String ? (double.tryParse(v) ?? 0) : 0);
+
+/// 1234.5 -> "1,234.50". Whole amounts keep two decimals so a column of figures lines up.
+String formatAmount(double v) {
+  final neg = v < 0;
+  final fixed = v.abs().toStringAsFixed(2);
+  final parts = fixed.split('.');
+  final whole = parts[0].replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+  return '${neg ? '-' : ''}$whole.${parts[1]}';
+}
+
+class NumberLine {
+  const NumberLine(this.label, this.amount, this.role);
+  final String label, role; // role: item | subtotal | tax | discount | total
+  final double amount;
+}
+
+class NumberIssue {
+  const NumberIssue({required this.code, required this.stated, required this.computed, required this.difference, required this.rate});
+  final String code; // total_mismatch | subtotal_mismatch | tax_mismatch
+  final double stated, computed, difference, rate;
+}
+
+class NumberCheck {
+  const NumberCheck({required this.status, required this.currency, required this.lines, required this.issues});
+  final String status; // ok | mismatch
+  final String currency;
+  final List<NumberLine> lines;
+  final List<NumberIssue> issues;
+
+  bool get ok => status == 'ok';
+
+  String money(double v) => currency.isEmpty ? formatAmount(v) : '$currency ${formatAmount(v)}';
+
+  factory NumberCheck.fromJson(Map<String, dynamic> j) => NumberCheck(
+        status: _s(j['status']) == 'mismatch' ? 'mismatch' : 'ok',
+        currency: _s(j['currency']).trim(),
+        lines: _l(j['lines']).map((e) => _m(e)).where((m) => m['amount'] is num).map((m) => NumberLine(_s(m['label']).trim(), _d(m['amount']), _s(m['role']))).toList(),
+        issues: _l(j['issues'])
+            .map((e) => _m(e))
+            .where((m) => _s(m['code']).isNotEmpty)
+            .map((m) => NumberIssue(code: _s(m['code']), stated: _d(m['stated']), computed: _d(m['computed']), difference: _d(m['difference']), rate: _d(m['rate'])))
+            .toList(),
+      );
+}
+
+NumberCheck? _numberFrom(dynamic v) {
+  if (v is! Map) return null;
+  final n = NumberCheck.fromJson(_m(v));
+  if (n.lines.length < 2) return null;
+  // A mismatch must say what differs; if the issues are missing, show nothing instead of a bare warning.
+  if (!n.ok && n.issues.isEmpty) return null;
+  return n;
+}
+
 class BringItem {
   const BringItem(this.item, this.required);
   final String item;
@@ -283,6 +338,7 @@ class Report {
     required this.scam,
     required this.ifIgnored,
     required this.prep,
+    required this.numberCheck,
     required this.notSure,
     required this.closing,
     required this.labels,
@@ -303,6 +359,7 @@ class Report {
   final ReportScam scam;
   final List<IgnoredItem> ifIgnored;
   final ReportPrep? prep; // what to bring and ask before a visit or call, when there is one
+  final NumberCheck? numberCheck; // whether the amounts on the document add up, when it has amounts and a total
   final Map<String, String> labels;
   final int hiddenTotal;
 
@@ -339,6 +396,7 @@ class Report {
           .where((i) => i.action.trim().isNotEmpty && i.consequence.trim().isNotEmpty)
           .toList(),
       prep: _prepFrom(j['prep']),
+      numberCheck: _numberFrom(j['number_check']),
       notSure: _s(j['not_sure']),
       closing: _s(j['closing']),
       labels: lab,

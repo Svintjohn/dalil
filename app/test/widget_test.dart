@@ -1,8 +1,11 @@
 import 'package:dalil_app/api.dart';
+import 'package:dalil_app/cases.dart';
+import 'package:dalil_app/deadlines.dart';
 import 'package:dalil_app/fonts.dart';
 import 'package:dalil_app/home.dart';
 import 'package:dalil_app/speech.dart';
 import 'package:dalil_app/theme.dart';
+import 'package:dalil_app/widgets.dart';
 import 'package:dalil_app/main.dart';
 import 'package:dalil_app/models.dart';
 import 'package:dalil_app/report_text.dart';
@@ -293,5 +296,118 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     expect(find.text('Do I have to pay now?'), findsOneWidget);
     expect(speaker.spoken, ['An answer.', 'An answer.']);
+  });
+
+  testWidgets('the privacy dialog can delete every saved case and deadline', (tester) async {
+    tester.view.physicalSize = const Size(1000, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final cases = CaseStore(storageKey: 'test.privacy.cases');
+    final deadlines = DeadlineStore(storageKey: 'test.privacy.deadlines');
+    final r = Report.fromJson({
+      'summary': 'A fine notice.',
+      'doc_type': 'Fine notice',
+      'deadlines': [
+        {'label': 'Pay the fine', 'within_days': 14},
+      ],
+    });
+    cases.addDocument(r);
+    deadlines.addAll('Fine notice', r.deadlines);
+    expect(cases.cases.value, isNotEmpty);
+    expect(deadlines.items.value, isNotEmpty);
+
+    await tester.pumpWidget(MaterialApp(
+      theme: buildTheme(Brightness.light),
+      home: Scaffold(body: PrivacyDialog(headline: 'Your document is not saved', points: const ['Nothing is stored.'], cases: cases, deadlines: deadlines)),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Saved on this device: 1 case and 1 deadline'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('delete-saved')));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete all saved data?'), findsOneWidget);
+
+    await tester.tap(find.text('Keep it')); // cancelling changes nothing
+    await tester.pumpAndSettle();
+    expect(cases.cases.value, isNotEmpty);
+
+    await tester.tap(find.byKey(const ValueKey('delete-saved')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('confirm-delete')));
+    await tester.pumpAndSettle();
+    expect(cases.cases.value, isEmpty);
+    expect(deadlines.items.value, isEmpty);
+    expect(find.text('Nothing is saved on this device.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('delete-saved')), findsNothing);
+
+    final again = CaseStore(storageKey: 'test.privacy.cases')..load(); // nothing comes back after a reload
+    expect(again.cases.value, isEmpty);
+    final againD = DeadlineStore(storageKey: 'test.privacy.deadlines')..load();
+    expect(againD.items.value, isEmpty);
+  });
+
+  testWidgets('number check shows a match calmly and a mismatch with the figures', (tester) async {
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    Future<void> show(Map<String, dynamic> extra) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ReportView(report: Report.fromJson({'summary': 'A bill.', ...extra}), onOpen: (_) {}),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+    }
+
+    final lines = [
+      {'label': 'Electricity', 'amount': 320, 'role': 'item'},
+      {'label': 'Water', 'amount': 85.5, 'role': 'item'},
+      {'label': 'Total to pay', 'amount': 720, 'role': 'total'},
+    ];
+
+    await show({
+      'number_check': {
+        'status': 'mismatch',
+        'currency': 'AED',
+        'lines': lines,
+        'issues': [
+          {'code': 'total_mismatch', 'stated': 720, 'computed': 405.5, 'difference': 314.5},
+        ],
+      },
+    });
+    expect(find.byKey(const ValueKey('number-check')), findsOneWidget);
+    expect(find.text('Number check'), findsOneWidget);
+    expect(find.text('The amounts shown do not add up to the total on the document.'), findsOneWidget);
+    expect(find.text('AED 85.50'), findsOneWidget);
+    expect(find.textContaining('On the document: AED 720.00'), findsOneWidget);
+    expect(find.textContaining('Added up: AED 405.50'), findsOneWidget);
+    expect(find.textContaining('Difference: AED 314.50'), findsOneWidget);
+
+    await show({
+      'number_check': {'status': 'ok', 'currency': 'AED', 'lines': lines},
+    });
+    expect(find.text('The amounts shown add up to the total on the document.'), findsOneWidget);
+    expect(find.textContaining('Difference'), findsNothing);
+
+    await show({});
+    expect(find.byKey(const ValueKey('number-check')), findsNothing);
+
+    final bad = Report.fromJson({
+      'summary': 'A bill.',
+      'number_check': {
+        'status': 'mismatch',
+        'currency': 'AED',
+        'lines': lines,
+        'issues': [
+          {'code': 'total_mismatch', 'stated': 720, 'computed': 405.5, 'difference': 314.5},
+        ],
+      },
+    });
+    expect(reportToText(bad), contains('Number check'));
+    expect(reportToText(bad), contains('AED 720.00'));
+    expect(reportToSpeech(bad), contains('AED 405.50'));
   });
 }

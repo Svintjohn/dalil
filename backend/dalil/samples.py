@@ -198,6 +198,51 @@ SAMPLES: dict[str, dict] = {
             "closing": "You can ask me about this notice. This is a guide and not legal advice.",
         },
     },
+    "bill": {
+        "title": "Utility bill",
+        "note": "Bills, Dubai",
+        "text": (
+            "ALFAJR UTILITIES, Dubai. Monthly bill\n\n"
+            "Electricity: AED 320.00\n"
+            "Water: AED 85.50\n"
+            "Cooling charge: AED 210.00\n"
+            "Meter fee: AED 14.50\n"
+            "Subtotal: AED 630.00\n"
+            "VAT 5%: AED 31.50\n"
+            "Total to pay: AED 720.00\n"
+            "Please pay by bank transfer or at the service counter before the due date."
+        ),
+        "raw": {
+            "doc_type": "Utility bill",
+            "summary": "This is a monthly utility bill. It says you must pay AED 720.00, but the amounts on it add up to AED 661.50.",
+            "key_facts": [
+                {"label": "Total to pay", "value": "AED 720.00"},
+                {"label": "VAT", "value": "5%"},
+            ],
+            "findings": [],
+            "amounts": {
+                "currency": "AED",
+                "lines": [
+                    {"label": "Electricity", "amount": 320.00, "role": "item"},
+                    {"label": "Water", "amount": 85.50, "role": "item"},
+                    {"label": "Cooling charge", "amount": 210.00, "role": "item"},
+                    {"label": "Meter fee", "amount": 14.50, "role": "item"},
+                    {"label": "Subtotal", "amount": 630.00, "role": "subtotal"},
+                    {"label": "VAT 5%", "amount": 31.50, "role": "tax", "rate": 5},
+                    {"label": "Total to pay", "amount": 720.00, "role": "total"},
+                ],
+            },
+            "next_steps": [
+                {"action": "Ask the utility company to explain why the total is higher than the amounts listed.", "deadline": "", "authority_ref": None},
+            ],
+            "checklist": [
+                {"task": "Compare each figure on the bill with your meter readings", "due": ""},
+                {"task": "Keep the payment receipt", "due": ""},
+            ],
+            "not_sure": "This is a made-up sample. Dalil checks the arithmetic only, not whether the prices are fair.",
+            "closing": "You can ask me about this bill. This is a guide and not legal or financial advice.",
+        },
+    },
     "school": {
         "title": "School fee notice",
         "note": "School, Dubai",

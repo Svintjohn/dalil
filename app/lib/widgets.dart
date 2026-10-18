@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'cases.dart';
+import 'deadlines.dart';
 import 'models.dart';
 import 'motion.dart';
 import 'theme.dart';
@@ -243,9 +245,63 @@ class _LanguageDialogState extends State<LanguageDialog> {
 }
 
 class PrivacyDialog extends StatelessWidget {
-  const PrivacyDialog({super.key, required this.headline, required this.points});
+  PrivacyDialog({super.key, required this.headline, required this.points, CaseStore? cases, DeadlineStore? deadlines})
+      : cases = cases ?? CaseStore.instance,
+        deadlines = deadlines ?? DeadlineStore.instance;
   final String headline;
   final List<String> points;
+  final CaseStore cases;
+  final DeadlineStore deadlines;
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('Delete all saved data?'),
+        content: const Text('This removes every saved case and deadline from this device. It cannot be undone. Your documents were never saved.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Keep it')),
+          TextButton(key: const ValueKey('confirm-delete'), onPressed: () => Navigator.pop(c, true), child: const Text('Delete everything')),
+        ],
+      ),
+    );
+    if (ok == true) {
+      cases.clearAll();
+      deadlines.clearAll();
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All saved cases and deadlines were deleted from this device.')));
+    }
+  }
+
+  Widget _saved(BuildContext context) {
+    final p = Palette.of(context);
+    return ValueListenableBuilder<List<CaseFile>>(
+      valueListenable: cases.cases,
+      builder: (context, cs, _) => ValueListenableBuilder<List<TrackedDeadline>>(
+        valueListenable: deadlines.items,
+        builder: (context, ds, __) {
+          final empty = cs.isEmpty && ds.isEmpty;
+          return Container(
+            key: const ValueKey('saved-data'),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(12)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                empty ? 'Nothing is saved on this device.' : 'Saved on this device: ${cs.length} case${cs.length == 1 ? '' : 's'} and ${ds.length} deadline${ds.length == 1 ? '' : 's'}. They stay in your browser only.',
+                style: const TextStyle(height: 1.45),
+              ),
+              if (!empty)
+                TextButton.icon(
+                  key: const ValueKey('delete-saved'),
+                  onPressed: () => _confirmDelete(context),
+                  icon: Icon(Icons.delete_outline, size: 18, color: p.high),
+                  label: Text('Delete all my saved data', style: TextStyle(color: p.high, fontWeight: FontWeight.w700)),
+                ),
+            ]),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -270,6 +326,8 @@ class PrivacyDialog extends StatelessWidget {
                   Expanded(child: Text(l, style: const TextStyle(height: 1.45))),
                 ]),
               ),
+            const SizedBox(height: 4),
+            _saved(context),
             const SizedBox(height: 8),
             Align(alignment: AlignmentDirectional.centerEnd, child: TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))),
           ]),

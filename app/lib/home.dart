@@ -19,6 +19,7 @@ import 'landing.dart';
 import 'models.dart';
 import 'motion.dart';
 import 'photo.dart';
+import 'print_page.dart';
 import 'report_text.dart';
 import 'report_view.dart';
 import 'settings.dart';
@@ -339,6 +340,15 @@ class _HomePageState extends State<HomePage> {
     if (!ok && mounted) {
       setState(() => listening = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not use the microphone. Allow it in your browser, or try Chrome or Edge.')));
+    }
+  }
+
+  void _savePdf() {
+    final r = report;
+    if (r == null) return;
+    final ok = printText(r.docType.isEmpty ? 'Dalil' : r.docType, reportToText(r), rtl: r.rtl);
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open the print window. Allow pop-ups for this site, or use Copy instead.')));
     }
   }
 
@@ -795,6 +805,7 @@ class _HomePageState extends State<HomePage> {
               Wrap(alignment: WrapAlignment.end, spacing: 4, runSpacing: 0, children: [
                 _tool(context, speaking ? Icons.stop_circle_outlined : Icons.volume_up_outlined, speaking ? 'Stop' : 'Listen', _listen),
                 _tool(context, Icons.copy_outlined, 'Copy', _copy),
+                _tool(context, Icons.picture_as_pdf_outlined, 'Save as PDF', _savePdf),
                 _tool(context, Icons.mail_outline, 'Draft a letter', _letter),
               ]),
             ReportView(report: r, onOpen: _open),

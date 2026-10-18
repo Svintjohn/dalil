@@ -189,6 +189,21 @@ When the person will probably have to visit, call or write to an office, school,
 - A typed question gets a silent answer. Every answer has its own **Listen** button, and **Listen** at the top reads the whole result.
 - Voices come from the browser. If the browser has no voice for a language, Dalil says so instead of reading in the wrong one.
 
+## Number check
+
+When a bill, invoice, fee notice, payment schedule or contract shows several amounts and a total, Dalil adds a "Number check" card.
+
+- The model only reads the figures off the paper. The adding up is done in code (`backend/dalil/numbers.py`), so it is exact.
+- It checks the items against a stated subtotal, the tax against a stated tax rate, and the items, tax and discount against the total. A gap of more than 5 cents is reported with both figures and the difference. Instalment schedules (for example four cheques against a yearly rent) are checked the same way.
+- If any line cannot be read or placed, Dalil does not guess and shows no check.
+- Every line the model read is shown, so the person can compare it with the paper (a mismatch can also be a reading mistake).
+- Dalil checks the arithmetic only, not whether prices are fair. For a message with scam warning signs, "the numbers add up" is never shown.
+
+## Your saved data
+
+- "Save as PDF" opens a clean print page in a new tab and starts the browser print dialog.
+- In the Privacy window, "Delete all my saved data" removes every saved case and deadline from the browser after a confirmation. Documents themselves are never saved.
+
 ## Rules registry
 
 Countries covered so far: AE, GB, SG, MY, SA, AU, US, QA, KW, BH, OM, PH, IN, PK, CA, JP, KR and BD.

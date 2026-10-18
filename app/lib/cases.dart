@@ -148,6 +148,12 @@ class CaseStore {
     }
   }
 
+  /// Deletes every saved case from this device.
+  void clearAll() {
+    cases.value = const [];
+    LocalStore.remove(storageKey);
+  }
+
   void _commit(List<CaseFile> next) {
     cases.value = next;
     LocalStore.write(storageKey, jsonEncode({'v': 1, 'cases': next.map((c) => c.toJson()).toList()}));

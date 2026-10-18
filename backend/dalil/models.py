@@ -203,6 +203,60 @@ class RawPrep(_Lenient):
         return [x for x in v if isinstance(x, str)] if isinstance(v, list) else []
 
 
+def _to_amount(v):
+    """A number read from the paper: accepts 1200, 1200.5 or a string such as 'AED 1,200.50'. Anything else is None."""
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v) if v == v and abs(v) < 1e12 else None
+    if isinstance(v, str):
+        s = re.sub(r"[^0-9.,-]", "", v)
+        if s.count(",") and s.count("."):
+            s = s.replace(",", "") if s.rfind(".") > s.rfind(",") else s.replace(".", "").replace(",", ".")
+        elif s.count(",") == 1 and len(s.split(",")[1]) in (1, 2):
+            s = s.replace(",", ".")
+        else:
+            s = s.replace(",", "")
+        try:
+            x = float(s)
+        except ValueError:
+            return None
+        return x if abs(x) < 1e12 else None
+    return None
+
+
+class RawLine(_Lenient):
+    label: str = ""
+    amount: float | None = None
+    role: str = "item"  # item | subtotal | tax | discount | total
+    rate: float | None = None  # a tax rate in percent, when the document states one
+
+    @field_validator("label", "role", mode="before")
+    @classmethod
+    def _t(cls, v):
+        return _as_text(v)
+
+    @field_validator("amount", "rate", mode="before")
+    @classmethod
+    def _n(cls, v):
+        return _to_amount(v)
+
+
+class RawAmounts(_Lenient):
+    currency: str = ""
+    lines: list[RawLine] = Field(default_factory=list)
+
+    @field_validator("currency", mode="before")
+    @classmethod
+    def _cur(cls, v):
+        return _as_text(v)
+
+    @field_validator("lines", mode="before")
+    @classmethod
+    def _lines(cls, v):
+        return [x for x in v if isinstance(x, dict)] if isinstance(v, list) else []
+
+
 class RawScam(_Lenient):
     level: str = "none"  # none | caution | stop
     reasons: list[str] = Field(default_factory=list)
@@ -237,9 +291,15 @@ class RawReport(_Lenient):
     scam: RawScam = Field(default_factory=RawScam)
     if_ignored: list[RawIgnored] = Field(default_factory=list)
     prep: RawPrep = Field(default_factory=RawPrep)
+    amounts: RawAmounts = Field(default_factory=RawAmounts)
     not_sure: str = ""
     closing: str = ""
     labels: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("amounts", mode="before")
+    @classmethod
+    def _amounts(cls, v):
+        return v if isinstance(v, dict) else {}
 
     @field_validator("prep", mode="before")
     @classmethod

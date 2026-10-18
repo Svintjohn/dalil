@@ -16,5 +16,11 @@ class LocalStore {
     } catch (_) {}
   }
 
+  static void remove(String key) {
+    try {
+      web.window.localStorage.removeItem(key);
+    } catch (_) {}
+  }
+
   static void clearAll() {}
 }

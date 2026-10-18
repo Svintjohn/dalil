@@ -6,5 +6,7 @@ class LocalStore {
 
   static void write(String key, String value) => _data[key] = value;
 
+  static void remove(String key) => _data.remove(key);
+
   static void clearAll() => _data.clear();
 }

@@ -577,3 +577,76 @@ def test_clean_deadlines_keeps_only_usable_ones():
 def test_report_without_deadlines_has_empty_list():
     out = agent.finalize_report(RawReport.model_validate({"summary": "x"}), languages.get_language("en"))
     assert out["deadlines"] == []
+
+
+# ---- Scam shield ----
+
+def _fin(raw: dict, text: str = "") -> dict:
+    return agent.finalize_report(RawReport.model_validate({"summary": "x", **raw}), languages.get_language("en"), text)
+
+
+def test_scan_finds_real_warning_signs():
+    from dalil import scam
+
+    assert scam.scan("Please send us your OTP to confirm the refund") == ["code_request"]
+    assert "gift_card_crypto" in scam.scan("Pay with iTunes gift cards")
+    assert "bad_link" in scam.scan("Pay at http://dxb-fines-pay.example/pay")
+    assert "bad_link" in scam.scan("Open bit.ly/abc123 now")
+    assert "remote_access" in scam.scan("Install AnyDesk so we can help")
+    assert "personal_account" in scam.scan("transfer to the officer's personal account")
+
+
+def test_scan_does_not_flag_ordinary_or_protective_text():
+    from dalil import scam
+
+    assert scam.scan("Never share your OTP or PIN with anyone. We will never ask for it.") == []
+    assert scam.scan("Rent is payable by wire transfer to the landlord's company account.") == []
+    assert scam.scan("Pay at https://www.dewa.gov.ae/pay. Your bill is due on 25 October.") == []
+    assert scam.scan("School fees are due on 1 November. See https://alnoor.school.ae") == []
+    assert scam.scan("") == [] and scam.scan(None) == []
+
+
+def test_assess_levels_are_calm_and_never_trust_the_model_alone():
+    from dalil import scam
+
+    assert scam.assess([], "none", [], 0)["level"] == "none"
+    assert scam.assess(["short_deadline"], "none", [], 0)["level"] == "none"  # one weak sign is not enough
+    assert scam.assess(["code_request"], "none", [], 0)["level"] == "caution"
+    assert scam.assess(["personal_account", "bad_link", "short_deadline"], "none", [], 0)["level"] == "stop"
+    assert scam.assess([], "stop", ["a reason"], 0)["level"] == "caution"  # the model alone cannot say stop
+    assert scam.assess([], "caution", [], 0)["level"] == "none"  # a hunch with no reason or sign
+    assert scam.assess([], "caution", ["pay by link"], 0)["level"] == "caution"
+    a = scam.assess(["code_request", "bad_link"], "none", [], 0)  # no model reasons: English fallbacks
+    assert a["level"] == "stop" and a["reasons"] and a["signals"] == ["code_request", "bad_link"]
+    assert scam.assess([], "none", ["x"], 0)["reasons"] == []  # nothing is shown when the level is none
+
+
+def test_fine_sample_is_stop_and_hides_deadlines():
+    r = samples.saved_report("fine")
+    assert r["scam"]["level"] == "stop" and r["scam"]["reasons"] and r["deadlines"] == []
+
+
+def test_ordinary_samples_have_no_scam_banner():
+    for k in ("rent", "school"):
+        assert samples.saved_report(k)["scam"]["level"] == "none"
+    assert samples.saved_report("school")["deadlines"]  # a normal notice keeps its deadlines
+
+
+def test_scan_uses_the_text_the_person_pasted():
+    out = _fin({}, "Your parcel is held. Pay the customs fee at http://track-parcel.top/pay within 2 hours or it is returned. Reply with your card number.")
+    assert out["scam"]["level"] == "stop"
+    assert "code_request" in out["scam"]["signals"]
+
+
+def test_bad_model_output_for_scam_does_not_break_the_report():
+    for bad in (None, "stop", 5, [], {"level": 7, "reasons": "one reason"}, {"level": "stop", "reasons": [1, None, "ok"]}):
+        out = _fin({"scam": bad})
+        assert out["scam"]["level"] in ("none", "caution", "stop")
+    assert _fin({"scam": {"level": "caution", "reasons": ["pay by a link"]}})["scam"]["reasons"] == ["pay by a link"]
+
+
+def test_report_has_scam_labels_and_schema():
+    from dalil import prompts
+
+    assert {"scam_stop", "scam_caution", "scam_steps", "scam_note"} <= set(prompts.LABEL_KEYS)
+    assert '"scam"' in prompts.REVIEW_SCHEMA

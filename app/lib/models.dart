@@ -200,6 +200,23 @@ class KeyFact {
   factory KeyFact.fromJson(Map<String, dynamic> j) => KeyFact(_s(j['label']), _s(j['value']));
 }
 
+class ReportScam {
+  const ReportScam({this.level = 'none', this.reasons = const []});
+  final String level; // none | caution | stop
+  final List<String> reasons;
+
+  bool get stop => level == 'stop';
+  bool get shown => level == 'stop' || level == 'caution';
+
+  factory ReportScam.fromJson(Map<String, dynamic> j) {
+    final lv = _s(j['level']);
+    return ReportScam(
+      level: (lv == 'stop' || lv == 'caution') ? lv : 'none',
+      reasons: _l(j['reasons']).map((e) => _s(e).trim()).where((e) => e.isNotEmpty).toList(),
+    );
+  }
+}
+
 class Report {
   Report({
     required this.json,
@@ -219,6 +236,7 @@ class Report {
     required this.nextSteps,
     required this.checklist,
     required this.deadlines,
+    required this.scam,
     required this.notSure,
     required this.closing,
     required this.labels,
@@ -236,6 +254,7 @@ class Report {
   final List<NextStep> nextSteps;
   final List<ChecklistItem> checklist;
   final List<ReportDeadline> deadlines;
+  final ReportScam scam;
   final Map<String, String> labels;
   final int hiddenTotal;
 
@@ -266,6 +285,7 @@ class Report {
       nextSteps: _l(j['next_steps']).map((e) => NextStep.fromJson(_m(e))).toList(),
       checklist: _l(j['checklist']).map((e) => ChecklistItem.fromJson(_m(e))).toList(),
       deadlines: _l(j['deadlines']).map((e) => ReportDeadline.fromJson(_m(e))).where((d) => d.label.trim().isNotEmpty).toList(),
+      scam: j['scam'] is Map ? ReportScam.fromJson(_m(j['scam'])) : const ReportScam(),
       notSure: _s(j['not_sure']),
       closing: _s(j['closing']),
       labels: lab,

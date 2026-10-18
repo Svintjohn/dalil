@@ -132,6 +132,23 @@ class RawDeadline(_Lenient):
     within_days: int | None = None  # "within 14 days" when no calendar date is given
 
 
+class RawScam(_Lenient):
+    level: str = "none"  # none | caution | stop
+    reasons: list[str] = Field(default_factory=list)
+
+    @field_validator("level", mode="before")
+    @classmethod
+    def _level(cls, v):
+        return v if isinstance(v, str) else "none"
+
+    @field_validator("reasons", mode="before")
+    @classmethod
+    def _reasons(cls, v):
+        if isinstance(v, str):
+            return [v]
+        return [x for x in v if isinstance(x, str)] if isinstance(v, list) else []
+
+
 class RawReport(_Lenient):
     readable: bool = True
     readability_issues: list[str] = Field(default_factory=list)
@@ -146,6 +163,12 @@ class RawReport(_Lenient):
     next_steps: list[RawStep] = Field(default_factory=list)
     checklist: list[RawCheck] = Field(default_factory=list)
     deadlines: list[RawDeadline] = Field(default_factory=list)
+    scam: RawScam = Field(default_factory=RawScam)
     not_sure: str = ""
     closing: str = ""
     labels: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("scam", mode="before")
+    @classmethod
+    def _scam(cls, v):
+        return v if isinstance(v, dict) else {}

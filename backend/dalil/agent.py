@@ -10,6 +10,7 @@ from typing import Any
 import anthropic
 
 from . import config, deadline, registry
+from . import scam as scam_mod
 from .failover import FailoverClient
 from .gemini import GeminiClient, LLMError
 from .openai_compat import OpenAICompatClient
@@ -179,7 +180,7 @@ def _dedupe(rows: list[dict], key: str) -> list[dict]:
     return out
 
 
-def finalize_report(raw: RawReport, lang: Language) -> dict:
+def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
     code = (raw.country or "").upper() or None
     country = registry.get_country(code) if code else None
     labels = {**LABEL_KEYS, **{k: v for k, v in raw.labels.items() if k in LABEL_KEYS and isinstance(v, str) and v.strip()}}
@@ -211,6 +212,13 @@ def finalize_report(raw: RawReport, lang: Language) -> dict:
         if s.action.strip():
             steps.append({"action": s.action, "deadline": s.deadline, "authority": resolve_authority(s.authority_ref)})
 
+    # Scam shield: rule-based signs from the document text and the quoted parts, plus what the model saw.
+    quoted = " ".join([doc_text] + [f.quote for f in raw.findings] + [p.original for p in raw.points] + [k.value for k in raw.key_facts])
+    scam = scam_mod.assess(
+        scam_mod.scan(quoted), raw.scam.level, raw.scam.reasons, sum(1 for f in findings if f["kind"] == "scam_signal")
+    )
+    deadlines = [] if scam["level"] == "stop" else clean_deadlines(raw.deadlines)  # never offer to track a payment deadline from a likely scam
+
     return {
         "readable": True,
         "recognized": raw.recognized,
@@ -228,7 +236,8 @@ def finalize_report(raw: RawReport, lang: Language) -> dict:
         "findings": findings,
         "next_steps": steps,
         "checklist": [c.model_dump() for c in raw.checklist if c.task.strip()][:6],
-        "deadlines": clean_deadlines(raw.deadlines),
+        "deadlines": deadlines,
+        "scam": scam,
         "not_sure": raw.not_sure,
         "closing": raw.closing,
         "labels": labels,
@@ -265,7 +274,7 @@ def review(*, images: list[bytes], text: str | None, lang: Language, country: st
     if not raw.readable:
         issues = [c for c in raw.readability_issues if c in READABILITY_CODES] or ["blurry"]
         raise PhotoUnreadable([{"code": c, "message": READABILITY_MESSAGES[c]} for c in issues])
-    return finalize_report(raw, lang)
+    return finalize_report(raw, lang, text or "")
 
 
 def _report_digest(report: dict) -> str:

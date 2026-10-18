@@ -766,7 +766,7 @@ class _HomePageState extends State<HomePage> {
             ReportView(report: r, onOpen: _open),
           ]),
         ),
-        if (r.recognized) ...[
+        if (r.recognized && !r.scam.stop) ...[
           const SizedBox(height: 20),
           TrackCard(key: ValueKey(r), report: r, cases: CaseStore.instance, deadlines: DeadlineStore.instance),
         ],

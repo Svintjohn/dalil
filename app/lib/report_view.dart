@@ -70,6 +70,49 @@ class _ReportViewState extends State<ReportView> {
     );
   }
 
+  Widget _scamShield(BuildContext context) {
+    final p = Palette.of(context);
+    final stop = r.scam.stop;
+    final sev = stop ? 'high' : 'medium';
+    final title = stop ? r.label('scam_stop', 'Stop. Do not pay or reply yet') : r.label('scam_caution', 'Be careful with this one');
+    return Container(
+      key: const ValueKey('scam-shield'),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: p.sevTint(sev),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: p.sev(sev), width: 1.5),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(stop ? Icons.gpp_bad_outlined : Icons.shield_outlined, size: 26, color: p.sev(sev)),
+          const SizedBox(width: 10),
+          Expanded(child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.sev(sev), height: 1.3))),
+        ]),
+        if (r.scam.reasons.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          for (final reason in r.scam.reasons)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Padding(padding: const EdgeInsets.only(top: 7), child: Icon(Icons.circle, size: 6, color: p.sev(sev))),
+                const SizedBox(width: 10),
+                Expanded(child: Text(reason, style: const TextStyle(fontSize: 15.5, height: 1.45))),
+              ]),
+            ),
+        ],
+        const SizedBox(height: 8),
+        Text(
+          r.label('scam_steps', 'Do not pay, send any code or open any link in it. Check with the office through its official app or website, typing the address yourself, or call a number you find yourself. Keep the message and ask someone you trust.'),
+          style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w600, height: 1.45),
+        ),
+        const SizedBox(height: 10),
+        Text(r.label('scam_note', 'Dalil cannot tell if this is genuine. These are warning signs only.'), style: TextStyle(fontSize: 13, color: p.inkSoft, height: 1.4)),
+      ]),
+    );
+  }
+
   Widget _overview(BuildContext context) {
     final p = Palette.of(context);
     final counts = <String, int>{'high': 0, 'medium': 0, 'low': 0};
@@ -315,6 +358,7 @@ class _ReportViewState extends State<ReportView> {
             _notice(context, 'Dalil has no verified official rules for ${r.countryName.isEmpty ? r.country : r.countryName} yet. The points below are general cautions, not rule checks.', 'medium'),
           if (r.hiddenTotal > 0)
             _notice(context, '${r.hiddenTotal} personal number${r.hiddenTotal == 1 ? ' was' : 's were'} hidden before your document was read.', 'ok', icon: Icons.visibility_off_outlined),
+          if (r.recognized && r.scam.shown) _scamShield(context),
           if (r.docType.isNotEmpty) Text(r.docType, style: TextStyle(fontWeight: FontWeight.w600, color: p.inkSoft)),
           if (r.coverage == 'verified' && r.countryName.isNotEmpty)
             Padding(

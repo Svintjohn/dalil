@@ -2,6 +2,8 @@ import 'package:dalil_app/api.dart';
 import 'package:dalil_app/fonts.dart';
 import 'package:dalil_app/main.dart';
 import 'package:dalil_app/models.dart';
+import 'package:dalil_app/report_text.dart';
+import 'package:dalil_app/report_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -77,5 +79,45 @@ void main() {
     expect(find.text('Two things to check.'), findsOneWidget);
     expect(find.text('Deposit is too high.'), findsOneWidget);
     expect(find.text('Register the contract.'), findsOneWidget);
+  });
+
+  testWidgets('scam shield shows a calm warning only when there are warning signs', (tester) async {
+    tester.view.physicalSize = const Size(1000, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    Future<void> show(Map<String, dynamic> scam) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ReportView(report: Report.fromJson({'summary': 'A fine notice.', 'scam': scam}), onOpen: (_) {}),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+    }
+
+    await show({'level': 'stop', 'reasons': ['Pay into a personal account']});
+    expect(find.byKey(const ValueKey('scam-shield')), findsOneWidget);
+    expect(find.text('Stop. Do not pay or reply yet'), findsOneWidget);
+    expect(find.text('Pay into a personal account'), findsOneWidget);
+
+    await show({'level': 'caution', 'reasons': ['Link is not official']});
+    expect(find.text('Be careful with this one'), findsOneWidget);
+
+    await show({'level': 'none'});
+    expect(find.byKey(const ValueKey('scam-shield')), findsNothing);
+  });
+
+  test('copy and speech lead with the scam warning', () {
+    final r = Report.fromJson({
+      'summary': 'A fine notice.',
+      'scam': {'level': 'stop', 'reasons': ['Pay into a personal account']},
+    });
+    expect(reportToText(r).startsWith('Stop. Do not pay or reply yet'), isTrue);
+    expect(reportToText(r), contains('Pay into a personal account'));
+    expect(reportToSpeech(r).startsWith('Stop. Do not pay or reply yet'), isTrue);
+    final ok = Report.fromJson({'summary': 'A school notice.'});
+    expect(reportToText(ok).startsWith('A school notice.'), isTrue);
   });
 }

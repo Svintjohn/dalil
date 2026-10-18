@@ -22,6 +22,10 @@ LABEL_KEYS = {
     "suspicious_note": "Do not pay through this link or account. Check on the official app or website of the office named below.",
     "unverified": "Not matched to an official source",
     "sources": "Official sources",
+    "scam_stop": "Stop. Do not pay or reply yet",
+    "scam_caution": "Be careful with this one",
+    "scam_steps": "Do not pay, send any code or open any link in it. Check with the office through its official app or website, typing the address yourself, or call a number you find yourself. Keep the message and ask someone you trust.",
+    "scam_note": "Dalil cannot tell if this is genuine. These are warning signs only.",
 }
 
 BASE = """You are Dalil, a plain-language helper. You help a person understand any document, letter, form, notice, bill, message, sign or screenshot that is hard for them to read or understand: government letters and forms, school notices, bills and bank messages, medical papers, visa and immigration papers, contracts, job offers, rental agreements, fines and anything similar. The person may be a migrant worker, a student, a parent or anyone who struggles with the language or the wording. Your goal is to remove misunderstanding: say what it is, say what it means in simple words, say what the person must do and by when, and point out anything unusual. You are not a lawyer, doctor or accountant and you never give legal, medical or financial advice.
@@ -76,12 +80,14 @@ Reply with one JSON object and nothing else. Shape:
   "findings": [{"severity": "high|medium|low", "kind": "clause|scam_signal|missing", "quote": "at most 12 words copied from the document, in its own language", "why": "one or two short sentences", "ask": "the change or proof to request, as a short noun phrase", "rule_refs": ["COUNTRY:topic:fact_id"]}],
   "next_steps": [{"action": "...", "deadline": "only if the document states a time limit, else empty", "authority_ref": "COUNTRY:authority_id or null"}],
   "checklist": [{"task": "a small thing to do before signing, paying, replying or attending", "due": "when, if known, else empty"}],
+  "scam": {"level": "none|caution|stop", "reasons": ["a short reason in the reply language"]},
   "deadlines": [{"label": "what must be done by that time, in a few words", "date": "YYYY-MM-DD, only if the document states a full calendar date for it", "date_text": "that date exactly as the document writes it", "within_days": null}],
   "not_sure": "what you could not read, what is not covered by verified rules, or what needs a professional; empty if nothing",
   "closing": "one calm sentence inviting questions plus a short reminder that this is a guide and not legal, medical or financial advice",
   "labels": {LABELS}
 }
 Deadlines: list only a date or time limit that the document itself states for something the person must do or that ends something (pay by, reply by, appeal within, renew before, attend on, the date an offer or contract ends). Do not list the date the document was written or issued, birthdays, or dates of past events. Do not calculate or guess dates. If the document gives a full calendar date, fill "date" and copy it into "date_text". If it only gives a period such as "within 14 days", leave "date" and "date_text" empty and set "within_days" to that number of days. If the year is missing, leave "date" empty and put what is written in "date_text". If there are no deadlines, return an empty list.
+Scam level: set "scam.level" to "none" for ordinary bills, notices, contracts, school letters and messages (this is almost always the case). Use "caution" when one clear warning sign is present (for example a payment link that is not an official address, a payment to a personal account, or pressure to act within hours). Use "stop" only when the document asks for money, a code, a password or personal details and shows two or more warning signs together. Put at most 4 short reasons in "reasons", in the reply language, each naming the sign you saw. Leave "reasons" empty when the level is "none". Never say the document is a scam and never say it is safe.
 Limits: up to 6 deadlines, up to 8 points (in the order of the document), 6 terms, 6 key_facts, 6 findings (most serious first), 4 next_steps, 6 checklist items. Translate the labels into the reply language. If recognized is false (the image has no document or message to explain), say so gently in summary, suggest what the person could send instead, and leave the lists empty. If readable is false, leave everything else empty.
 """
 

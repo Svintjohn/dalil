@@ -177,6 +177,11 @@ SAMPLES: dict[str, dict] = {
                 {"task": "Check the plate number on the official website", "due": ""},
                 {"task": "Keep a screenshot of the message", "due": ""},
             ],
+            "scam": {"level": "stop", "reasons": [
+                "It asks you to pay into a personal account.",
+                "The payment link does not look official and is not secure.",
+                "It gives only 24 hours and threatens extra charges.",
+            ]},
             "not_sure": "Dalil cannot tell whether this notice is genuine. Only the official channels can confirm it.",
             "closing": "You can ask me about this notice. This is a guide and not legal advice.",
         },

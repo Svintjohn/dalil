@@ -156,6 +156,15 @@ A case keeps a short summary of each document (what it is, key details, next ste
 
 Dalil only lists a deadline when the document states it. A full calendar date is checked by the server before it is shown. A period such as "within 14 days" asks you for the day you received the paper, because Dalil cannot know it. Saved deadlines live in the browser's local storage, so clearing browser data removes them. The calendar file (.ics) adds all-day events with reminders at 9:00 three days before and the day before.
 
+## Scam shield
+
+Dalil checks every document for warning signs of a scam and shows a calm card at the top when it finds them: **Be careful** (one clear sign) or **Stop, do not pay or reply yet** (several signs together).
+
+- Rule checks (`backend/dalil/scam.py`) look for a request for a code, PIN or password, payment by gift card or crypto, a remote-control app, a personal account, links that are not official or secure, very short deadlines, threats, prizes and secrecy. Protective text such as "never share your OTP" is not flagged.
+- The model's own view is combined with the rules. The model alone cannot raise the level to "stop", and one weak sign alone shows nothing.
+- Dalil never says a document is a scam and never says it is safe. It only says what warning signs it sees and tells the person to check with the real office, typing the address themselves.
+- When the level is "stop", deadlines are not offered for tracking, so a scam's payment date never lands in the person's calendar.
+
 ## Rules registry
 
 Countries covered so far: AE, GB, SG, MY, SA, AU, US, QA, KW, BH, OM, PH, IN, PK, CA, JP, KR and BD.

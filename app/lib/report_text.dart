@@ -3,6 +3,14 @@ import 'models.dart';
 
 String reportToText(Report r) {
   final b = StringBuffer();
+  if (r.scam.shown) {
+    b.writeln(r.scam.stop ? r.label('scam_stop', 'Stop. Do not pay or reply yet') : r.label('scam_caution', 'Be careful with this one'));
+    for (final reason in r.scam.reasons) {
+      b.writeln('- $reason');
+    }
+    b.writeln(r.label('scam_steps', 'Do not pay, send any code or open any link in it. Check with the office through its official app or website, typing the address yourself, or call a number you find yourself. Keep the message and ask someone you trust.'));
+    b.writeln();
+  }
   if (r.docType.isNotEmpty) b.writeln(r.docType);
   b.writeln(r.summary);
   if (r.nextSteps.isNotEmpty) {
@@ -52,6 +60,12 @@ String reportToText(Report r) {
 
 String reportToSpeech(Report r) {
   final b = StringBuffer();
+  if (r.scam.shown) {
+    b.writeln(r.scam.stop ? r.label('scam_stop', 'Stop. Do not pay or reply yet') : r.label('scam_caution', 'Be careful with this one'));
+    for (final reason in r.scam.reasons) {
+      b.writeln(reason);
+    }
+  }
   b.writeln(r.summary);
   if (r.nextSteps.isNotEmpty) {
     b.writeln(r.label('next_steps', 'What to do'));

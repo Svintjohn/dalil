@@ -40,4 +40,18 @@ void main() {
     expect(m.maxImages, 6);
     expect(m.languages, isEmpty);
   });
+
+  test('Report parser reads the scam verdict and ignores bad values', () {
+    expect(Report.fromJson({'summary': 's'}).scam.shown, isFalse);
+    final r = Report.fromJson({
+      'summary': 's',
+      'scam': {'level': 'stop', 'reasons': ['Pays to a personal account', '', 3]},
+    });
+    expect(r.scam.stop, isTrue);
+    expect(r.scam.shown, isTrue);
+    expect(r.scam.reasons.first, 'Pays to a personal account');
+    expect(Report.fromJson({'summary': 's', 'scam': {'level': 'maybe'}}).scam.shown, isFalse);
+    expect(Report.fromJson({'summary': 's', 'scam': 'stop'}).scam.shown, isFalse);
+    expect(Report.fromJson({'summary': 's', 'scam': {'level': 'caution'}}).scam.stop, isFalse);
+  });
 }

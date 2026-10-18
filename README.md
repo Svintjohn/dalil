@@ -183,6 +183,12 @@ When the person will probably have to visit, call or write to an office, school,
 - The person can tick items off as they pack. The card is included in Copy.
 - It is hidden for a likely scam.
 
+## Voice
+
+- Tap the microphone and speak a follow-up question in the chosen language. When the microphone stops (or the person taps stop), the question is sent by itself and the answer is read aloud.
+- A typed question gets a silent answer. Every answer has its own **Listen** button, and **Listen** at the top reads the whole result.
+- Voices come from the browser. If the browser has no voice for a language, Dalil says so instead of reading in the wrong one.
+
 ## Rules registry
 
 Countries covered so far: AE, GB, SG, MY, SA, AU, US, QA, KW, BH, OM, PH, IN, PK, CA, JP, KR and BD.

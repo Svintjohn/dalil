@@ -1,5 +1,8 @@
 import 'package:dalil_app/api.dart';
 import 'package:dalil_app/fonts.dart';
+import 'package:dalil_app/home.dart';
+import 'package:dalil_app/speech.dart';
+import 'package:dalil_app/theme.dart';
 import 'package:dalil_app/main.dart';
 import 'package:dalil_app/models.dart';
 import 'package:dalil_app/report_text.dart';
@@ -44,6 +47,32 @@ class FakeApi implements DalilApi {
   @override
   Future<Letter> letter({required Map<String, dynamic> report, required String language, required String recipient, required String note}) async =>
       Letter.fromJson({'letter_en': 'Dear landlord'});
+}
+
+class FakeSpeaker implements Speaker {
+  final spoken = <String>[];
+  @override
+  Future<bool> speak(String text, String languageCode, {void Function()? onDone}) async {
+    spoken.add(text);
+    return true;
+  }
+
+  @override
+  Future<void> stop() async {}
+}
+
+class FakeDictation implements Dictation {
+  void Function(String text)? onText;
+  void Function()? onEnd;
+  @override
+  Future<bool> start(String languageCode, {required void Function(String text) onText, required void Function() onEnd}) async {
+    this.onText = onText;
+    this.onEnd = onEnd;
+    return true;
+  }
+
+  @override
+  Future<void> stop() async {}
 }
 
 /// Scrolls a widget to the middle of the screen, so the sticky header does not cover it.
@@ -212,5 +241,57 @@ void main() {
     });
     expect(reportToText(r), contains('The invoice'));
     expect(reportToText(r), contains('1. Can I pay in two parts?'));
+  });
+
+  testWidgets('a spoken question is sent when speaking stops and the answer is read aloud', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final speaker = FakeSpeaker();
+    final dictation = FakeDictation();
+
+    await tester.pumpWidget(MaterialApp(
+      theme: buildTheme(Brightness.light),
+      home: HomePage(api: FakeApi(), speaker: speaker, dictation: dictation),
+    ));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('Paste text'));
+    await tester.tap(find.text('Paste text'));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('Rental contract'));
+    await tester.tap(find.text('Rental contract'));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('Explain this'));
+    await tester.tap(find.text('Explain this'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(find.text('Two things to check.'), findsOneWidget);
+
+    final askField = find.byWidgetPredicate((w) => w is TextField && (w.decoration?.hintText ?? '').contains('mic'));
+
+    // A typed question gets a silent answer.
+    await reveal(tester, askField);
+    await tester.enterText(askField, 'Can they keep my passport?');
+    await tester.testTextInput.receiveAction(TextInputAction.send);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('An answer.'), findsOneWidget);
+    expect(speaker.spoken, isEmpty);
+
+    // Any answer can be read on request.
+    await reveal(tester, find.byKey(const ValueKey('listen-answer-0')));
+    await tester.tap(find.byKey(const ValueKey('listen-answer-0')));
+    await tester.pumpAndSettle();
+    expect(speaker.spoken, ['An answer.']);
+
+    // A spoken question is sent by itself when the microphone stops, and the answer is read aloud.
+    await reveal(tester, find.byIcon(Icons.mic_none_rounded));
+    await tester.tap(find.byIcon(Icons.mic_none_rounded));
+    await tester.pumpAndSettle();
+    dictation.onText!('Do I have to pay now?');
+    dictation.onEnd!();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('Do I have to pay now?'), findsOneWidget);
+    expect(speaker.spoken, ['An answer.', 'An answer.']);
   });
 }

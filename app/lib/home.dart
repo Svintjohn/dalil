@@ -36,8 +36,9 @@ class PageShot {
 }
 
 class ChatTurn {
-  ChatTurn(this.q, {this.a, this.error});
+  ChatTurn(this.q, {this.a, this.error, this.byVoice = false});
   final String q;
+  final bool byVoice; // the question was spoken, so the answer is read aloud
   AskAnswer? a;
   String? error;
 }
@@ -82,6 +83,8 @@ class _HomePageState extends State<HomePage> {
   final howKey = GlobalKey();
   final langKey = GlobalKey();
   bool speaking = false;
+  ChatTurn? speakingTurn; // which answer is being read, or null for the whole report
+  bool _askedByVoice = false;
   late final Speaker _speaker = widget.speaker ?? TtsSpeaker();
   late final Dictation _dictation = widget.dictation ?? SpeechDictation();
   bool listening = false;
@@ -263,23 +266,45 @@ class _HomePageState extends State<HomePage> {
     scroll.animateTo(0, duration: Motion.ms(context, 900), curve: Motion.smooth);
   }
 
-  Future<void> _listen() async {
-    final r = report;
+  Future<void> _speak(String text, {ChatTurn? turn}) async {
     final l = language;
-    if (r == null || l == null) return;
+    if (l == null || text.trim().isEmpty) return;
     if (speaking) {
+      final same = identical(speakingTurn, turn);
       await _speaker.stop();
-      if (mounted) setState(() => speaking = false);
-      return;
+      if (mounted) {
+        setState(() {
+          speaking = false;
+          speakingTurn = null;
+        });
+      }
+      if (same) return; // a second tap on the same button only stops
     }
-    setState(() => speaking = true);
-    final ok = await _speaker.speak(reportToSpeech(r), l.code, onDone: () {
-      if (mounted) setState(() => speaking = false);
+    setState(() {
+      speaking = true;
+      speakingTurn = turn;
+    });
+    final ok = await _speaker.speak(text, l.code, onDone: () {
+      if (mounted) {
+        setState(() {
+          speaking = false;
+          speakingTurn = null;
+        });
+      }
     });
     if (!ok && mounted) {
-      setState(() => speaking = false);
+      setState(() {
+        speaking = false;
+        speakingTurn = null;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Your browser has no ${l.name} voice installed. Add one in your computer speech settings, or try Chrome or Edge.')));
     }
+  }
+
+  Future<void> _listen() async {
+    final r = report;
+    if (r == null) return;
+    await _speak(reportToSpeech(r));
   }
 
   Future<void> _dictate() async {
@@ -288,22 +313,27 @@ class _HomePageState extends State<HomePage> {
     if (listening) {
       await _dictation.stop();
       if (mounted) setState(() => listening = false);
+      if (mounted && askCtl.text.trim().isNotEmpty) await _ask(); // tapping stop means "I am done speaking"
       return;
     }
     await _speaker.stop();
     setState(() {
       listening = true;
       speaking = false;
+      speakingTurn = null;
     });
     final ok = await _dictation.start(
       l.code,
       onText: (t) {
         if (!mounted) return;
+        _askedByVoice = true;
         askCtl.text = t;
         askCtl.selection = TextSelection.collapsed(offset: t.length);
       },
       onEnd: () {
-        if (mounted && listening) setState(() => listening = false);
+        if (!mounted || !listening) return;
+        setState(() => listening = false);
+        if (askCtl.text.trim().isNotEmpty) _ask(); // the microphone stopped by itself: send what was heard
       },
     );
     if (!ok && mounted) {
@@ -343,7 +373,9 @@ class _HomePageState extends State<HomePage> {
   Future<void> _ask() async {
     final q = askCtl.text.trim();
     if (q.isEmpty || report == null || asking || askCooling) return;
-    final turn = ChatTurn(q);
+    final byVoice = _askedByVoice;
+    _askedByVoice = false;
+    final turn = ChatTurn(q, byVoice: byVoice);
     setState(() {
       chat.add(turn);
       asking = true;
@@ -368,6 +400,8 @@ class _HomePageState extends State<HomePage> {
         });
       }
     }
+    final a = turn.a;
+    if (mounted && byVoice && a != null) await _speak(a.answer, turn: turn); // a spoken question gets a spoken answer
   }
 
   Future<void> _letter() async {
@@ -781,6 +815,7 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: TextField(
                     controller: askCtl,
+                    onChanged: (_) => _askedByVoice = false, // typing means the answer stays silent
                     onSubmitted: (_) => _ask(),
                     textInputAction: TextInputAction.send,
                     decoration: InputDecoration(hintText: listening ? 'Listening…' : 'Type or tap the mic: can they keep my passport?'),
@@ -844,6 +879,15 @@ class _HomePageState extends State<HomePage> {
               Text('Checking official sources', style: TextStyle(color: p.inkSoft))
             else ...[
               Text(t.a!.answer, style: const TextStyle(fontSize: 16, height: 1.5)),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  key: ValueKey('listen-answer-${chat.indexOf(t)}'),
+                  onPressed: () => _speak(t.a!.answer, turn: t),
+                  icon: Icon(speaking && identical(speakingTurn, t) ? Icons.stop_circle_outlined : Icons.volume_up_outlined, size: 18),
+                  label: Text(speaking && identical(speakingTurn, t) ? 'Stop' : 'Listen', style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ),
               for (final s in t.a!.sources)
                 InkWell(
                   onTap: s.url.isEmpty ? null : () => _open(s.url),

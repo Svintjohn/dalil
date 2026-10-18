@@ -650,3 +650,60 @@ def test_report_has_scam_labels_and_schema():
 
     assert {"scam_stop", "scam_caution", "scam_steps", "scam_note"} <= set(prompts.LABEL_KEYS)
     assert '"scam"' in prompts.REVIEW_SCHEMA
+
+
+# ---- If you do nothing ----
+
+def test_if_ignored_keeps_what_the_document_states():
+    out = _fin({"if_ignored": [
+        {"action": "Pay Term 2 fee", "consequence": "A late charge of AED 150 will be added.", "source": "document"},
+        {"action": "Return the slip", "consequence": "", "source": "document"},  # nothing stated: dropped
+        {"action": "", "consequence": "Something", "source": "document"},  # no action: dropped
+    ]})
+    assert out["if_ignored"] == [{"action": "Pay Term 2 fee", "consequence": "A late charge of AED 150 will be added.", "source": "document", "sources": []}]
+
+
+def test_if_ignored_rule_claims_need_a_verified_source():
+    ref = "AE:tenancy:dubai_ejari_mandatory"
+    assert registry.get_country("AE") and agent.resolve_rule(ref)
+    out = _fin({"if_ignored": [
+        {"action": "Register the contract", "consequence": "It cannot be used for a dispute.", "source": "rule", "rule_refs": [ref]},
+        {"action": "Invented", "consequence": "You will be jailed.", "source": "rule", "rule_refs": ["AE:fines:not_a_real_fact"]},
+        {"action": "No refs at all", "consequence": "A fine.", "source": "rule", "rule_refs": []},
+    ]})
+    assert [i["action"] for i in out["if_ignored"]] == ["Register the contract"]
+    assert out["if_ignored"][0]["source"] == "rule" and out["if_ignored"][0]["sources"][0]["ref"] == ref
+
+
+def test_if_ignored_is_limited_and_survives_bad_model_output():
+    many = [{"action": f"a{i}", "consequence": f"c{i}", "source": "document"} for i in range(9)]
+    assert len(_fin({"if_ignored": many})["if_ignored"]) == 4
+    for bad in (None, "text", 5, {"a": 1}, [1, "x", None], [{"action": 3, "consequence": ["x"]}]):
+        try:
+            out = _fin({"if_ignored": bad})
+        except Exception as e:  # noqa: BLE001
+            raise AssertionError(f"report broke on {bad!r}") from e
+        assert isinstance(out["if_ignored"], list)
+
+
+def test_if_ignored_is_hidden_for_a_likely_scam():
+    r = samples.saved_report("fine")
+    assert r["scam"]["level"] == "stop" and r["if_ignored"] == []
+    out = _fin(
+        {"if_ignored": [{"action": "Pay now", "consequence": "Your car will be impounded.", "source": "document"}]},
+        "Pay with gift cards from iTunes within 2 hours at http://pay-now.top/x or you will be arrested.",
+    )
+    assert out["scam"]["level"] == "stop" and out["if_ignored"] == []
+
+
+def test_school_sample_states_its_late_charge():
+    r = samples.saved_report("school")
+    assert r["if_ignored"] and "150" in r["if_ignored"][0]["consequence"]
+    assert "if_ignored" in samples.saved_report("rent")
+
+
+def test_if_ignored_labels_and_schema():
+    from dalil import prompts
+
+    assert {"if_ignored", "if_ignored_unstated", "from_document", "from_rule"} <= set(prompts.LABEL_KEYS)
+    assert '"if_ignored"' in prompts.REVIEW_SCHEMA

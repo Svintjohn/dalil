@@ -261,6 +261,44 @@ class _ReportViewState extends State<ReportView> {
     );
   }
 
+  Widget _ifIgnored(BuildContext context) {
+    final p = Palette.of(context);
+    if (r.ifIgnored.isEmpty) {
+      return Text(
+        r.label('if_ignored_unstated', 'The document does not say what happens if you miss it. Ask the office that sent it.'),
+        key: const ValueKey('if-ignored-unstated'),
+        style: TextStyle(color: p.inkSoft, height: 1.5),
+      );
+    }
+    return Column(
+      key: const ValueKey('if-ignored'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final it in r.ifIgnored)
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: p.sevTint('medium'), borderRadius: BorderRadius.circular(14)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(it.action, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700, height: 1.4)),
+              const SizedBox(height: 6),
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Padding(padding: const EdgeInsets.only(top: 3), child: Icon(Icons.arrow_forward, size: 16, color: p.sev('medium'))),
+                const SizedBox(width: 8),
+                Expanded(child: Text(it.consequence, style: const TextStyle(fontSize: 16, height: 1.5))),
+              ]),
+              const SizedBox(height: 8),
+              Text(
+                it.source == 'rule' ? r.label('from_rule', 'Official rule') : r.label('from_document', 'The document says'),
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: p.inkSoft),
+              ),
+              for (final s in it.sources) _link(context, 'Official source${s.verifiedOn.isEmpty ? '' : ', checked ${s.verifiedOn}'}', s.url),
+            ]),
+          ),
+      ],
+    );
+  }
+
   Widget _authority(BuildContext context, Authority a) {
     final p = Palette.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -371,6 +409,7 @@ class _ReportViewState extends State<ReportView> {
             const SizedBox(height: 18),
             _overview(context),
             if (r.nextSteps.isNotEmpty) ...[_heading(context, r.label('next_steps', 'What to do')), _nextSteps(context)],
+            if (r.ifIgnored.isNotEmpty || (r.deadlines.isNotEmpty && !r.scam.stop)) ...[_heading(context, r.label('if_ignored', 'If you do nothing')), _ifIgnored(context)],
             if (r.points.isNotEmpty) ...[_heading(context, r.label('plain_words', 'In plain words')), _plainWords(context)],
             if (r.keyFacts.isNotEmpty) ...[_heading(context, r.label('key_facts', 'Key details')), _keyFacts(context)],
             if (r.findings.isNotEmpty) ...[_heading(context, r.label('watch_out', 'Watch out')), for (final f in r.findings) _finding(context, f)],

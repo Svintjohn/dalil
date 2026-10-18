@@ -214,6 +214,10 @@ SAMPLES: dict[str, dict] = {
                 {"task": "Find the invoice reference number", "due": ""},
                 {"task": "Keep the bank transfer receipt", "due": ""},
             ],
+            "if_ignored": [
+                {"action": "Pay the Term 2 fee of AED 4,200 by the due date",
+                 "consequence": "A late charge of AED 150 will be added.", "source": "document"},
+            ],
             "deadlines": [
                 {"label": "Pay the Term 2 school fee (AED 4,200)", "date": _DUE.isoformat(), "date_text": _DUE_TEXT},
                 {"label": "Return the signed trip permission slip", "within_days": 7},

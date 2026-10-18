@@ -165,6 +165,15 @@ Dalil checks every document for warning signs of a scam and shows a calm card at
 - Dalil never says a document is a scam and never says it is safe. It only says what warning signs it sees and tells the person to check with the real office, typing the address themselves.
 - When the level is "stop", deadlines are not offered for tracking, so a scam's payment date never lands in the person's calendar.
 
+## If you do nothing
+
+For each thing the person must do or pay, Dalil shows what happens if they do not, in a short card under "What to do".
+
+- A consequence is shown only when the document states it (for example a late charge) or a verified official fact from the rules registry states it. It is marked "The document says" or "Official rule" with the source link.
+- A rule claim without a verified source is dropped. Dalil never guesses a consequence or predicts a court result.
+- When a document has a deadline but states no consequence, Dalil says so and tells the person to ask the office that sent it.
+- For a likely scam the section is hidden, because doing nothing is the safe choice.
+
 ## Rules registry
 
 Countries covered so far: AE, GB, SG, MY, SA, AU, US, QA, KW, BH, OM, PH, IN, PK, CA, JP, KR and BD.

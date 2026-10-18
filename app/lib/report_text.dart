@@ -22,6 +22,13 @@ String reportToText(Report r) {
       if (s.authority != null) b.writeln('   ${s.authority!.name}  ${s.authority!.url}');
     }
   }
+  if (r.ifIgnored.isNotEmpty) {
+    b.writeln();
+    b.writeln(r.label('if_ignored', 'If you do nothing'));
+    for (final it in r.ifIgnored) {
+      b.writeln('- ${it.action}: ${it.consequence}');
+    }
+  }
   if (r.deadlines.isNotEmpty) {
     b.writeln();
     b.writeln(r.label('deadlines', 'Deadlines'));
@@ -71,6 +78,12 @@ String reportToSpeech(Report r) {
     b.writeln(r.label('next_steps', 'What to do'));
     for (final s in r.nextSteps) {
       b.writeln('${s.action}${s.deadline.isEmpty ? '' : '. ${s.deadline}'}');
+    }
+  }
+  if (r.ifIgnored.isNotEmpty) {
+    b.writeln(r.label('if_ignored', 'If you do nothing'));
+    for (final it in r.ifIgnored) {
+      b.writeln('${it.action}. ${it.consequence}');
     }
   }
   if (r.points.isNotEmpty) {

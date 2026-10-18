@@ -132,6 +132,25 @@ class RawDeadline(_Lenient):
     within_days: int | None = None  # "within 14 days" when no calendar date is given
 
 
+class RawIgnored(_Lenient):
+    action: str = ""  # what the person is asked to do
+    consequence: str = ""  # what happens if they do not
+    source: str = "document"  # document | rule
+    rule_refs: list[str] = Field(default_factory=list)
+
+    @field_validator("action", "consequence", "source", mode="before")
+    @classmethod
+    def _text(cls, v):
+        return v if isinstance(v, str) else (str(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else "")
+
+    @field_validator("rule_refs", mode="before")
+    @classmethod
+    def _refs(cls, v):
+        if isinstance(v, str):
+            return [v]
+        return [x for x in v if isinstance(x, str)] if isinstance(v, list) else []
+
+
 class RawScam(_Lenient):
     level: str = "none"  # none | caution | stop
     reasons: list[str] = Field(default_factory=list)
@@ -164,9 +183,15 @@ class RawReport(_Lenient):
     checklist: list[RawCheck] = Field(default_factory=list)
     deadlines: list[RawDeadline] = Field(default_factory=list)
     scam: RawScam = Field(default_factory=RawScam)
+    if_ignored: list[RawIgnored] = Field(default_factory=list)
     not_sure: str = ""
     closing: str = ""
     labels: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("if_ignored", mode="before")
+    @classmethod
+    def _ignored(cls, v):
+        return [x for x in v if isinstance(x, dict)] if isinstance(v, list) else []
 
     @field_validator("scam", mode="before")
     @classmethod

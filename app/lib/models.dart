@@ -200,6 +200,18 @@ class KeyFact {
   factory KeyFact.fromJson(Map<String, dynamic> j) => KeyFact(_s(j['label']), _s(j['value']));
 }
 
+class IgnoredItem {
+  IgnoredItem({required this.action, required this.consequence, required this.source, required this.sources});
+  final String action, consequence, source; // source: document | rule
+  final List<SourceRef> sources;
+  factory IgnoredItem.fromJson(Map<String, dynamic> j) => IgnoredItem(
+        action: _s(j['action']),
+        consequence: _s(j['consequence']),
+        source: _s(j['source']) == 'rule' ? 'rule' : 'document',
+        sources: _l(j['sources']).map((e) => SourceRef.fromJson(_m(e))).toList(),
+      );
+}
+
 class ReportScam {
   const ReportScam({this.level = 'none', this.reasons = const []});
   final String level; // none | caution | stop
@@ -237,6 +249,7 @@ class Report {
     required this.checklist,
     required this.deadlines,
     required this.scam,
+    required this.ifIgnored,
     required this.notSure,
     required this.closing,
     required this.labels,
@@ -255,6 +268,7 @@ class Report {
   final List<ChecklistItem> checklist;
   final List<ReportDeadline> deadlines;
   final ReportScam scam;
+  final List<IgnoredItem> ifIgnored;
   final Map<String, String> labels;
   final int hiddenTotal;
 
@@ -286,6 +300,10 @@ class Report {
       checklist: _l(j['checklist']).map((e) => ChecklistItem.fromJson(_m(e))).toList(),
       deadlines: _l(j['deadlines']).map((e) => ReportDeadline.fromJson(_m(e))).where((d) => d.label.trim().isNotEmpty).toList(),
       scam: j['scam'] is Map ? ReportScam.fromJson(_m(j['scam'])) : const ReportScam(),
+      ifIgnored: _l(j['if_ignored'])
+          .map((e) => IgnoredItem.fromJson(_m(e)))
+          .where((i) => i.action.trim().isNotEmpty && i.consequence.trim().isNotEmpty)
+          .toList(),
       notSure: _s(j['not_sure']),
       closing: _s(j['closing']),
       labels: lab,

@@ -54,4 +54,30 @@ void main() {
     expect(Report.fromJson({'summary': 's', 'scam': 'stop'}).scam.shown, isFalse);
     expect(Report.fromJson({'summary': 's', 'scam': {'level': 'caution'}}).scam.stop, isFalse);
   });
+
+  test('Report parser reads what happens if you do nothing', () {
+    expect(Report.fromJson({'summary': 's'}).ifIgnored, isEmpty);
+    final r = Report.fromJson({
+      'summary': 's',
+      'if_ignored': [
+        {'action': 'Pay the fee', 'consequence': 'A late charge of AED 150.', 'source': 'document'},
+        {
+          'action': 'Register',
+          'consequence': 'Not valid in a dispute.',
+          'source': 'rule',
+          'sources': [
+            {'ref': 'AE:tenancy:x', 'statement': 'st', 'url': 'https://u.ae', 'verified_on': '2026-10-01'}
+          ]
+        },
+        {'action': '', 'consequence': 'no action'},
+        {'action': 'No consequence', 'consequence': ''},
+        'junk',
+      ],
+    });
+    expect(r.ifIgnored.length, 2);
+    expect(r.ifIgnored[0].source, 'document');
+    expect(r.ifIgnored[1].source, 'rule');
+    expect(r.ifIgnored[1].sources.first.url, 'https://u.ae');
+    expect(Report.fromJson({'summary': 's', 'if_ignored': 'x'}).ifIgnored, isEmpty);
+  });
 }

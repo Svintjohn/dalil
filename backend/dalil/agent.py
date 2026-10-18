@@ -212,12 +212,29 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
         if s.action.strip():
             steps.append({"action": s.action, "deadline": s.deadline, "authority": resolve_authority(s.authority_ref)})
 
+    # "If you do nothing": only consequences the document states, or an official fact that was really found.
+    ignored = []
+    for it in raw.if_ignored[:8]:
+        action, cons = " ".join(it.action.split())[:160], " ".join(it.consequence.split())[:300]
+        if not action or not cons:
+            continue
+        if it.source == "rule":
+            srcs = _dedupe([r for r in (resolve_rule(x) for x in it.rule_refs) if r], "ref")
+            if not srcs:
+                continue  # a rule claim with no verified source is not shown
+            ignored.append({"action": action, "consequence": cons, "source": "rule", "sources": srcs})
+        else:
+            ignored.append({"action": action, "consequence": cons, "source": "document", "sources": []})
+    ignored = ignored[:4]
+
     # Scam shield: rule-based signs from the document text and the quoted parts, plus what the model saw.
     quoted = " ".join([doc_text] + [f.quote for f in raw.findings] + [p.original for p in raw.points] + [k.value for k in raw.key_facts])
     scam = scam_mod.assess(
         scam_mod.scan(quoted), raw.scam.level, raw.scam.reasons, sum(1 for f in findings if f["kind"] == "scam_signal")
     )
-    deadlines = [] if scam["level"] == "stop" else clean_deadlines(raw.deadlines)  # never offer to track a payment deadline from a likely scam
+    deadlines = [] if scam["level"] == "stop" else clean_deadlines(raw.deadlines)
+    if scam["level"] == "stop":
+        ignored = []  # for a likely scam, doing nothing is the safe choice, so no consequences are listed  # never offer to track a payment deadline from a likely scam
 
     return {
         "readable": True,
@@ -238,6 +255,7 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
         "checklist": [c.model_dump() for c in raw.checklist if c.task.strip()][:6],
         "deadlines": deadlines,
         "scam": scam,
+        "if_ignored": ignored,
         "not_sure": raw.not_sure,
         "closing": raw.closing,
         "labels": labels,

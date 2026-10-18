@@ -120,4 +120,48 @@ void main() {
     final ok = Report.fromJson({'summary': 'A school notice.'});
     expect(reportToText(ok).startsWith('A school notice.'), isTrue);
   });
+
+  testWidgets('if you do nothing shows stated consequences, or says it is not stated', (tester) async {
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    Future<void> show(Map<String, dynamic> extra) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ReportView(report: Report.fromJson({'summary': 'A school notice.', ...extra}), onOpen: (_) {}),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+    }
+
+    await show({
+      'if_ignored': [
+        {'action': 'Pay the Term 2 fee', 'consequence': 'A late charge of AED 150 will be added.', 'source': 'document'},
+      ],
+    });
+    expect(find.text('If you do nothing'), findsOneWidget);
+    expect(find.text('A late charge of AED 150 will be added.'), findsOneWidget);
+    expect(find.text('The document says'), findsOneWidget);
+
+    await show({
+      'deadlines': [
+        {'label': 'Pay the fee', 'within_days': 14},
+      ],
+    });
+    expect(find.byKey(const ValueKey('if-ignored-unstated')), findsOneWidget);
+
+    await show({});
+    expect(find.text('If you do nothing'), findsNothing);
+
+    await show({
+      'scam': {'level': 'stop', 'reasons': ['Pay into a personal account']},
+      'deadlines': [
+        {'label': 'Pay now', 'within_days': 1},
+      ],
+    });
+    expect(find.text('If you do nothing'), findsNothing);
+  });
 }

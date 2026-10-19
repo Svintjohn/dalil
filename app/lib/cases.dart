@@ -21,6 +21,62 @@ List<String> _strings(dynamic v, int maxItems, int maxLen) {
   return out;
 }
 
+/// The key facts of a reading as "label: value" lines, the same way they are kept in a case (at most six).
+List<String> _factStrings(Report r) {
+  final out = <String>[];
+  for (final k in r.keyFacts) {
+    if (k.label.trim().isNotEmpty && k.value.trim().isNotEmpty && out.length < 6) out.add(_cap('${k.label}: ${k.value}', 200));
+  }
+  return out;
+}
+
+(String, String) _splitFact(String f) {
+  final i = f.indexOf(': ');
+  return i < 0 ? (f.trim(), '') : (f.substring(0, i).trim(), f.substring(i + 2).trim());
+}
+
+String _norm(String s) => s.toLowerCase().replaceAll(RegExp(r'[\s,]+'), '');
+
+class FactChange {
+  const FactChange(this.label, this.before, this.after);
+  final String label, before, after;
+}
+
+/// How a new reading differs from an earlier document in the same case. Only the key facts (amounts, dates,
+/// names) are compared, by their label, so Dalil never guesses what a change means.
+class WhatChanged {
+  const WhatChanged({required this.comparable, this.changed = const [], this.added = const [], this.removed = const [], this.same = 0, this.watchBefore = 0, this.watchAfter = 0});
+  final bool comparable; // false when either side has no key facts to compare
+  final List<FactChange> changed;
+  final List<String> added, removed; // "label: value" lines
+  final int same, watchBefore, watchAfter;
+
+  bool get anyChange => changed.isNotEmpty || added.isNotEmpty || removed.isNotEmpty;
+}
+
+WhatChanged compareWithEntry(Report r, CaseEntry prev) {
+  final now = _factStrings(r).map(_splitFact).toList();
+  final before = prev.facts.map(_splitFact).toList();
+  if (now.isEmpty || before.isEmpty) return const WhatChanged(comparable: false);
+  final beforeBy = {for (final f in before) _norm(f.$1): f};
+  final nowBy = {for (final f in now) _norm(f.$1): f};
+  final changed = <FactChange>[];
+  final added = <String>[];
+  var same = 0;
+  for (final f in now) {
+    final old = beforeBy[_norm(f.$1)];
+    if (old == null) {
+      added.add('${f.$1}: ${f.$2}');
+    } else if (_norm(old.$2) == _norm(f.$2)) {
+      same++;
+    } else {
+      changed.add(FactChange(f.$1, old.$2, f.$2));
+    }
+  }
+  final removed = [for (final f in before) if (!nowBy.containsKey(_norm(f.$1))) '${f.$1}: ${f.$2}'];
+  return WhatChanged(comparable: true, changed: changed, added: added, removed: removed, same: same, watchBefore: prev.watchCount, watchAfter: r.findings.length);
+}
+
 /// One thing that happened in a case: a document Dalil read, or a note the person wrote.
 class CaseEntry {
   CaseEntry({
@@ -165,10 +221,7 @@ class CaseStore {
   /// Returns the id of the case it went into, or null when a limit was reached.
   String? addDocument(Report r, {String? caseId, DateTime? now}) {
     final t = now ?? DateTime.now();
-    final facts = <String>[];
-    for (final k in r.keyFacts) {
-      if (k.label.trim().isNotEmpty && k.value.trim().isNotEmpty && facts.length < 6) facts.add('${k.label}: ${k.value}');
-    }
+    final facts = _factStrings(r);
     final steps = <String>[];
     for (final s in r.nextSteps) {
       if (s.action.trim().isNotEmpty && steps.length < 4) steps.add(s.deadline.trim().isEmpty ? s.action : '${s.action} (${s.deadline})');

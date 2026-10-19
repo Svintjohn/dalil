@@ -1,3 +1,4 @@
+import 'package:dalil_app/models.dart';
 import 'package:dalil_app/print_html.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,5 +15,27 @@ void main() {
     expect(buildPrintHtml('Fine', 'x'), contains('dir="ltr"'));
     expect(buildPrintHtml('  ', 'x'), contains('<title>Dalil</title>'));
     expect(buildPrintHtml('Fine', 'x'), contains('not legal, medical or financial advice'));
+  });
+
+  test('report page has numbered steps, a checklist, page numbers and a reprint button, and escapes the text', () {
+    final r = Report.fromJson({
+      'doc_type': 'School <b>fee</b>',
+      'summary': 'Pay by Friday.',
+      'next_steps': [
+        {'action': 'Pay the fee', 'deadline': '15 Nov'},
+        {'action': 'Keep the receipt', 'deadline': ''},
+      ],
+      'checklist': [
+        {'task': 'Pay <script>x</script>', 'due': '15 Nov'},
+      ],
+    });
+    final html = buildReportPrintHtml(r, now: DateTime(2026, 10, 19));
+    expect(html, contains('<ol class="steps"><li><div>Pay the fee'));
+    expect(html, contains('<ul class="check"><li><div>Pay &lt;script&gt;x&lt;/script&gt;'));
+    expect(html, contains('counter(pages)'));
+    expect(html, contains('Print / Save as PDF'));
+    expect(html, contains('2026-10-19'));
+    expect(html, contains('School &lt;b&gt;fee&lt;/b&gt;'));
+    expect(html, isNot(contains('<script>x')));
   });
 }

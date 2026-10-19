@@ -85,7 +85,17 @@ class _TrackCardState extends State<TrackCard> {
           builder: (context, all, _) {
             final open = [for (final c in all) if (!c.closed) c];
             final value = open.any((c) => c.id == choice) ? choice : 'new';
-            return Container(
+            CaseEntry? earlier;
+            for (final c in open) {
+              if (c.id != value) continue;
+              for (final e in c.entries) {
+                if (!e.isNote) earlier = e; // the latest document in that case
+              }
+            }
+            final diff = earlier == null || saved ? null : compareWithEntry(r, earlier);
+            return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              if (diff != null && earlier != null) ...[_WhatChangedBox(diff: diff, earlier: earlier), const SizedBox(height: 14)],
+              Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(14)),
               child: DropdownButton<String>(
@@ -98,7 +108,8 @@ class _TrackCardState extends State<TrackCard> {
                 ],
                 onChanged: saved ? null : (v) => setState(() => choice = v ?? 'new'),
               ),
-            );
+              ),
+            ]);
           },
         ),
         const SizedBox(height: 14),
@@ -121,6 +132,53 @@ class _TrackCardState extends State<TrackCard> {
         const SizedBox(height: 10),
         Text('Only a short summary is kept, on this device. Your photos and the full text are not saved.', style: TextStyle(color: p.inkSoft, fontSize: 13, height: 1.4)),
       ]),
+    );
+  }
+}
+
+/// "What changed?": the new reading against the latest document already in the chosen case.
+class _WhatChangedBox extends StatelessWidget {
+  const _WhatChangedBox({required this.diff, required this.earlier});
+  final WhatChanged diff;
+  final CaseEntry earlier;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    Widget row(IconData icon, Color color, String text) => Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 8),
+            Expanded(child: Text(text, style: const TextStyle(height: 1.4))),
+          ]),
+        );
+    final children = <Widget>[
+      Text('What changed since "${earlier.title}" (${isoDate(earlier.date)})', style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+    ];
+    if (!diff.comparable) {
+      children.add(row(Icons.info_outline, p.inkSoft, 'There are no key facts on both papers to compare.'));
+    } else if (!diff.anyChange) {
+      children.add(row(Icons.check_circle_outline, p.accent, 'The key facts are the same (${diff.same}).'));
+    } else {
+      for (final c in diff.changed) {
+        children.add(row(Icons.change_circle_outlined, p.accent, '${c.label}: ${c.before.isEmpty ? '-' : c.before}  \u2192  ${c.after.isEmpty ? '-' : c.after}'));
+      }
+      for (final a in diff.added) {
+        children.add(row(Icons.add_circle_outline, p.accent, 'New: $a'));
+      }
+      for (final x in diff.removed) {
+        children.add(row(Icons.remove_circle_outline, p.inkSoft, 'No longer shown: $x'));
+      }
+      if (diff.same > 0) children.add(row(Icons.check_circle_outline, p.inkSoft, '${diff.same} other key fact${diff.same == 1 ? '' : 's'} the same.'));
+    }
+    children.add(const SizedBox(height: 6));
+    children.add(Text('Only the key facts are compared. Read both papers to be sure.', style: TextStyle(color: p.inkSoft, fontSize: 13, height: 1.4)));
+    return Container(
+      key: const ValueKey('what-changed'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(14), border: Border.all(color: p.line)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
     );
   }
 }

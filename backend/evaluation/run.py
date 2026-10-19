@@ -41,8 +41,8 @@ def run_live(pause: float, limit: int | None) -> dict:
                 statuses[c["id"]] = status
             outcome = level if group != "numbers" else status
         except Exception as e:  # noqa: BLE001 - one failed case must not stop the run
-            errors[c["id"]] = type(e).__name__
-            outcome = "error " + type(e).__name__
+            errors[c["id"]] = type(e).__name__ + " " + str(e)[:60]
+            outcome = "error " + type(e).__name__ + " " + str(e)[:60]
         dt = time.monotonic() - t0
         seconds.append(dt)
         print(f"[{i}/{len(todo)}] {group:7s} {c['id']:28s} {outcome:22s} {dt:4.1f}s", flush=True)

@@ -156,6 +156,13 @@ A case keeps a short summary of each document (what it is, key details, next ste
 
 Dalil only lists a deadline when the document states it. A full calendar date is checked by the server before it is shown. A period such as "within 14 days" asks you for the day you received the paper, because Dalil cannot know it. Saved deadlines live in the browser's local storage, so clearing browser data removes them. The calendar file (.ics) adds all-day events with reminders at 9:00 three days before and the day before.
 
+## What changed?
+
+When you add a new reading to an existing case, Dalil compares the key facts (amounts, dates, names) with the latest
+document already in that case and shows what is new, what changed and what is no longer shown. It happens on your
+device, with no extra AI call and nothing sent anywhere. Facts are matched by their label, ignoring capitals, spacing and
+thousands commas, and Dalil never guesses what a change means.
+
 ## Scam shield
 
 Dalil checks every document for warning signs of a scam and shows a calm card at the top when it finds them: **Be careful** (one clear sign) or **Stop, do not pay or reply yet** (several signs together).
@@ -198,6 +205,12 @@ When a bill, invoice, fee notice, payment schedule or contract shows several amo
 - If any line cannot be read or placed, Dalil does not guess and shows no check.
 - Every line the model read is shown, so the person can compare it with the paper (a mismatch can also be a reading mistake).
 - Dalil checks the arithmetic only, not whether prices are fair. For a message with scam warning signs, "the numbers add up" is never shown.
+
+## Save as PDF
+
+The page opens in a new tab laid out for A4 (numbered steps, a checklist with boxes, page numbers) and starts the print
+dialog. Choose "Save as PDF". If the browser still prints a web address in the corner, untick "Headers and footers" in the
+dialog. The "Print / Save as PDF" button on that page prints again.
 
 ## Your saved data
 

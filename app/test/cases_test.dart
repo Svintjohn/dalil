@@ -168,4 +168,44 @@ void main() {
     expect(dl.items.value.single.caseId, cases.cases.value.single.id);
     expect(find.text('Saved to My cases'), findsOneWidget);
   });
+
+  group('what changed', () {
+    Report withFacts(List<List<String>> facts, {int findings = 0}) => Report.fromJson({
+          'summary': 's',
+          'key_facts': [for (final f in facts) {'label': f[0], 'value': f[1]}],
+          'findings': [for (var i = 0; i < findings; i++) {'why': 'w$i'}],
+        });
+    CaseEntry earlierOf(Report r) {
+      final store = CaseStore(storageKey: 'test.what.changed');
+      store.addDocument(r, now: DateTime(2026, 10, 1));
+      return store.cases.value.first.entries.first;
+    }
+
+    test('flags a changed amount, a new fact and a missing one', () {
+      final old = earlierOf(withFacts([['Amount due', 'AED 4,500'], ['Due date', '15 Nov'], ['Reference', 'A-1']]));
+      final d = compareWithEntry(withFacts([['Amount due', 'AED 5,000'], ['Due date', '15 Nov'], ['Late fee', 'AED 200']]), old);
+      expect(d.comparable, isTrue);
+      expect(d.changed.single.label, 'Amount due');
+      expect(d.changed.single.before, 'AED 4,500');
+      expect(d.changed.single.after, 'AED 5,000');
+      expect(d.added, ['Late fee: AED 200']);
+      expect(d.removed, ['Reference: A-1']);
+      expect(d.same, 1);
+      expect(d.anyChange, isTrue);
+    });
+
+    test('ignores case, spacing and thousands commas, so the same fact is not reported as a change', () {
+      final old = earlierOf(withFacts([['Amount due', 'AED 4,500'], ['Due date', '15 Nov']]));
+      final d = compareWithEntry(withFacts([['amount due', 'aed 4500'], ['Due date', '15  nov']]), old);
+      expect(d.anyChange, isFalse);
+      expect(d.same, 2);
+    });
+
+    test('says it cannot compare when one side has no key facts', () {
+      final old = earlierOf(withFacts([]));
+      expect(compareWithEntry(withFacts([['Amount due', 'AED 1']]), old).comparable, isFalse);
+      final old2 = earlierOf(withFacts([['Amount due', 'AED 1']]));
+      expect(compareWithEntry(withFacts([]), old2).comparable, isFalse);
+    });
+  });
 }

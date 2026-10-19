@@ -1,7 +1,7 @@
 import 'deadlines.dart';
 import 'models.dart';
 
-String _numberIssue(Report r, NumberIssue i) {
+String numberIssueText(Report r, NumberIssue i) {
   switch (i.code) {
     case 'tax_mismatch':
       return r.label('numbers_tax', 'The tax shown does not match the tax rate.');
@@ -45,7 +45,7 @@ String reportToText(Report r) {
     b.writeln();
     b.writeln(r.label('numbers', 'Number check'));
     for (final i in nc.issues) {
-      b.writeln('- ${_numberIssue(r, i)}: ${r.label('numbers_stated', 'On the document')} ${nc.money(i.stated)}, ${r.label('numbers_computed', 'Added up')} ${nc.money(i.computed)}');
+      b.writeln('- ${numberIssueText(r, i)}: ${r.label('numbers_stated', 'On the document')} ${nc.money(i.stated)}, ${r.label('numbers_computed', 'Added up')} ${nc.money(i.computed)}');
     }
   }
   final prep = r.prep;
@@ -119,7 +119,7 @@ String reportToSpeech(Report r) {
   final nc = r.numberCheck;
   if (nc != null && !nc.ok) {
     for (final i in nc.issues) {
-      b.writeln('${_numberIssue(r, i)} ${r.label('numbers_stated', 'On the document')} ${nc.money(i.stated)}. ${r.label('numbers_computed', 'Added up')} ${nc.money(i.computed)}.');
+      b.writeln('${numberIssueText(r, i)} ${r.label('numbers_stated', 'On the document')} ${nc.money(i.stated)}. ${r.label('numbers_computed', 'Added up')} ${nc.money(i.computed)}.');
     }
   }
   if (r.ifIgnored.isNotEmpty) {

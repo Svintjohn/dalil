@@ -19,6 +19,7 @@ import 'landing.dart';
 import 'models.dart';
 import 'motion.dart';
 import 'photo.dart';
+import 'print_html.dart';
 import 'print_page.dart';
 import 'report_text.dart';
 import 'report_view.dart';
@@ -346,7 +347,7 @@ class _HomePageState extends State<HomePage> {
   void _savePdf() {
     final r = report;
     if (r == null) return;
-    final ok = printText(r.docType.isEmpty ? 'Dalil' : r.docType, reportToText(r), rtl: r.rtl);
+    final ok = printHtml(buildReportPrintHtml(r));
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open the print window. Allow pop-ups for this site, or use Copy instead.')));
     }

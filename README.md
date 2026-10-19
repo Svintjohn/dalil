@@ -143,6 +143,12 @@ The free Gemini tier allows only a few calls per minute, and one review makes se
 These counters live in memory on each server instance, so on Vercel they slow down abuse but do not stop a determined attacker.
 For real protection, add a spending limit on the AI account and turn on Vercel's firewall or bot protection.
 
+## Loading screen
+
+`app/web/index.html` shows a 3-second animated loading screen (the Dalil intro). It waits for the app's first frame, so
+if the app is slow it stays until the app is ready (with a 20-second safety limit), and it stops all its animation when it
+closes. With "reduce motion" turned on in the system it shows for about 1 second.
+
 ## Install as an app (PWA)
 
 The site can be installed on a phone or computer. In Chrome or Edge use the install icon in the address bar. On an iPhone
@@ -155,6 +161,11 @@ A case keeps a short summary of each document (what it is, key details, next ste
 ### Deadlines
 
 Dalil only lists a deadline when the document states it. A full calendar date is checked by the server before it is shown. A period such as "within 14 days" asks you for the day you received the paper, because Dalil cannot know it. Saved deadlines live in the browser's local storage, so clearing browser data removes them. The calendar file (.ics) adds all-day events with reminders at 9:00 three days before and the day before.
+
+## Share
+
+The "Share" button opens WhatsApp with a short version of the result (the start of the full text, about 1,500
+characters) so you can send it to someone you trust. You choose who gets it. Nothing is sent to Dalil's server.
 
 ## What changed?
 

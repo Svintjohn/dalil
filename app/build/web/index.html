@@ -29,422 +29,271 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Noto+Sans+Arabic:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-deep:    #060f12;
+html, body { margin: 0; height: 100%; background: #060f12; }
+#dalil-loader{--bg-deep:    #060f12;
       --bg-main:    #0a1a1f;
       --bg-card:    #0f2329;
       --teal-100:   #e0f7f4;
       --teal-200:   #b2ebe4;
+      --teal-300:   #7ad9cd;
       --teal-400:   #4dd0c4;
       --teal-500:   #2db8a8;
       --teal-600:   #1a9e8e;
       --teal-700:   #147a6e;
       --gold:       #f5c542;
-      --red-flag:   #e84855;
       --white:      #f0f6f5;
       --white-60:   rgba(240,246,245,.6);
       --white-30:   rgba(240,246,245,.3);
       --white-10:   rgba(240,246,245,.1);
+      --white-05:   rgba(240,246,245,.05);
       --font-en:    'Inter', sans-serif;
-      --font-ar:    'Noto Sans Arabic', sans-serif;
+      --font-ar:    'Noto Sans Arabic', sans-serif;}
+#dalil-loader *,#dalil-loader *::before,#dalil-loader *::after{box-sizing: border-box; margin: 0; padding: 0;}
+#dalil-loader{position: fixed; inset: 0; z-index: 99999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--bg-deep);
+      transition: opacity .5s ease, visibility .5s ease;}
+#dalil-loader.fade-out{opacity: 0; visibility: hidden;}
+#dalil-loader canvas#bgCanvas{position: absolute; inset: 0;
+      width: 100%; height: 100%;}
+#dalil-loader .vignette{position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 45%, transparent 25%, var(--bg-deep) 70%);
+      pointer-events: none;}
+#dalil-loader .stage{position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0;}
+#dalil-loader .crow-wrap{position: relative;
+      width: 180px; height: 180px;
+      margin-bottom: 10px;}
+#dalil-loader .energy-ring{position: absolute;
+      inset: -30px;
+      border-radius: 50%;
+      border: 1px solid var(--teal-500);
+      opacity: 0;
+      transform: scale(.5);}
+#dalil-loader .energy-ring:nth-child(1){animation: dl-ringPulse 1.5s cubic-bezier(.4,0,.2,1) 1.0s forwards;}
+#dalil-loader .energy-ring:nth-child(2){inset: -55px;
+      animation: dl-ringPulse 1.5s cubic-bezier(.4,0,.2,1) 1.2s forwards;
+      border-color: var(--teal-600);}
+#dalil-loader .energy-ring:nth-child(3){inset: -80px;
+      animation: dl-ringPulse 1.5s cubic-bezier(.4,0,.2,1) 1.3s forwards;
+      border-color: var(--teal-700);}
+@keyframes dl-ringPulse{
+      0%   { opacity: 0; transform: scale(.5); }
+      40%  { opacity: .5; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.3); }
     }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body { margin: 0; height: 100%; background: var(--bg-deep); }
-
-    #dalil-loader {
-      position: fixed; inset: 0;
-      z-index: 99999;
-      display: flex;
+#dalil-loader .crow-svg{width: 100%; height: 100%;
+      filter: drop-shadow(0 0 0px var(--teal-400));
+      animation: dl-crowGlow .6s ease 1.2s forwards;}
+#dalil-loader .crow-svg .crow-path{fill: none;
+      stroke: var(--teal-300);
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: dl-drawCrow 1.2s cubic-bezier(.4,0,.2,1) .2s forwards;}
+#dalil-loader .crow-svg .crow-fill{fill: var(--teal-200);
+      opacity: 0;
+      animation: dl-crowFillIn .5s ease 1.3s forwards;}
+#dalil-loader .crow-svg .crow-eye{fill: var(--gold);
+      opacity: 0;
+      animation: dl-eyeFlash .3s ease 1.6s forwards;
+      filter: drop-shadow(0 0 6px var(--gold));}
+@keyframes dl-drawCrow{
+      to { stroke-dashoffset: 0; }
+    }
+@keyframes dl-crowGlow{
+      to { filter: drop-shadow(0 0 25px rgba(77,208,196,.4)); }
+    }
+@keyframes dl-crowFillIn{
+      0%   { opacity: 0; }
+      100% { opacity: .15; }
+    }
+@keyframes dl-eyeFlash{
+      0%   { opacity: 0; transform: scale(0); }
+      60%  { opacity: 1; transform: scale(1.5); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+#dalil-loader .brand{text-align: center;
+      margin-bottom: 32px;}
+#dalil-loader .brand-ar{font-family: var(--font-ar);
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--teal-100);
+      position: relative;
+      opacity: 0;
+      animation: dl-glitchReveal .8s steps(1) 1.5s forwards;
+      text-shadow: 0 0 30px rgba(77,208,196,.4);}
+#dalil-loader .brand-ar::before,#dalil-loader .brand-ar::after{content: 'دليل';
+      position: absolute;
+      left: 0; right: 0;
+      opacity: 0;}
+#dalil-loader .brand-ar::before{color: var(--teal-400);
+      animation: dl-glitchTop .08s linear 1.5s 6 alternate;}
+#dalil-loader .brand-ar::after{color: var(--gold);
+      animation: dl-glitchBottom .08s linear 1.55s 6 alternate;}
+@keyframes dl-glitchReveal{
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+@keyframes dl-glitchTop{
+      0%   { opacity: .8; transform: translate(-3px, -2px); clip-path: inset(20% 0 60% 0); }
+      100% { opacity: 0; transform: translate(3px, 2px); clip-path: inset(40% 0 20% 0); }
+    }
+@keyframes dl-glitchBottom{
+      0%   { opacity: .8; transform: translate(3px, 2px); clip-path: inset(60% 0 10% 0); }
+      100% { opacity: 0; transform: translate(-3px, -1px); clip-path: inset(10% 0 70% 0); }
+    }
+#dalil-loader .brand-en{font-family: var(--font-en);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white-60);
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(6px);
+      animation: dl-slideUp .5s ease 1.8s forwards;}
+#dalil-loader .brand-tagline{font-family: var(--font-en);
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--white-30);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      opacity: 0;
+      animation: dl-slideUp .5s ease 1.9s forwards;}
+@keyframes dl-slideUp{
+      to { opacity: 1; transform: translateY(0); }
+    }
+#dalil-loader .terminal{display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      background: var(--bg-deep);
-      transition: opacity .45s ease, visibility .45s ease;
-    }
-    #dalil-loader.fade-out {
+      gap: 6px;
+      min-height: 60px;}
+#dalil-loader .term-line{font-family: 'Inter', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--teal-400);
+      letter-spacing: 1.5px;
       opacity: 0;
-      visibility: hidden;
-    }
-
-    .loader-bg {
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(var(--white-10) 1px, transparent 1px),
-        linear-gradient(90deg, var(--white-10) 1px, transparent 1px);
-      background-size: 60px 60px;
+      transform: translateY(4px);
+      display: flex;
+      align-items: center;
+      gap: 8px;}
+#dalil-loader .term-line .cursor{display: inline-block;
+      width: 6px; height: 14px;
+      background: var(--teal-400);
+      animation: dl-blink .6s step-end infinite;}
+#dalil-loader .term-line.done .cursor{display: none;}
+#dalil-loader .term-line.done::before{content: '✓';
+      color: var(--teal-400);
+      font-size: 12px;
+      margin-right: 2px;}
+#dalil-loader .term-line.active{opacity: 1;
+      transform: translateY(0);
+      transition: all .3s ease;}
+#dalil-loader .term-line.done{opacity: .5;
+      transform: translateY(0);
+      color: var(--white-30);
+      transition: all .3s ease;}
+@keyframes dl-blink{ 50% { opacity: 0; } }
+#dalil-loader .progress-wrap{width: 240px;
+      margin-top: 20px;
       opacity: 0;
-      animation: gridFadeIn .75s ease .12s forwards;
-    }
-    .loader-bg::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 50%, transparent 30%, var(--bg-deep) 75%);
-    }
-    @keyframes gridFadeIn { to { opacity: .35; } }
-
-    .particles {
-      position: absolute; inset: 0;
-      overflow: hidden;
+      animation: dl-fadeIn .3s ease .4s forwards;}
+#dalil-loader .progress-track{width: 100%; height: 2px;
+      background: var(--white-05);
+      border-radius: 2px;
+      overflow: hidden;}
+#dalil-loader .progress-bar{height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--teal-700), var(--teal-400), var(--teal-200));
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(77,208,196,.5);
+      transition: width .3s cubic-bezier(.4,0,.2,1);}
+#dalil-loader .progress-pct{text-align: right;
+      font-family: var(--font-en);
+      font-size: 10px;
+      color: var(--white-30);
+      margin-top: 6px;
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: dl-fadeIn .3s ease .6s forwards;}
+@keyframes dl-fadeIn{ to { opacity: 1; } }
+#dalil-loader .burst-container{position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -55%);
+      width: 0; height: 0;
       pointer-events: none;
-    }
-    .particle {
-      position: absolute;
+      z-index: 1;}
+#dalil-loader .burst{position: absolute;
       width: 3px; height: 3px;
       border-radius: 50%;
       background: var(--teal-400);
+      opacity: 0;}
+#dalil-loader .scan-flash{position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(77,208,196,.06) 50%, transparent 100%);
       opacity: 0;
-      animation: particleFloat linear infinite;
-    }
-    @keyframes particleFloat {
-      0%   { opacity: 0; transform: translateY(0) scale(.5); }
-      10%  { opacity: .7; }
-      90%  { opacity: .7; }
-      100% { opacity: 0; transform: translateY(-100vh) scale(1.2); }
-    }
-
-    .loader-scene {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 36px;
-    }
-
-    .doc-container {
-      position: relative;
-      width: 120px; height: 156px;
-      perspective: 600px;
-    }
-
-    .doc-icon {
-      position: relative;
-      width: 100%; height: 100%;
-      border-radius: 10px;
-      background: var(--bg-card);
-      border: 1.5px solid var(--white-10);
-      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;}
+#dalil-loader .h-scan{position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--teal-400), transparent);
       opacity: 0;
-      transform: scale(.7) rotateY(-15deg);
-      animation: docAppear .5s cubic-bezier(.22,1,.36,1) .19s forwards;
-      box-shadow:
-        0 4px 24px rgba(0,0,0,.4),
-        0 0 60px rgba(45,184,168,.08);
-    }
-    @keyframes docAppear {
-      to { opacity: 1; transform: scale(1) rotateY(0deg); }
-    }
-
-    .doc-lines {
-      position: absolute;
-      top: 24px; left: 16px; right: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .doc-line {
-      height: 4px;
-      border-radius: 2px;
-      background: var(--white-30);
-      opacity: 0;
-      animation: lineBlur .38s ease forwards;
-    }
-    .doc-line:nth-child(1) { width: 70%; animation-delay: .38s; }
-    .doc-line:nth-child(2) { width: 90%; animation-delay: .44s; }
-    .doc-line:nth-child(3) { width: 55%; animation-delay: .5s; }
-    .doc-line:nth-child(4) { width: 80%; animation-delay: .56s; }
-    .doc-line:nth-child(5) { width: 65%; animation-delay: .62s; }
-    .doc-line:nth-child(6) { width: 75%; animation-delay: .69s; }
-    .doc-line:nth-child(7) { width: 45%; animation-delay: .75s; }
-    .doc-line:nth-child(8) { width: 85%; animation-delay: .81s; }
-
-    @keyframes lineBlur {
-      0%   { opacity: 0; filter: blur(4px); transform: translateX(-6px); }
-      100% { opacity: 1; filter: blur(0); transform: translateX(0); }
-    }
-
-    .scan-beam {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--teal-400), var(--teal-200), var(--teal-400), transparent);
-      box-shadow: 0 0 20px var(--teal-400), 0 0 40px rgba(77,208,196,.3);
-      opacity: 0;
-      animation: scanDown 1.25s ease-in-out .88s forwards;
-    }
-    @keyframes scanDown {
-      0%   { top: 0;    opacity: 0; }
-      5%   { opacity: 1; }
-      50%  { top: 100%; opacity: 1; }
-      55%  { top: 100%; opacity: 0; }
+      z-index: 3;
+      pointer-events: none;
+      box-shadow: 0 0 15px var(--teal-400), 0 0 30px rgba(77,208,196,.3);}
+#dalil-loader .h-scan:nth-child(1){animation: dl-hScan 1s ease 0.2s forwards;}
+#dalil-loader .h-scan:nth-child(2){animation: dl-hScan .8s ease 1.0s forwards;}
+@keyframes dl-hScan{
+      0%   { top: -2px; opacity: 0; }
+      10%  { opacity: .8; }
+      90%  { opacity: .8; }
       100% { top: 100%; opacity: 0; }
     }
-
-    .scan-highlight {
-      position: absolute;
-      inset: 0;
-      border-radius: 10px;
+#dalil-loader .footer{position: absolute;
+      bottom: 32px;
+      display: flex; align-items: center; gap: 8px;
       opacity: 0;
-      animation: scanFlash .25s ease 1.56s forwards;
-    }
-    @keyframes scanFlash {
-      0%   { opacity: 0; box-shadow: inset 0 0 0 2px var(--teal-400); }
-      50%  { opacity: 1; box-shadow: inset 0 0 0 2px var(--teal-400), 0 0 30px rgba(77,208,196,.25); }
-      100% { opacity: .6; box-shadow: inset 0 0 0 1.5px var(--teal-500), 0 0 15px rgba(77,208,196,.1); }
-    }
-
-    .red-flag-badge {
-      position: absolute;
-      top: 78px; right: -6px;
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: var(--red-flag);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0;
-      transform: scale(0);
-      animation: flagPop .31s cubic-bezier(.34,1.56,.64,1) 1.75s forwards;
-      box-shadow: 0 2px 12px rgba(232,72,85,.4);
-    }
-    .red-flag-badge svg {
-      width: 14px; height: 14px;
-      fill: white;
-    }
-    @keyframes flagPop {
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .check-badge {
-      position: absolute;
-      top: -8px; right: -8px;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: var(--teal-500);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0;
-      transform: scale(0);
-      animation: checkPop .31s cubic-bezier(.34,1.56,.64,1) 2s forwards;
-      box-shadow: 0 2px 12px rgba(45,184,168,.4);
-    }
-    .check-badge svg {
-      width: 16px; height: 16px;
-      fill: white;
-      stroke: white;
-      stroke-width: 1;
-    }
-    @keyframes checkPop {
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .glow-ring {
-      position: absolute;
-      inset: -20px;
-      border-radius: 20px;
-      border: 1.5px solid transparent;
-      opacity: 0;
-      animation: ringGlow .94s ease 1.62s forwards;
-    }
-    @keyframes ringGlow {
-      0%   { opacity: 0; border-color: transparent; }
-      50%  { opacity: .5; border-color: var(--teal-400); box-shadow: 0 0 30px rgba(77,208,196,.15); }
-      100% { opacity: .25; border-color: var(--teal-600); box-shadow: 0 0 15px rgba(77,208,196,.08); }
-    }
-
-    .brand-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .brand-arabic {
-      font-family: var(--font-ar);
-      font-size: 48px;
-      font-weight: 700;
-      color: var(--teal-200);
-      letter-spacing: 2px;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: brandReveal .5s cubic-bezier(.22,1,.36,1) .06s forwards;
-      text-shadow: 0 0 40px rgba(77,208,196,.3);
-    }
-
-    .brand-english {
-      font-family: var(--font-en);
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--white-60);
-      letter-spacing: 6px;
-      text-transform: uppercase;
-      opacity: 0;
-      transform: translateY(8px);
-      animation: brandReveal .5s cubic-bezier(.22,1,.36,1) .19s forwards;
-    }
-
-    @keyframes brandReveal {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .status-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      min-height: 50px;
-    }
-
-    .status-text {
-      font-size: 13px;
-      font-weight: 400;
-      color: var(--white-60);
-      letter-spacing: 1px;
-      text-align: center;
-      opacity: 0;
-      transition: opacity .3s ease;
-      min-height: 20px;
-    }
-    .status-text.visible { opacity: 1; }
-
-    .progress-track {
-      width: 200px;
-      height: 2px;
-      background: var(--white-10);
-      border-radius: 2px;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadeIn .25s ease .5s forwards;
-    }
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, var(--teal-600), var(--teal-400), var(--teal-200));
-      border-radius: 2px;
-      transition: width .3s ease;
-      box-shadow: 0 0 8px rgba(77,208,196,.4);
-    }
-
-    @keyframes fadeIn { to { opacity: 1; } }
-
-    .privacy-badge {
-      position: absolute;
-      bottom: 40px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      opacity: 0;
-      animation: fadeIn .31s ease 2.12s forwards;
-    }
-    .privacy-badge .lock-icon {
-      width: 14px; height: 14px;
-      fill: var(--teal-400);
-    }
-    .privacy-badge span {
-      font-size: 11px;
+      animation: dl-slideUp .4s ease 2.2s forwards;}
+#dalil-loader .footer svg{width: 12px; height: 12px; fill: var(--teal-600);}
+#dalil-loader .footer span{font-family: var(--font-en);
+      font-size: 10px;
       color: var(--white-30);
       letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .orbit-container {
-      position: absolute;
-      width: 220px; height: 220px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, calc(-50% - 30px));
-      pointer-events: none;
-    }
-    .orbit-dot {
-      position: absolute;
-      width: 4px; height: 4px;
-      border-radius: 50%;
-      background: var(--teal-400);
+      text-transform: uppercase;}
+#dalil-loader .bracket{position: absolute;
+      width: 30px; height: 30px;
       opacity: 0;
-    }
-    .orbit-dot:nth-child(1) {
-      animation: orbit1 3s linear 1s infinite;
-    }
-    .orbit-dot:nth-child(2) {
-      animation: orbit2 4s linear 1.5s infinite;
-    }
-    .orbit-dot:nth-child(3) {
-      animation: orbit3 3.5s linear 2s infinite;
-    }
-
-    @keyframes orbit1 {
-      0%   { opacity: 0; top: 50%; left: 0; }
-      10%  { opacity: .6; }
-      50%  { top: 0; left: 50%; }
-      90%  { opacity: .6; }
-      100% { opacity: 0; top: 50%; left: 100%; }
-    }
-    @keyframes orbit2 {
-      0%   { opacity: 0; top: 100%; left: 50%; }
-      10%  { opacity: .4; }
-      50%  { top: 50%; left: 0; }
-      90%  { opacity: .4; }
-      100% { opacity: 0; top: 0; left: 50%; }
-    }
-    @keyframes orbit3 {
-      0%   { opacity: 0; top: 0; left: 20%; }
-      10%  { opacity: .5; }
-      50%  { top: 100%; left: 80%; }
-      90%  { opacity: .5; }
-      100% { opacity: 0; top: 0; left: 20%; }
-    }
-
-    .corner {
-      position: absolute;
-      width: 40px; height: 40px;
-      opacity: 0;
-      animation: cornerIn .38s ease 1.12s forwards;
-    }
-    .corner::before, .corner::after {
-      content: '';
-      position: absolute;
-      background: var(--teal-600);
-    }
-    .corner--tl { top: 30px; left: 30px; }
-    .corner--tl::before { top: 0; left: 0; width: 20px; height: 1.5px; }
-    .corner--tl::after  { top: 0; left: 0; width: 1.5px; height: 20px; }
-
-    .corner--tr { top: 30px; right: 30px; }
-    .corner--tr::before { top: 0; right: 0; width: 20px; height: 1.5px; }
-    .corner--tr::after  { top: 0; right: 0; width: 1.5px; height: 20px; }
-
-    .corner--bl { bottom: 30px; left: 30px; }
-    .corner--bl::before { bottom: 0; left: 0; width: 20px; height: 1.5px; }
-    .corner--bl::after  { bottom: 0; left: 0; width: 1.5px; height: 20px; }
-
-    .corner--br { bottom: 30px; right: 30px; }
-    .corner--br::before { bottom: 0; right: 0; width: 20px; height: 1.5px; }
-    .corner--br::after  { bottom: 0; right: 0; width: 1.5px; height: 20px; }
-
-    @keyframes cornerIn {
-      from { opacity: 0; }
-      to   { opacity: .4; }
-    }
-
-    @media (max-width: 480px) {
-      .brand-arabic { font-size: 36px; }
-      .brand-english { font-size: 14px; letter-spacing: 4px; }
-      .doc-container { width: 96px; height: 125px; }
-      .doc-lines { top: 18px; left: 12px; right: 12px; gap: 6px; }
-      .doc-line { height: 3px; }
-      .orbit-container { width: 180px; height: 180px; }
-      .red-flag-badge { width: 22px; height: 22px; top: 60px; }
-      .red-flag-badge svg { width: 11px; height: 11px; }
-      .check-badge { width: 26px; height: 26px; }
-      .check-badge svg { width: 13px; height: 13px; }
-    }
-
-    
-    @media (prefers-reduced-motion: reduce) {
-      #dalil-loader *, #dalil-loader *::before, #dalil-loader *::after { animation-duration: .01s !important; animation-delay: 0s !important; }
-    }
+      animation: dl-bracketIn .3s ease .6s forwards;}
+#dalil-loader .bracket::before,#dalil-loader .bracket::after{content: ''; position: absolute;
+      background: var(--teal-600);}
+#dalil-loader .bracket--tl{top: 20px; left: 20px;}
+#dalil-loader .bracket--tl::before{top: 0; left: 0; width: 16px; height: 1px;}
+#dalil-loader .bracket--tl::after{top: 0; left: 0; width: 1px; height: 16px;}
+#dalil-loader .bracket--tr{top: 20px; right: 20px;}
+#dalil-loader .bracket--tr::before{top: 0; right: 0; width: 16px; height: 1px;}
+#dalil-loader .bracket--tr::after{top: 0; right: 0; width: 1px; height: 16px;}
+#dalil-loader .bracket--bl{bottom: 20px; left: 20px;}
+#dalil-loader .bracket--bl::before{bottom: 0; left: 0; width: 16px; height: 1px;}
+#dalil-loader .bracket--bl::after{bottom: 0; left: 0; width: 1px; height: 16px;}
+#dalil-loader .bracket--br{bottom: 20px; right: 20px;}
+#dalil-loader .bracket--br::before{bottom: 0; right: 0; width: 16px; height: 1px;}
+#dalil-loader .bracket--br::after{bottom: 0; right: 0; width: 1px; height: 16px;}
+@keyframes dl-bracketIn{ to { opacity: .5; } }
+@media (max-width: 480px){#dalil-loader .crow-wrap{width: 140px; height: 140px;}
+#dalil-loader .brand-ar{font-size: 40px;}
+#dalil-loader .brand-en{font-size: 13px; letter-spacing: 6px;}
+#dalil-loader .progress-wrap{width: 180px;}}
+@media (prefers-reduced-motion: reduce){
+#dalil-loader *,#dalil-loader *::before,#dalil-loader *::after{animation-duration:.01s !important;animation-delay:0s !important}
+#dalil-loader canvas{display:none}
+}
 </style>
 </head>
 <body>
@@ -452,128 +301,255 @@
     <h1>Dalil (دليل) - AI document explainer</h1>
     <p>Dalil explains confusing letters, bills, notices and contracts in plain language, in your own language. Take a photo or paste the text, and Dalil tells you what it says, what you must do and by when. Turn on JavaScript to use it.</p>
   </noscript>
-  <div id="dalil-loader">
+<div id="dalil-loader" role="status" aria-label="Loading Dalil">
 
-    <div class="loader-bg"></div>
+  <!-- Background canvas (particles + grid) -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <div class="vignette"></div>
 
-    <div class="particles" id="particles"></div>
+  <!-- Horizontal scan lines -->
+  <div class="h-scan"></div>
+  <div class="h-scan"></div>
 
-    <div class="corner corner--tl"></div>
-    <div class="corner corner--tr"></div>
-    <div class="corner corner--bl"></div>
-    <div class="corner corner--br"></div>
+  <!-- Scan flash -->
+  <div class="scan-flash" id="scanFlash"></div>
 
-    <div class="orbit-container">
-      <div class="orbit-dot"></div>
-      <div class="orbit-dot"></div>
-      <div class="orbit-dot"></div>
-    </div>
+  <!-- Corner brackets -->
+  <div class="bracket bracket--tl"></div>
+  <div class="bracket bracket--tr"></div>
+  <div class="bracket bracket--bl"></div>
+  <div class="bracket bracket--br"></div>
 
-    <div class="loader-scene">
+  <!-- Particle burst container -->
+  <div class="burst-container" id="burstContainer"></div>
 
-      <div class="brand-group">
-        <div class="brand-arabic">دليل</div>
-        <div class="brand-english">Dalil</div>
-      </div>
+  <!-- Central stage -->
+  <div class="stage">
 
-      <div class="doc-container">
-        <div class="glow-ring"></div>
-        <div class="doc-icon">
-          <div class="doc-lines">
-            <div class="doc-line"></div>
-            <div class="doc-line"></div>
-            <div class="doc-line"></div>
-            <div class="doc-line"></div>
-            <div class="doc-line"></div>
-            <div class="doc-line"></div>
-            <div class="doc-line"></div>
-            <div class="doc-line"></div>
-          </div>
-          <div class="scan-beam"></div>
-          <div class="scan-highlight"></div>
-        </div>
-        <div class="red-flag-badge">
-          <svg viewBox="0 0 24 24"><path d="M14.4 6 14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>
-        </div>
-        <div class="check-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12" stroke="white" stroke-width="2.5" fill="none"/>
-          </svg>
-        </div>
-      </div>
+    <!-- Crow + energy rings -->
+    <div class="crow-wrap">
+      <div class="energy-ring"></div>
+      <div class="energy-ring"></div>
+      <div class="energy-ring"></div>
 
-      <div class="status-area">
-        <div class="status-text" id="statusText"></div>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="privacy-badge">
-      <svg class="lock-icon" viewBox="0 0 24 24">
-        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3-9H9V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2z"/>
+      <svg class="crow-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Crow body outline (drawn with stroke animation) -->
+        <path class="crow-path" d="
+          M 100 30
+          C 82 30, 60 42, 52 60
+          C 44 78, 44 88, 46 98
+          C 30 92, 18 88, 8 90
+          C 18 96, 30 102, 44 104
+          C 36 108, 22 118, 10 126
+          C 24 124, 38 118, 50 112
+          C 42 120, 30 134, 22 146
+          C 36 140, 48 130, 58 118
+          C 60 126, 62 138, 60 158
+          C 64 150, 68 140, 70 130
+          L 74 170
+          C 76 170, 78 168, 78 166
+          L 80 136
+          C 86 142, 94 148, 100 150
+          C 106 148, 114 142, 120 136
+          L 122 166
+          C 122 168, 124 170, 126 170
+          L 130 130
+          C 132 140, 136 150, 140 158
+          C 138 138, 140 126, 142 118
+          C 152 130, 164 140, 178 146
+          C 170 134, 158 120, 150 112
+          C 162 118, 176 124, 190 126
+          C 178 118, 164 108, 156 104
+          C 170 102, 182 96, 192 90
+          C 182 88, 170 92, 154 98
+          C 156 88, 156 78, 148 60
+          C 140 42, 118 30, 100 30Z
+        " />
+        <!-- Crow fill (fades in after draw) -->
+        <path class="crow-fill" d="
+          M 100 30
+          C 82 30, 60 42, 52 60
+          C 44 78, 44 88, 46 98
+          C 30 92, 18 88, 8 90
+          C 18 96, 30 102, 44 104
+          C 36 108, 22 118, 10 126
+          C 24 124, 38 118, 50 112
+          C 42 120, 30 134, 22 146
+          C 36 140, 48 130, 58 118
+          C 60 126, 62 138, 60 158
+          C 64 150, 68 140, 70 130
+          L 74 170
+          C 76 170, 78 168, 78 166
+          L 80 136
+          C 86 142, 94 148, 100 150
+          C 106 148, 114 142, 120 136
+          L 122 166
+          C 122 168, 124 170, 126 170
+          L 130 130
+          C 132 140, 136 150, 140 158
+          C 138 138, 140 126, 142 118
+          C 152 130, 164 140, 178 146
+          C 170 134, 158 120, 150 112
+          C 162 118, 176 124, 190 126
+          C 178 118, 164 108, 156 104
+          C 170 102, 182 96, 192 90
+          C 182 88, 170 92, 154 98
+          C 156 88, 156 78, 148 60
+          C 140 42, 118 30, 100 30Z
+        " />
+        <!-- Crow eye -->
+        <circle class="crow-eye" cx="82" cy="62" r="5" />
+        <!-- Beak highlight -->
+        <path class="crow-path" d="M 52 64 L 38 68 L 52 72" style="animation-delay: 1.0s;" />
       </svg>
-      <span>Nothing saved · Privacy first</span>
+    </div>
+
+    <!-- Brand text with glitch -->
+    <div class="brand">
+      <div class="brand-ar">دليل</div>
+      <div class="brand-en">Dalil</div>
+      <div class="brand-tagline">Your guide to clarity</div>
+    </div>
+
+    <!-- Terminal-style status -->
+    <div class="terminal" id="terminal" aria-hidden="true"></div>
+
+    <!-- Progress bar -->
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-pct" id="progressPct">0%</div>
     </div>
 
   </div>
 
-  <script>
-    (function () {
-      var loader = document.getElementById('dalil-loader');
-      var statusEl = document.getElementById('statusText');
-      var bar = document.getElementById('progressFill');
-      var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var seen = false;
-      try { seen = sessionStorage.getItem('dalil-intro') === '1'; sessionStorage.setItem('dalil-intro', '1'); } catch (e) {}
-      // full intro on the first visit, quick on reloads
-      var MIN_MS = reduced ? 300 : (seen ? 600 : 1800);
-      var started = Date.now(), ready = false, closed = false;
+  <!-- Privacy footer -->
+  <div class="footer">
+    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3-9H9V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2z"/></svg>
+    <span>Documents are not stored · Privacy first</span>
+  </div>
 
-      var box = document.getElementById('particles');
-      for (var i = 0; i < 30; i++) {
-        var p = document.createElement('div');
-        p.className = 'particle';
-        var s = (2 + Math.random() * 3) + 'px';
-        p.style.cssText = 'left:' + Math.random() * 100 + '%;bottom:-10px;width:' + s + ';height:' + s +
-          ';animation-duration:' + (4 + Math.random() * 6) + 's;animation-delay:' + Math.random() * 4 + 's';
-        box.appendChild(p);
-      }
+</div>
 
-      function say(t) {
-        statusEl.classList.remove('visible');
-        setTimeout(function () { statusEl.textContent = t; statusEl.classList.add('visible'); }, 150);
-      }
-      [['Reading your document…', 350], ['Scanning for key terms…', 750],
-       ['Checking official sources…', 1100], ['Flagging important details…', 1450]]
-        .forEach(function (m) { setTimeout(function () { if (!closed && !ready) say(m[0]); }, m[1]); });
-      [[15, 350], [35, 650], [55, 950], [75, 1250], [90, 1550]]
-        .forEach(function (m) { setTimeout(function () { if (!ready) bar.style.width = m[0] + '%'; }, m[1]); });
+<script>
+(function () {
+  var loader = document.getElementById('dalil-loader');
+  if (!loader) return;
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var FADE_AT = reduced ? 1200 : 3000;   // the loader stays 3 s, then fades out in 0.5 s
+  var started = Date.now(), ready = false, closed = false, timers = [];
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
 
-      function close() {
-        if (closed) return;
-        closed = true;
-        bar.style.width = '100%';
-        say('Ready.');
-        setTimeout(function () {
-          loader.classList.add('fade-out');
-          setTimeout(function () { loader.remove(); }, 500);
-        }, 250);
+  // Background: slow network of particles. It stops for good when the loader closes.
+  var canvas = document.getElementById('bgCanvas');
+  var raf = 0, onResize = null;
+  if (canvas && !reduced) {
+    var ctx = canvas.getContext('2d'), W = 0, H = 0, ps = [];
+    var size = function () { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+    size(); onResize = size; window.addEventListener('resize', onResize);
+    var n = Math.min(80, Math.floor((W * H) / 15000));
+    for (var i = 0; i < n; i++) ps.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4, r: Math.random() * 1.5 + .5, a: Math.random() * .3 + .1 });
+    var frame = function () {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < ps.length; i++) {
+        var p = ps[i]; p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fillStyle = 'rgba(77,208,196,' + p.a + ')'; ctx.fill();
+        for (var j = i + 1; j < ps.length; j++) {
+          var dx = p.x - ps[j].x, dy = p.y - ps[j].y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 120) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ps[j].x, ps[j].y); ctx.strokeStyle = 'rgba(77,208,196,' + (.08 * (1 - d / 120)) + ')'; ctx.lineWidth = .5; ctx.stroke(); }
+        }
       }
-      function tryClose() {
-        if (!ready) return;
-        var wait = MIN_MS - (Date.now() - started);
-        setTimeout(close, Math.max(0, wait));
-      }
+      raf = requestAnimationFrame(frame);
+    };
+    frame();
+  }
 
-      // Flutter fires this when its first frame is on screen.
-      window.addEventListener('flutter-first-frame', function () { ready = true; tryClose(); });
-      // Safety net: never trap the person behind the loader.
-      setTimeout(function () { ready = true; tryClose(); }, 20000);
-    })();
-  </script>
+  // A burst of particles when the eye lights up.
+  later(function () {
+    if (closed || reduced) return;
+    var box = document.getElementById('burstContainer');
+    for (var i = 0; i < 40; i++) {
+      var p = document.createElement('div');
+      p.className = 'burst';
+      var ang = (Math.PI * 2 / 40) * i + (Math.random() - .5) * .5, dist = 60 + Math.random() * 100;
+      var dur = .6 + Math.random() * .6, sz = 2 + Math.random() * 3;
+      p.style.width = sz + 'px'; p.style.height = sz + 'px';
+      p.style.background = Math.random() > .7 ? '#f5c542' : '#4dd0c4';
+      box.appendChild(p);
+      (function (p, tx, ty, dur) {
+        requestAnimationFrame(function () {
+          p.style.transition = 'all ' + dur + 's cubic-bezier(.2,.8,.3,1)';
+          p.style.opacity = '.8';
+          p.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
+          later(function () { p.style.opacity = '0'; }, dur * 600);
+        });
+      })(p, Math.cos(ang) * dist, Math.sin(ang) * dist, dur);
+    }
+    var flash = document.getElementById('scanFlash');
+    flash.style.transition = 'opacity .15s ease'; flash.style.opacity = '.4';
+    later(function () { flash.style.opacity = '0'; }, 200);
+  }, 1600);
+
+  // Status lines (they only say what is really happening: the app is starting).
+  var steps = [
+    { text: 'Starting Dalil\u2026', delay: 400, dur: 350 },
+    { text: 'Getting your languages ready\u2026', delay: 1000, dur: 350 },
+    { text: 'Loading the guide\u2026', delay: 1500, dur: 300 },
+    { text: 'Ready.', delay: 2100, dur: 200 }
+  ];
+  var term = document.getElementById('terminal'), lines = [];
+  steps.forEach(function (st, i) {
+    var line = document.createElement('div');
+    line.className = 'term-line';
+    line.innerHTML = '<span class="text"></span><span class="cursor"></span>';
+    term.appendChild(line); lines.push(line);
+    later(function () {
+      if (i > 0) { lines[i - 1].classList.remove('active'); lines[i - 1].classList.add('done'); }
+      line.classList.add('active');
+      var el = line.querySelector('.text'), k = 0;
+      var t = setInterval(function () { el.textContent = st.text.slice(0, ++k); if (k >= st.text.length) clearInterval(t); }, st.dur / st.text.length);
+      timers.push(t);
+    }, st.delay);
+  });
+
+  // Progress bar. It stops short of 100% until the app is really ready.
+  var bar = document.getElementById('progressBar'), pct = document.getElementById('progressPct');
+  function setPct(p) {
+    bar.style.width = p + '%';
+    var from = parseInt(pct.textContent, 10) || 0, f = 0;
+    var t = setInterval(function () { f++; pct.textContent = Math.round(from + (p - from) * (f / 12)) + '%'; if (f >= 12) clearInterval(t); }, 20);
+    timers.push(t);
+  }
+  [[18, 400], [40, 900], [65, 1400], [85, 1900]].forEach(function (m) { later(function () { if (!closed) setPct(m[0]); }, m[1]); });
+  later(function () { if (!ready && !closed) { var l = lines[lines.length - 1]; l.querySelector('.text').textContent = 'Almost there\u2026'; } }, FADE_AT - 100);
+
+  function close() {
+    if (closed) return;
+    closed = true;
+    setPct(100);
+    var last = lines[lines.length - 1];
+    last.classList.remove('active'); last.classList.add('done'); last.style.opacity = '1'; last.style.color = 'var(--teal-300)';
+    loader.classList.add('fade-out');
+    setTimeout(function () {
+      timers.forEach(function (t) { clearTimeout(t); clearInterval(t); });
+      if (raf) cancelAnimationFrame(raf);
+      if (onResize) window.removeEventListener('resize', onResize);
+      loader.remove();
+    }, 600);
+  }
+  function tryClose() {
+    if (!ready) return;
+    setTimeout(close, Math.max(0, FADE_AT - (Date.now() - started)));
+  }
+  // Flutter fires this when its first frame is on screen.
+  window.addEventListener('flutter-first-frame', function () { ready = true; tryClose(); });
+  // Safety net: never trap the person behind the loader.
+  setTimeout(function () { ready = true; tryClose(); }, 20000);
+})();
+</script>
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script src="flutter_bootstrap.js" async></script>

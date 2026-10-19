@@ -142,3 +142,16 @@ String reportToSpeech(Report r) {
   }
   return b.toString().trim();
 }
+
+/// A shorter version for a chat message: the start of the full text, cut at a line break, plus a note about Dalil.
+String shareText(Report r, {int maxChars = 1500}) {
+  final full = reportToText(r).trim();
+  var body = full;
+  if (full.length > maxChars) {
+    final cut = full.lastIndexOf('\n', maxChars);
+    var end = cut > maxChars ~/ 2 ? cut : maxChars;
+    if (end < full.length && (full.codeUnitAt(end) & 0xFC00) == 0xDC00) end--; // never split an emoji in half
+    body = '${full.substring(0, end).trimRight()}\n...';
+  }
+  return '$body\n\nMade with Dalil: https://dalil-rouge.vercel.app';
+}

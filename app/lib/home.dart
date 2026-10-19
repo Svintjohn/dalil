@@ -353,6 +353,20 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _share() async {
+    final r = report;
+    if (r == null) return;
+    var ok = false;
+    try {
+      ok = await launchUrl(Uri.https('wa.me', '/', {'text': shareText(r)}), mode: LaunchMode.externalApplication);
+    } catch (_) {
+      ok = false;
+    }
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open WhatsApp. Use Copy and paste it into a message instead.')));
+    }
+  }
+
   Future<void> _copy() async {
     final r = report;
     if (r == null) return;
@@ -806,6 +820,7 @@ class _HomePageState extends State<HomePage> {
               Wrap(alignment: WrapAlignment.end, spacing: 4, runSpacing: 0, children: [
                 _tool(context, speaking ? Icons.stop_circle_outlined : Icons.volume_up_outlined, speaking ? 'Stop' : 'Listen', _listen),
                 _tool(context, Icons.copy_outlined, 'Copy', _copy),
+                _tool(context, Icons.share_outlined, 'Share', _share),
                 _tool(context, Icons.picture_as_pdf_outlined, 'Save as PDF', _savePdf),
                 _tool(context, Icons.mail_outline, 'Draft a letter', _letter),
               ]),

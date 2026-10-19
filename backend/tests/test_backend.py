@@ -848,3 +848,31 @@ def test_number_check_labels_and_schema():
     need = {"numbers", "numbers_ok", "numbers_bad", "numbers_hint", "numbers_stated", "numbers_computed", "numbers_diff", "numbers_note", "numbers_tax", "numbers_subtotal"}
     assert need <= set(prompts.LABEL_KEYS)
     assert '"amounts"' in prompts.REVIEW_SCHEMA
+
+
+def test_gemini_404_skips_the_retired_model_even_if_still_listed(monkeypatch):
+    from dalil import gemini
+
+    models = [
+        {"name": "models/gemini-2.5-flash", "supportedGenerationMethods": ["generateContent"]},
+        {"name": "models/gemini-3.8-flash", "supportedGenerationMethods": ["generateContent"]},
+    ]
+    assert gemini.pick_flash(models, exclude="gemini-2.5-flash") == "gemini-3.8-flash"
+    calls = []
+
+    class R:
+        def __init__(self, status, data=None):
+            self.status_code, self._d = status, data or {}
+
+        def json(self):
+            return self._d
+
+    def fake_post(url, **k):
+        calls.append(url)
+        return R(404) if "2.5-flash" in url else R(200, {"candidates": [{"content": {"parts": [{"text": "hi"}]}}]})
+
+    monkeypatch.setattr(gemini.httpx, "post", fake_post)
+    monkeypatch.setattr(gemini.httpx, "get", lambda *a, **k: R(200, {"models": models}))
+    gemini._PICKED.clear()
+    resp = gemini.GeminiClient("k").messages.create(model="gemini-2.5-flash", max_tokens=10, system="s", messages=[{"role": "user", "content": "x"}])
+    assert resp.content[0].text == "hi" and "gemini-3.8-flash" in calls[-1]

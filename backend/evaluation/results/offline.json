@@ -1,0 +1,28 @@
+{
+  "scam": {
+    "n": 30,
+    "scored": 30,
+    "detected": 30,
+    "met_minimum": 30,
+    "recall": 1.0,
+    "missed": [],
+    "below_minimum": []
+  },
+  "legit": {
+    "n": 34,
+    "scored": 34,
+    "false_alarms": 0,
+    "false_stops": 0,
+    "false_alarm_rate": 0.0,
+    "alarm_ids": []
+  },
+  "numbers": {
+    "n": 10,
+    "scored": 10,
+    "correct": 10,
+    "accuracy": 1.0,
+    "false_mismatch": [],
+    "missed_mismatch": [],
+    "wrong": []
+  }
+}

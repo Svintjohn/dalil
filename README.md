@@ -204,6 +204,24 @@ When a bill, invoice, fee notice, payment schedule or contract shows several amo
 - "Save as PDF" opens a clean print page in a new tab and starts the browser print dialog.
 - In the Privacy window, "Delete all my saved data" removes every saved case and deadline from the browser after a confirmation. Documents themselves are never saved.
 
+## Accuracy check
+
+`backend/evaluation/` holds made-up, labeled documents: scam-like messages, ordinary documents that use scary words
+("urgent", "OTP", "gift card"), and bills with right and wrong totals.
+
+```powershell
+cd backend
+python -m evaluation.run              # offline: rules and arithmetic, no keys needed
+$env:GEMINI_API_KEY = "<your key>"    # type it in your own terminal, never in chat or a file
+python -m evaluation.run --live       # also asks the real model to read every case (slow on the free tier)
+```
+
+It writes only case ids and results, never document text. `tests/test_eval.py` runs the offline part with the tests.
+
+Honest caveat: the cases were written by the developers, and the rules were tuned on them (set "b-" was written after
+set A and also used for tuning). The numbers are a regression check, not proof of real-world accuracy. Dalil only
+ever says "warning signs", never "this is a scam" or "this is safe".
+
 ## Rules registry
 
 Countries covered so far: AE, GB, SG, MY, SA, AU, US, QA, KW, BH, OM, PH, IN, PK, CA, JP, KR and BD.

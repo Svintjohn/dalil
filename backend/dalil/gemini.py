@@ -130,7 +130,7 @@ class _Messages:
             if e.status != 404:
                 raise
             # The configured model is not offered to this key (models get retired). Pick one that is.
-            found = self._discover()
+            found = self._discover(exclude=model)  # the retired model may still be listed, so skip it
             if not found or found == model:
                 raise
             _PICKED[model] = found

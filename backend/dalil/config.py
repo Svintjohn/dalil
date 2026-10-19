@@ -34,7 +34,7 @@ def provider() -> str:
 # Models. Set DALIL_MODEL / DALIL_FAST_MODEL to whatever your account offers.
 def _default_models() -> tuple[str, str]:
     if provider() == "gemini":
-        return "gemini-2.5-flash", "gemini-2.5-flash"
+        return "gemini-3.8-flash", "gemini-3.8-flash"
     return "claude-sonnet-5-5", "claude-haiku-5-5"
 
 

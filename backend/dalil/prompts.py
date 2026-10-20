@@ -15,6 +15,7 @@ LABEL_KEYS = {
     "where": "Where to go",
     "not_sure": "Not sure about",
     "no_flags": "No red flags found",
+    "numbers_flag": "The amounts do not add up",
     "high": "High risk",
     "medium": "Check this",
     "low": "Small point",

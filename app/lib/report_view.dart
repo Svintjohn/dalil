@@ -122,6 +122,16 @@ class _ReportViewState extends State<ReportView> {
       counts[k] = counts[k]! + 1;
     }
     if (r.findings.isEmpty) {
+      // Never say "no red flags" next to a warning: the scam shield or the number check already found something.
+      if (r.scam.shown) return const SizedBox.shrink();
+      final nc = r.numberCheck;
+      if (nc != null && !nc.ok) {
+        return Row(children: [
+          Icon(Icons.warning_amber_rounded, size: 20, color: p.sev('medium')),
+          const SizedBox(width: 8),
+          Flexible(child: Text(r.label('numbers_flag', 'The amounts do not add up'), style: TextStyle(color: p.sev('medium'), fontWeight: FontWeight.w700))),
+        ]);
+      }
       return Row(children: [
         Icon(Icons.check_circle, size: 20, color: p.ok),
         const SizedBox(width: 8),

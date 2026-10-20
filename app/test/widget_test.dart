@@ -385,6 +385,9 @@ void main() {
     expect(find.textContaining('On the document: AED 720.00'), findsOneWidget);
     expect(find.textContaining('Added up: AED 405.50'), findsOneWidget);
     expect(find.textContaining('Difference: AED 314.50'), findsOneWidget);
+    // the overview must not say "no red flags" next to a number mismatch
+    expect(find.text('No red flags found'), findsNothing);
+    expect(find.text('The amounts do not add up'), findsOneWidget);
 
     await show({
       'number_check': {'status': 'ok', 'currency': 'AED', 'lines': lines},
@@ -394,6 +397,10 @@ void main() {
 
     await show({});
     expect(find.byKey(const ValueKey('number-check')), findsNothing);
+    expect(find.text('No red flags found'), findsOneWidget);
+
+    await show({'scam': {'level': 'caution', 'reasons': ['It has a link that does not look official.']}});
+    expect(find.text('No red flags found'), findsNothing);
 
     final bad = Report.fromJson({
       'summary': 'A bill.',

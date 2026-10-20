@@ -199,7 +199,7 @@ class MyCasesSection extends StatelessWidget {
         final sorted = sortedCases(list);
         return Band(
           top: 0,
-          bottom: 80,
+          bottom: 56,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('My cases', style: h2Style(context)),
             const SizedBox(height: 14),

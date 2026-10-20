@@ -1,11 +1,10 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import 'fonts.dart';
 import 'models.dart';
 import 'motion.dart';
 import 'theme.dart';
+import 'widgets.dart';
 
 bool isWide(BuildContext c) => MediaQuery.sizeOf(c).width >= 960;
 double pagePad(BuildContext c) => MediaQuery.sizeOf(c).width >= 600 ? 32 : 20;
@@ -36,7 +35,7 @@ class Band extends StatelessWidget {
 
 TextStyle h2Style(BuildContext context, {Color? color}) {
   final wide = isWide(context);
-  return TextStyle(fontSize: wide ? 48 : 34, height: 1.05, fontWeight: FontWeight.w800, letterSpacing: wide ? -1.6 : -1.0, color: color);
+  return Fonts.display(TextStyle(fontSize: wide ? 46 : 33, height: 1.06, fontWeight: FontWeight.w700, letterSpacing: wide ? -1.4 : -0.9, color: color));
 }
 
 class HeroSection extends StatelessWidget {
@@ -48,64 +47,174 @@ class HeroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = Palette.of(context);
     final wide = isWide(context);
+    final size = wide ? 68.0 : 42.0;
+    final head = Fonts.display(TextStyle(fontSize: size, height: 1.0, fontWeight: FontWeight.w700, letterSpacing: wide ? -2.6 : -1.5, color: p.ink));
     final left = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(
-        'Understand anything you have been handed.',
-        style: TextStyle(fontSize: wide ? 72 : 42, height: 0.98, fontWeight: FontWeight.w800, letterSpacing: wide ? -3 : -1.6),
-      ),
-      SizedBox(height: wide ? 26 : 20),
-      ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: Text(
-          'Take a photo of a letter, bill, school notice, medical paper or contract. Dalil explains it in your language and tells you what to do next.',
-          style: TextStyle(fontSize: wide ? 20 : 17, height: 1.5, color: p.inkSoft),
+      Reveal(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(color: p.accentTint, borderRadius: BorderRadius.circular(999)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.verified_user_outlined, size: 15, color: p.accent),
+            const SizedBox(width: 6),
+            Flexible(child: Text('Free. No account. Nothing saved.', style: TextStyle(color: p.accent, fontWeight: FontWeight.w700, fontSize: 13))),
+          ]),
         ),
       ),
-      const SizedBox(height: 32),
-      Wrap(spacing: 14, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        Pressable(
-          child: FilledButton(
-            onPressed: onTry,
-            style: FilledButton.styleFrom(
-              backgroundColor: p.accent,
-              foregroundColor: p.onAccent,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+      SizedBox(height: wide ? 22 : 16),
+      Reveal(
+        delayMs: 80,
+        child: Text.rich(
+          TextSpan(style: head, children: [
+            const TextSpan(text: 'Understand anything you have been '),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: Marker(color: p.marker, delayMs: 700, thickness: 0.38, child: Text('handed.', style: head)),
             ),
-            child: const Text('Explain a document'),
+          ]),
+        ),
+      ),
+      SizedBox(height: wide ? 22 : 16),
+      Reveal(
+        delayMs: 160,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Text(
+            'Take a photo of a letter, bill, school notice, medical paper or contract. Dalil explains it in your language and tells you what to do next.',
+            style: TextStyle(fontSize: wide ? 19 : 17, height: 1.5, color: p.inkSoft),
           ),
         ),
-        TextButton.icon(
-          onPressed: onHow,
-          style: TextButton.styleFrom(foregroundColor: p.ink, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18), textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          icon: const Icon(Icons.arrow_downward, size: 18),
-          iconAlignment: IconAlignment.end,
-          label: const Text('See how it works'),
-        ),
-      ]),
-      const SizedBox(height: 30),
-      Wrap(spacing: 22, runSpacing: 8, children: [
-        for (final t in ['Not saved', '$languageCount languages', 'Official sources'])
-          Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.check, size: 18, color: p.accent),
-            const SizedBox(width: 6),
-            Text(t, style: TextStyle(color: p.inkSoft, fontWeight: FontWeight.w600)),
-          ]),
-      ]),
+      ),
+      const SizedBox(height: 28),
+      Reveal(
+        delayMs: 240,
+        child: Wrap(spacing: 12, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          Pressable(
+            child: FilledButton.icon(
+              onPressed: onTry,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+              ),
+              icon: const Icon(Icons.photo_camera_outlined, size: 20),
+              label: const Text('Explain a document'),
+            ),
+          ),
+          Pressable(
+            child: OutlinedButton(
+              onPressed: onHow,
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              child: const Text('How it works'),
+            ),
+          ),
+        ]),
+      ),
+      const SizedBox(height: 26),
+      Reveal(
+        delayMs: 320,
+        child: Wrap(spacing: 22, runSpacing: 8, children: [
+          for (final t in ['$languageCount languages', 'Official sources', 'Scam check'])
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.check_circle, size: 17, color: p.accent),
+              const SizedBox(width: 6),
+              Text(t, style: TextStyle(color: p.ink, fontWeight: FontWeight.w600, fontSize: 14.5)),
+            ]),
+        ]),
+      ),
     ]);
+    final desk = Container(
+      padding: EdgeInsets.symmetric(horizontal: wide ? 34 : 14, vertical: wide ? 40 : 22),
+      decoration: BoxDecoration(color: p.accentTint, borderRadius: BorderRadius.circular(32)),
+      child: const AnnotatedPaper(),
+    );
     return Band(
-      top: wide ? 150 : 108,
-      bottom: wide ? 96 : 56,
-      background: const HeroBackdrop(),
+      top: wide ? 118 : 92,
+      bottom: wide ? 64 : 40,
       child: wide
           ? Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
               Expanded(flex: 11, child: left),
-              const SizedBox(width: 56),
-              const Expanded(flex: 10, child: AnnotatedPaper()),
+              const SizedBox(width: 48),
+              Expanded(flex: 10, child: desk),
             ])
-          : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [left, const SizedBox(height: 44), const AnnotatedPaper()]),
+          : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [left, const SizedBox(height: 32), desk]),
+    );
+  }
+}
+
+/// A slow strip of language names under the hero.
+class LanguageTicker extends StatefulWidget {
+  const LanguageTicker({super.key, required this.languages});
+  final List<Language> languages;
+
+  @override
+  State<LanguageTicker> createState() => _LanguageTickerState();
+}
+
+class _LanguageTickerState extends State<LanguageTicker> with SingleTickerProviderStateMixin {
+  final ScrollController _scroll = ScrollController();
+  AnimationController? _ctl;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final move = Motion.ambient && !Motion.reduced(context);
+    if (move && _ctl == null) {
+      _ctl = AnimationController(vsync: this, duration: const Duration(seconds: 80))
+        ..addListener(_tick)
+        ..repeat();
+    } else if (!move && _ctl != null) {
+      _ctl!.dispose();
+      _ctl = null;
+    }
+  }
+
+  void _tick() {
+    if (!_scroll.hasClients) return;
+    final pos = _scroll.position;
+    final loop = (pos.maxScrollExtent + pos.viewportDimension) / 2; // one full set of names
+    if (loop <= 0) return;
+    final c = _ctl;
+    if (c != null) _scroll.jumpTo(c.value * loop);
+  }
+
+  @override
+  void dispose() {
+    _ctl?.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    final names = [for (final l in widget.languages) l.native.isEmpty ? l.name : l.native];
+    if (names.isEmpty) return const SizedBox.shrink();
+    final word = Fonts.display(TextStyle(fontSize: 26, fontWeight: FontWeight.w600, color: p.wallInk, height: 1.2));
+    Widget set() => Row(children: [
+          for (final n in names) ...[
+            Text(n, style: word),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 22), child: Icon(Icons.circle, size: 7, color: p.markSolid)),
+          ],
+        ]);
+    return Semantics(
+      label: '${names.length} reply languages',
+      excludeSemantics: true,
+      child: Container(
+        height: 68,
+        color: p.wall,
+        child: SingleChildScrollView(
+          controller: _scroll,
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          child: Center(child: Row(children: [set(), set()])),
+        ),
+      ),
     );
   }
 }
@@ -214,26 +323,26 @@ class BringAnything extends StatelessWidget {
       final w = (c.maxWidth - 12) / 2;
       return Wrap(spacing: 12, runSpacing: 12, children: [
         for (final it in items)
-          Container(
+          SizedBox(
             width: w,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: p.line)),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(color: p.accentTint, borderRadius: BorderRadius.circular(12)),
-                child: Icon(it.$1, color: p.accent, size: 22),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(it.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5)),
-                  const SizedBox(height: 3),
-                  Text(it.$3, style: TextStyle(color: p.inkSoft, fontSize: 13.5, height: 1.4)),
-                ]),
-              ),
-            ]),
+            child: HoverLift(
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(color: p.accentTint, borderRadius: BorderRadius.circular(12)),
+                  child: Icon(it.$1, color: p.accent, size: 21),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(it.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5)),
+                    const SizedBox(height: 3),
+                    Text(it.$3, style: TextStyle(color: p.inkSoft, fontSize: 13.5, height: 1.4)),
+                  ]),
+                ),
+              ]),
+            ),
           ),
       ]);
     });
@@ -261,15 +370,15 @@ class RouteSection extends StatelessWidget {
           child: Text('${i + 1}', style: const TextStyle(color: Color(0xFF0B1B1E), fontSize: 22, fontWeight: FontWeight.w800)),
         );
     Widget stop(int i) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(stops[i].$1, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6, color: p.signInk)),
+          Text(stops[i].$1, style: Fonts.display(TextStyle(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.6, color: p.signInk))),
           const SizedBox(height: 10),
           Text(stops[i].$2, style: TextStyle(fontSize: 16.5, height: 1.55, color: p.signInk.withAlpha(205))),
         ]);
     final line = p.signInk.withAlpha(110);
     return Band(
       color: p.sign,
-      top: 100,
-      bottom: 110,
+      top: wide ? 80 : 56,
+      bottom: wide ? 88 : 56,
       background: Align(
         alignment: AlignmentDirectional.bottomEnd,
         child: Transform.translate(
@@ -284,7 +393,7 @@ class RouteSection extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 560),
           child: Text('No account, no forms. You only need a phone and the paper in front of you.', style: TextStyle(fontSize: 18, height: 1.5, color: p.signInk.withAlpha(205))),
         ),
-        const SizedBox(height: 48),
+        const SizedBox(height: 36),
         if (wide)
           Stack(children: [
             Positioned(left: 28, right: 28, top: 26, child: SizedBox(height: 3, child: DashedLine(color: line, thickness: 3, dash: 10, gap: 8))),
@@ -338,8 +447,8 @@ class LanguageWall extends StatelessWidget {
     final ordered = [...feat, ...rest];
     return Band(
       color: p.wall,
-      top: 100,
-      bottom: 110,
+      top: wide ? 80 : 56,
+      bottom: wide ? 88 : 56,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Reply in the language you think in.', style: h2Style(context, color: p.wallInk)),
         const SizedBox(height: 14),
@@ -350,7 +459,7 @@ class LanguageWall extends StatelessWidget {
             style: TextStyle(fontSize: 18, height: 1.5, color: p.wallInk.withAlpha(170)),
           ),
         ),
-        const SizedBox(height: 48),
+        const SizedBox(height: 32),
         Wrap(
           spacing: 30 * k,
           runSpacing: 8 * k,
@@ -428,14 +537,14 @@ class TrustSection extends StatelessWidget {
           padding: const EdgeInsets.only(top: 20),
           decoration: BoxDecoration(border: Border(top: BorderSide(color: p.ink, width: 3))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(items[i].$1, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+            Text(items[i].$1, style: Fonts.display(const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.4))),
             const SizedBox(height: 8),
             Text(items[i].$2, style: TextStyle(color: p.inkSoft, height: 1.55, fontSize: 16)),
           ]),
         );
     return Band(
-      top: 100,
-      bottom: 80,
+      top: wide ? 80 : 56,
+      bottom: wide ? 64 : 40,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Built so you can trust it.', style: h2Style(context)),
         const SizedBox(height: 14),
@@ -443,7 +552,7 @@ class TrustSection extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 560),
           child: Text('Documents are personal. Dalil is designed to handle them carefully, and to say when it is not sure.', style: TextStyle(fontSize: 18, height: 1.5, color: p.inkSoft)),
         ),
-        const SizedBox(height: 44),
+        const SizedBox(height: 32),
         if (wide)
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             for (var i = 0; i < 3; i++) ...[if (i > 0) const SizedBox(width: 28), Expanded(child: col(i))],
@@ -465,86 +574,28 @@ class SiteFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = Palette.of(context);
-    final a = Text('Dalil is a guide, not a lawyer, doctor or accountant. It does not give legal, medical or financial advice.', style: TextStyle(color: p.inkSoft, fontSize: 14, height: 1.5));
+    final wide = isWide(context);
+    final brand = Row(mainAxisSize: MainAxisSize.min, children: [
+      Text('دليل', style: Fonts.mark(TextStyle(fontSize: 30, height: 1.2, color: p.accent, fontWeight: FontWeight.w700))),
+      const SizedBox(width: 10),
+      Text('Dalil', style: Fonts.display(const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: -0.4))),
+    ]);
+    final note = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 520),
+      child: Text(
+        'Dalil is a guide, not a lawyer, doctor or accountant. It does not give legal, medical or financial advice.',
+        style: TextStyle(color: p.inkSoft, fontSize: 14, height: 1.5),
+      ),
+    );
     return Container(
       decoration: BoxDecoration(border: Border(top: BorderSide(color: p.line))),
       child: Band(
-        top: 28,
+        top: 36,
         bottom: 44,
-        child: a,
+        child: wide
+            ? Row(crossAxisAlignment: CrossAxisAlignment.center, children: [brand, const Spacer(), note])
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [brand, const SizedBox(height: 14), note]),
       ),
     );
   }
-}
-
-class HeroBackdrop extends StatelessWidget {
-  const HeroBackdrop({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final p = Palette.of(context);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return IgnorePointer(
-      child: Stack(children: [
-        Positioned.fill(child: CustomPaint(painter: _GlowPainter(accent: p.accent, dark: dark))),
-        Positioned.fill(
-          child: ShaderMask(
-            blendMode: BlendMode.dstIn,
-            shaderCallback: (r) => const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.white, Colors.transparent], stops: [0.0, 0.9]).createShader(r),
-            child: CustomPaint(painter: _LatticePainter(color: p.ink.withAlpha(dark ? 30 : 24))),
-          ),
-        ),
-      ]),
-    );
-  }
-}
-
-class _GlowPainter extends CustomPainter {
-  _GlowPainter({required this.accent, required this.dark});
-  final Color accent;
-  final bool dark;
-
-  void _blob(Canvas canvas, Offset c, double r, Color col) {
-    final rect = Rect.fromCircle(center: c, radius: r);
-    canvas.drawCircle(c, r, Paint()..shader = RadialGradient(colors: [col, col.withAlpha(0)]).createShader(rect));
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width, h = size.height;
-    _blob(canvas, Offset(w * 0.12, h * 0.18), w * 0.40, accent.withAlpha(dark ? 95 : 62));
-    _blob(canvas, Offset(w * 0.88, h * 0.10), w * 0.36, const Color(0xFF3A6FE0).withAlpha(dark ? 80 : 46));
-    _blob(canvas, Offset(w * 0.70, h * 0.92), w * 0.34, const Color(0xFFF0B84B).withAlpha(dark ? 44 : 58));
-  }
-
-  @override
-  bool shouldRepaint(_GlowPainter old) => old.accent != accent || old.dark != dark;
-}
-
-class _LatticePainter extends CustomPainter {
-  _LatticePainter({required this.color});
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const cell = 96.0;
-    final r = cell * 0.35;
-    final d = r * math.sqrt2;
-    final path = Path();
-    for (double y = 0; y < size.height; y += cell) {
-      for (double x = 0; x < size.width; x += cell) {
-        final c = Offset(x + cell / 2, y + cell / 2);
-        path.addRect(Rect.fromCenter(center: c, width: 2 * r, height: 2 * r));
-        path.moveTo(c.dx, c.dy - d);
-        path.lineTo(c.dx + d, c.dy);
-        path.lineTo(c.dx, c.dy + d);
-        path.lineTo(c.dx - d, c.dy);
-        path.close();
-      }
-    }
-    canvas.drawPath(path, Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 1);
-  }
-
-  @override
-  bool shouldRepaint(_LatticePainter old) => old.color != color;
 }

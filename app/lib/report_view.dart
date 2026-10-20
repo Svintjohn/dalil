@@ -566,7 +566,7 @@ class _ReportViewState extends State<ReportView> {
               child: Text('Checked against official sources of ${r.countryName}, last verified ${r.registryChecked}.', style: TextStyle(fontSize: 13, color: p.inkSoft)),
             ),
           const SizedBox(height: 12),
-          Text(r.summary, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w700, height: 1.3, letterSpacing: -0.4)),
+          Text(r.summary, style: Fonts.display(const TextStyle(fontSize: 27, fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.6))),
           if (r.recognized) ...[
             const SizedBox(height: 18),
             _overview(context),

@@ -3,11 +3,13 @@ import 'package:dalil_app/cases.dart';
 import 'package:dalil_app/deadlines.dart';
 import 'package:dalil_app/fonts.dart';
 import 'package:dalil_app/home.dart';
+import 'package:dalil_app/landing.dart';
 import 'package:dalil_app/speech.dart';
 import 'package:dalil_app/theme.dart';
 import 'package:dalil_app/widgets.dart';
 import 'package:dalil_app/main.dart';
 import 'package:dalil_app/models.dart';
+import 'package:dalil_app/motion.dart';
 import 'package:dalil_app/report_text.dart';
 import 'package:dalil_app/report_view.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +87,10 @@ Future<void> reveal(WidgetTester tester, Finder f) async {
 }
 
 void main() {
-  setUp(() => Fonts.web = false);
+  setUp(() {
+    Fonts.web = false;
+    Motion.ambient = false;
+  });
 
   testWidgets('sample text can be reviewed and the result appears', (tester) async {
     tester.view.physicalSize = const Size(1400, 1600);
@@ -445,5 +450,44 @@ void main() {
     final r = Report.fromJson({'summary': 'A bill.', 'due': {'amount': 720, 'currency': 'AED', 'date_text': '1 Dec'}});
     expect(reportToText(r), contains('Amount due: AED 720.00, Pay by 1 Dec'));
     expect(reportToSpeech(r), contains('AED 720.00'));
+  });
+
+  testWidgets('phone: the menu opens and the drop zone and ticker are there', (tester) async {
+    tester.view.physicalSize = const Size(420, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(DalilApp(api: FakeApi()));
+    await tester.pumpAndSettle();
+    expect(find.byType(LanguageTicker), findsOneWidget);
+    expect(find.byTooltip('Menu'), findsOneWidget);
+    expect(find.text('Explain a document'), findsOneWidget); // the hero button; the header one is only on wide screens
+
+    await tester.tap(find.byTooltip('Menu'));
+    await tester.pumpAndSettle();
+    expect(find.text('How it works'), findsWidgets);
+    expect(find.text('Privacy'), findsOneWidget);
+    await tester.tap(find.text('Privacy'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your document is not saved'), findsOneWidget);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+
+    await reveal(tester, find.byKey(const ValueKey('drop-zone')));
+    expect(find.text('Add a photo of your document'), findsOneWidget);
+  });
+
+  testWidgets('desktop: the header has the nav links and a call-to-action', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(DalilApp(api: FakeApi()));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Menu'), findsNothing);
+    expect(find.text('Explain a document'), findsNWidgets(2)); // header and hero
+    expect(find.text('Privacy'), findsOneWidget);
+    expect(find.byTooltip('Text size'), findsOneWidget);
+    expect(find.byTooltip('Light or dark'), findsOneWidget);
   });
 }

@@ -18,10 +18,49 @@ class Sheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: p.surface,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: p.shadow, blurRadius: 40, offset: const Offset(0, 16))],
+        border: Border.all(color: p.ink.withAlpha(46), width: 1.2),
+        boxShadow: [BoxShadow(color: p.ink.withAlpha(22), offset: const Offset(0, 6))],
       ),
       padding: padding,
       child: child,
+    );
+  }
+}
+
+/// A card that rises a little when the pointer is over it.
+class HoverLift extends StatefulWidget {
+  const HoverLift({super.key, required this.child, this.radius = 18, this.color, this.padding = const EdgeInsets.all(16)});
+  final Widget child;
+  final double radius;
+  final Color? color;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  State<HoverLift> createState() => _HoverLiftState();
+}
+
+class _HoverLiftState extends State<HoverLift> {
+  bool hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    return MouseRegion(
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: AnimatedContainer(
+        duration: Motion.ms(context, 320),
+        curve: Motion.smooth,
+        transform: Matrix4.translationValues(0, hover ? -3 : 0, 0),
+        padding: widget.padding,
+        decoration: BoxDecoration(
+          color: widget.color ?? p.surface,
+          borderRadius: BorderRadius.circular(widget.radius),
+          border: Border.all(color: hover ? p.accent : p.line, width: hover ? 1.4 : 1),
+          boxShadow: [BoxShadow(color: p.ink.withAlpha(hover ? 28 : 0), offset: const Offset(0, 6))],
+        ),
+        child: widget.child,
+      ),
     );
   }
 }
@@ -92,7 +131,7 @@ class Segmented extends StatelessWidget {
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
                           Icon(icons[i], size: 18, color: i == index ? p.ink : p.inkSoft),
                           const SizedBox(width: 8),
-                          Text(labels[i], style: TextStyle(fontWeight: FontWeight.w600, color: i == index ? p.ink : p.inkSoft)),
+                          Flexible(child: Text(labels[i], maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: i == index ? p.ink : p.inkSoft))),
                         ]),
                       ),
                     ),

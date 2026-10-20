@@ -33,7 +33,7 @@ class MyDeadlinesSection extends StatelessWidget {
         final now = DateTime.now();
         return Band(
           top: 0,
-          bottom: 80,
+          bottom: 56,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('My deadlines', style: h2Style(context)),
             const SizedBox(height: 14),

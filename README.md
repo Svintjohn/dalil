@@ -283,3 +283,9 @@ The **Money due** card above the cases adds up what is still unpaid, **per curre
 When the AI is busy or rate-limited, people see a calm message ("Many people are using Dalil right now, please try again in about a minute") instead of a technical error. The backend answers `503` with `code: model_busy` and `retry_after: 60`, in the reader's language (`BUSY_MESSAGES` in `backend/dalil/app.py`; unknown languages fall back to English). The app shows it as an amber notice, not a red error.
 
 The translations are machine-written: have a native speaker review them before launch.
+
+## Design
+
+Warm paper background, deep green ink, saffron highlighter. Headlines are set in Fraunces, body text in DM Sans, quoted documents in Source Serif, the wordmark in Reem Kufi. Cards use a thin ink border with a flat offset shadow instead of soft blurry shadows. The header is a floating bar; on narrow screens its links fold into a menu. Under the hero a slow strip shows every reply language. Sections are tighter than before, and cards rise on hover. All colors live in `app/lib/theme.dart` (`Palette`), all fonts in `app/lib/fonts.dart`.
+
+Endless background motion (the language strip) is switched off in tests with `Motion.ambient = false`, and for people who ask their device to reduce motion it does not move.

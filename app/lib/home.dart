@@ -86,6 +86,7 @@ class _HomePageState extends State<HomePage> {
   final toolKey = GlobalKey();
   final howKey = GlobalKey();
   final langKey = GlobalKey();
+  final casesKey = GlobalKey();
   bool speaking = false;
   ChatTurn? speakingTurn; // which answer is being read, or null for the whole report
   bool _askedByVoice = false;
@@ -445,68 +446,134 @@ class _HomePageState extends State<HomePage> {
     if (r != null && mounted) setState(() => language = r);
   }
 
+  void _privacy() {
+    final m = meta;
+    if (m == null) return;
+    showSpringDialog<void>(context, (_) => PrivacyDialog(headline: m.privacyHeadline, points: m.privacyPoints));
+  }
+
+  void _toggleTheme() => AppSettings.themeMode.value = Theme.of(context).brightness == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
+
   Widget _header(BuildContext context) {
     final p = Palette.of(context);
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: Container(
-          decoration: BoxDecoration(color: p.bg.withAlpha(205), border: Border(bottom: BorderSide(color: p.line))),
-          child: SafeArea(
-            bottom: false,
-            child: SizedBox(
-              height: 60,
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1180),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: pagePad(context)),
-                    child: Row(children: [
-                      Semantics(
-                        button: true,
-                        label: 'Dalil, back to the top',
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: _toTop,
+    final wide = MediaQuery.sizeOf(context).width >= 1040; // below this the links fold into the menu
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final links = <(String, String, GlobalKey)>[
+      ('try', 'Try it', toolKey),
+      ('how', 'How it works', howKey),
+      ('lang', 'Languages', langKey),
+    ];
+    final side = pagePad(context) > 20 ? 24.0 : 12.0;
+    final logo = Semantics(
+      button: true,
+      label: 'Dalil, back to the top',
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _toTop,
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Text('دليل', style: Fonts.mark(TextStyle(fontSize: 28, height: 1.2, color: p.accent, fontWeight: FontWeight.w700))),
+            const SizedBox(width: 10),
+            Text('Dalil', style: Fonts.display(const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, letterSpacing: -0.4))),
+          ]),
+        ),
+      ),
+    );
+    final themeButton = IconButton(
+      tooltip: 'Light or dark',
+      onPressed: _toggleTheme,
+      icon: Icon(dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: p.inkSoft),
+    );
+    return SafeArea(
+      bottom: false,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(side, 10, side, 0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(
+                  height: 58,
+                  padding: const EdgeInsetsDirectional.only(start: 20, end: 8),
+                  decoration: BoxDecoration(
+                    color: p.surface.withAlpha(232),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: p.ink.withAlpha(46), width: 1.2),
+                  ),
+                  child: Row(children: [
+                    logo,
+                    if (wide)
+                      Expanded(
+                        child: Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerEnd,
                             child: Row(mainAxisSize: MainAxisSize.min, children: [
-                              Text('دليل', style: Fonts.mark(TextStyle(fontSize: 28, height: 1.2, color: p.accent, fontWeight: FontWeight.w700))),
-                              const SizedBox(width: 10),
-                              const Text('Dalil', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
-                            ]),
-                          ),
+                      for (final n in links)
+                        TextButton(
+                          onPressed: meta == null ? null : () => _goTo(n.$3),
+                          style: TextButton.styleFrom(foregroundColor: p.inkSoft, textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                          child: Text(n.$2),
                         ),
+                      ValueListenableBuilder<List<CaseFile>>(
+                        valueListenable: CaseStore.instance.cases,
+                        builder: (context, cs, _) => cs.isEmpty
+                            ? const SizedBox.shrink()
+                            : TextButton(
+                                onPressed: () => _goTo(casesKey),
+                                style: TextButton.styleFrom(foregroundColor: p.inkSoft, textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                                child: const Text('My cases'),
+                              ),
                       ),
-                      const Spacer(),
-                      if (MediaQuery.sizeOf(context).width >= 900) ...[
-                        for (final n in <(String, GlobalKey)>[('Try it', toolKey), ('How it works', howKey), ('Languages', langKey)])
-                          Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: TextButton(
-                              onPressed: meta == null ? null : () => _goTo(n.$2),
-                              style: TextButton.styleFrom(foregroundColor: p.inkSoft, textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                              child: Text(n.$1),
-                            ),
-                          ),
-                      ],
                       TextButton.icon(
-                        onPressed: meta == null ? null : () => showSpringDialog<void>(context, (_) => PrivacyDialog(headline: meta!.privacyHeadline, points: meta!.privacyPoints)),
+                        onPressed: meta == null ? null : _privacy,
                         icon: Icon(Icons.lock_outline, size: 18, color: p.inkSoft),
                         label: Text('Privacy', style: TextStyle(color: p.ink, fontWeight: FontWeight.w600)),
                       ),
-                      IconButton(
-                        tooltip: 'Text size',
-                        onPressed: AppSettings.nextTextSize,
-                        icon: Icon(Icons.text_fields, color: p.inkSoft),
+                      IconButton(tooltip: 'Text size', onPressed: AppSettings.nextTextSize, icon: Icon(Icons.text_fields, color: p.inkSoft)),
+                      themeButton,
+                      const SizedBox(width: 6),
+                      Pressable(
+                        child: FilledButton(
+                          onPressed: meta == null ? null : () => _goTo(toolKey),
+                          style: FilledButton.styleFrom(minimumSize: const Size(0, 42), padding: const EdgeInsets.symmetric(horizontal: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999))),
+                          child: const Text('Explain a document'),
+                        ),
                       ),
-                      IconButton(
-                        tooltip: 'Light or dark',
-                        onPressed: () => AppSettings.themeMode.value = Theme.of(context).brightness == Brightness.dark ? ThemeMode.light : ThemeMode.dark,
-                        icon: Icon(Theme.of(context).brightness == Brightness.dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: p.inkSoft),
+                            ]),
+                          ),
+                        ),
+                      )
+                    else ...[
+                      const Spacer(),
+                      themeButton,
+                      PopupMenuButton<String>(
+                        tooltip: 'Menu',
+                        icon: Icon(Icons.menu_rounded, color: p.ink),
+                        color: p.surface,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: p.line)),
+                        onSelected: (v) {
+                          for (final n in links) {
+                            if (n.$1 == v) _goTo(n.$3);
+                          }
+                          if (v == 'cases') _goTo(casesKey);
+                          if (v == 'privacy') _privacy();
+                          if (v == 'size') AppSettings.nextTextSize();
+                        },
+                        itemBuilder: (context) => [
+                          for (final n in links) PopupMenuItem<String>(value: n.$1, enabled: meta != null, child: Text(n.$2)),
+                          if (CaseStore.instance.cases.value.isNotEmpty) const PopupMenuItem<String>(value: 'cases', child: Text('My cases')),
+                          const PopupMenuItem<String>(value: 'privacy', child: Text('Privacy')),
+                          const PopupMenuItem<String>(value: 'size', child: Text('Text size')),
+                        ],
                       ),
-                    ]),
-                  ),
+                    ],
+                  ]),
                 ),
               ),
             ),
@@ -615,16 +682,34 @@ class _HomePageState extends State<HomePage> {
         curve: Motion.smooth,
         alignment: Alignment.topCenter,
         child: pages.isEmpty
-            ? Container(
-                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-                decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(18)),
-                child: Column(children: [
-                  Icon(Icons.document_scanner_outlined, size: 38, color: p.accent),
-                  const SizedBox(height: 12),
-                  const Text('Add a photo of your document', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text('One photo per page, up to ${meta?.maxImages ?? 6} pages.', style: TextStyle(color: p.inkSoft)),
-                ]),
+            ? Semantics(
+                button: true,
+                label: 'Choose photos of your document',
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    key: const ValueKey('drop-zone'),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: busy ? null : () => _addPhoto(ImageSource.gallery),
+                    child: HoverLift(
+                      radius: 20,
+                      color: p.inset,
+                      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                      child: Column(children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(color: p.accentTint, shape: BoxShape.circle),
+                          child: Icon(Icons.add_a_photo_outlined, size: 26, color: p.accent),
+                        ),
+                        const SizedBox(height: 14),
+                        Text('Add a photo of your document', style: Fonts.display(const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3))),
+                        const SizedBox(height: 4),
+                        Text('Tap here, or use the buttons below. One photo per page, up to ${meta?.maxImages ?? 6} pages.', textAlign: TextAlign.center, style: TextStyle(color: p.inkSoft, height: 1.4)),
+                      ]),
+                    ),
+                  ),
+                ),
               )
             : Wrap(spacing: 12, runSpacing: 12, children: [for (var i = 0; i < pages.length; i++) _thumb(context, i)]),
       ),
@@ -842,7 +927,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 20),
           Sheet(
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              const Text('Ask about this document', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              Text('Ask about this document', style: Fonts.display(const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: -0.4))),
               const SizedBox(height: 14),
               for (final t in chat) _chatTurn(context, t),
               Row(children: [
@@ -958,18 +1043,27 @@ class _HomePageState extends State<HomePage> {
       controller: scroll,
       child: SmoothWheel(controller: scroll, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         HeroSection(onTry: () => _goTo(toolKey), onHow: () => _goTo(howKey), languageCount: m.languages.length),
+        LanguageTicker(languages: m.languages),
         Band(
           key: toolKey,
-          top: 40,
-          bottom: 100,
+          top: 72,
+          bottom: 72,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Show Dalil your document.', style: h2Style(context)),
-            const SizedBox(height: 14),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: Text('One photo per page. Dalil checks that it is clear before it reads, and you can paste text instead.', style: TextStyle(fontSize: 18, height: 1.5, color: p.inkSoft)),
-            ),
-            const SizedBox(height: 40),
+            if (wide)
+              Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                Expanded(flex: 5, child: Text('Show Dalil your document.', style: h2Style(context))),
+                const SizedBox(width: 40),
+                Expanded(
+                  flex: 6,
+                  child: Text('One photo per page. Dalil checks that it is clear before it reads, and you can paste text instead.', style: TextStyle(fontSize: 17, height: 1.5, color: p.inkSoft)),
+                ),
+              ])
+            else ...[
+              Text('Show Dalil your document.', style: h2Style(context)),
+              const SizedBox(height: 12),
+              Text('One photo per page. Dalil checks that it is clear before it reads, and you can paste text instead.', style: TextStyle(fontSize: 16.5, height: 1.5, color: p.inkSoft)),
+            ],
+            const SizedBox(height: 28),
             if (wide)
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Expanded(flex: 5, child: input),
@@ -983,7 +1077,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ]),
         ),
-        MyCasesSection(cases: CaseStore.instance, deadlines: DeadlineStore.instance),
+        KeyedSubtree(key: casesKey, child: MyCasesSection(cases: CaseStore.instance, deadlines: DeadlineStore.instance)),
         MyDeadlinesSection(store: DeadlineStore.instance),
         KeyedSubtree(key: howKey, child: const ScrollReveal(child: RouteSection())),
         KeyedSubtree(

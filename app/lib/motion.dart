@@ -24,6 +24,9 @@ class Motion {
   static const AppleSpring smooth = AppleSpring();
   static const AppleSpring lively = AppleSpring(bounce: 0.15);
 
+  /// Endless background motion (the language ticker). Tests switch it off so they can settle.
+  static bool ambient = true;
+
   static bool reduced(BuildContext c) => MediaQuery.maybeOf(c)?.disableAnimations ?? false;
 
   static Duration ms(BuildContext c, int value) => reduced(c) ? Duration.zero : Duration(milliseconds: value);

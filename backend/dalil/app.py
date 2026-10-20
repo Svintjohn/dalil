@@ -6,10 +6,12 @@ import json
 import logging
 import re
 from contextlib import contextmanager
+from functools import lru_cache
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
 from . import __version__, agent, config, languages, privacy, quality, registry, samples
@@ -26,6 +28,8 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-Dalil-Token"],
     max_age=600,
 )
+# Compress bigger answers (the language list and the review reports shrink to about a fifth).
+app.add_middleware(GZipMiddleware, minimum_size=800)
 limiter = RateLimiter(config.RATE_LIMIT_PER_MIN)
 gate = AiGate(config.AI_MAX_CONCURRENT, config.AI_PER_IP_INFLIGHT, config.AI_PER_IP_PER_MIN, config.AI_GLOBAL_PER_MIN)
 
@@ -155,12 +159,12 @@ def health():
     return {"ok": True, "version": __version__, "model_ready": config.ai_ready()}
 
 
-@app.get("/api/meta")
-def meta(response: Response):
-    response.headers["Cache-Control"] = "public, max-age=300"
+@lru_cache(maxsize=4)
+def _meta_body(model_ready: bool) -> dict:
+    """The page setup data. It only changes when the server restarts, so it is built once, not on every visit."""
     return {
         "version": __version__,
-        "model_ready": config.ai_ready(),
+        "model_ready": model_ready,
         "languages": languages.as_dicts(),
         "countries": registry.coverage(),
         "samples": samples.list_samples(),
@@ -168,6 +172,12 @@ def meta(response: Response):
         "photo_tips": PHOTO_TIPS,
         "privacy": PRIVACY,
     }
+
+
+@app.get("/api/meta")
+def meta(response: Response):
+    response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=3600"
+    return _meta_body(bool(config.ai_ready()))
 
 
 @app.post("/api/photo-check")

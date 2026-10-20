@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,14 +16,16 @@ import 'fonts.dart';
 import 'landing.dart';
 import 'models.dart';
 import 'motion.dart';
-import 'photo.dart';
+import 'photo.dart' deferred as photo; // the Dart image code is big, and only the fallback needs it
+import 'photo_engine.dart';
 import 'print_html.dart';
 import 'print_page.dart';
 import 'report_text.dart';
 import 'report_view.dart';
 import 'settings.dart';
+import 'skeleton.dart';
 import 'sfx.dart';
-import 'sound_studio.dart';
+import 'sound_pill.dart';
 import 'speech.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -168,7 +169,15 @@ class _HomePageState extends State<HomePage> {
     for (final f in files) {
       if (pages.length >= max) break;
       final raw = await f.readAsBytes();
-      final small = prepareForUpload(raw);
+      var small = await shrinkPhotoFast(raw); // the browser does the resize when it can
+      if (small == null) {
+        try {
+          await photo.loadLibrary();
+          small = photo.prepareForUpload(raw);
+        } catch (_) {
+          small = null; // the code could not be loaded: treated like a file that is not a photo
+        }
+      }
       if (small == null) {
         setState(() => error = 'One file was not a photo the app can open.');
         continue;
@@ -211,6 +220,8 @@ class _HomePageState extends State<HomePage> {
       if (mounted) setState(() => askCooling = false);
     });
   }
+
+  bool _lastCanReview = false;
 
   bool get _canReview {
     if (busy || cooling || language == null) return false;
@@ -455,7 +466,7 @@ class _HomePageState extends State<HomePage> {
     showSpringDialog<void>(context, (_) => PrivacyDialog(headline: m.privacyHeadline, points: m.privacyPoints));
   }
 
-  void _sound() => showSpringDialog<void>(context, (_) => const SoundStudio());
+  void _sound() => openSoundStudio(context);
 
   void _toggleTheme() => AppSettings.themeMode.value = Theme.of(context).brightness == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
 
@@ -499,13 +510,13 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.fromLTRB(side, 10, side, 0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(999),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: DecoratedBox(
+                decoration: const BoxDecoration(),
                 child: Container(
                   height: 58,
                   padding: const EdgeInsetsDirectional.only(start: 20, end: 8),
                   decoration: BoxDecoration(
-                    color: p.surface.withAlpha(232),
+                    color: p.surface.withAlpha(246), // solid: a live blur over scrolling content is slow
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: p.ink.withAlpha(46), width: 1.2),
                   ),
@@ -778,7 +789,16 @@ class _HomePageState extends State<HomePage> {
         minLines: 8,
         maxLines: 14,
         maxLength: meta?.maxTextChars ?? 30000,
-        onChanged: (_) => setState(() => sampleId = null),
+        onChanged: (_) {
+          // rebuild the page only when the "Explain this" button or the chosen sample changes, not on every key
+          final can = _canReview;
+          if (can != _lastCanReview || sampleId != null) {
+            setState(() {
+              sampleId = null;
+              _lastCanReview = _canReview;
+            });
+          }
+        },
         decoration: const InputDecoration(hintText: 'Paste the text of a letter, notice, bill, message or contract.'),
       ),
       if (samples.isNotEmpty) ...[
@@ -1050,7 +1070,7 @@ class _HomePageState extends State<HomePage> {
     return SingleChildScrollView(
       controller: scroll,
       child: SmoothWheel(controller: scroll, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        HeroSection(onTry: () => _goTo(toolKey), onHow: () => _goTo(howKey), languageCount: m.languages.length),
+        RepaintBoundary(child: HeroSection(onTry: () => _goTo(toolKey), onHow: () => _goTo(howKey), languageCount: m.languages.length)),
         LanguageTicker(languages: m.languages),
         Band(
           key: toolKey,
@@ -1087,7 +1107,7 @@ class _HomePageState extends State<HomePage> {
         ),
         KeyedSubtree(key: casesKey, child: MyCasesSection(cases: CaseStore.instance, deadlines: DeadlineStore.instance)),
         MyDeadlinesSection(store: DeadlineStore.instance),
-        KeyedSubtree(key: howKey, child: const ScrollReveal(child: RouteSection())),
+        KeyedSubtree(key: howKey, child: const ScrollReveal(child: RepaintBoundary(child: RouteSection()))),
         KeyedSubtree(
           key: langKey,
           child: ScrollReveal(
@@ -1101,7 +1121,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        ScrollReveal(child: TrustSection(countries: m.countries)),
+        ScrollReveal(child: RepaintBoundary(child: TrustSection(countries: m.countries))),
         const SiteFooter(),
       ])),
     );
@@ -1109,20 +1129,22 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final p = Palette.of(context);
     return Scaffold(
       body: Stack(children: [
         Positioned.fill(
           child: meta == null
-              ? Center(
-                  child: metaError == null
-                      ? CircularProgressIndicator(color: p.accent)
-                      : Column(mainAxisSize: MainAxisSize.min, children: [
+              ? (metaError == null
+                  ? const PageSkeleton()
+                  : Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(mainAxisSize: MainAxisSize.min, children: [
                           Text(metaError!, textAlign: TextAlign.center),
                           const SizedBox(height: 14),
-                          FilledButton(onPressed: _loadMeta, style: FilledButton.styleFrom(backgroundColor: p.accent, foregroundColor: p.onAccent), child: const Text('Try again')),
+                          FilledButton(onPressed: _loadMeta, child: const Text('Try again')),
                         ]),
-                )
+                      ),
+                    ))
               : _body(context),
         ),
         Positioned(top: 0, left: 0, right: 0, child: _header(context)),

@@ -303,3 +303,25 @@ A floating **Sound** button (and the header menu) opens the studio. Sound is **o
 Everything is made in the browser with the Web Audio API (`app/web/dalil_sfx.js`). There are no audio files, no music API, no account and no network call, so it costs nothing, works offline and sends nothing anywhere. Settings are saved in the browser only. The Flutter side is `sfx.dart` (settings), `sound_studio.dart` (screens) and `sfx_engine*.dart` (the bridge; it does nothing in tests).
 
 To add a sound, add its layers to `P` in `dalil_sfx.js` and an entry to `sfxPresets` in `sfx.dart`. A test checks that the two lists match.
+
+## Speed
+
+What keeps the page quick, and what was left out on purpose.
+
+- **Photos are shrunk by the browser.** `app/web/dalil_img.js` resizes and re-encodes a photo in a few hundred milliseconds (a 12 MP photo of 10 MB becomes about 0.8 MB). The Dart image code was the slowest thing on the page; it is now only a fallback and is a separate download (`photo.dart` is a deferred import), so most people never load it.
+- **Code splitting.** The sound studio (`sound_studio.dart`) and the Dart image code are deferred libraries: they download only when first used.
+- **Scripts.** `dalil_sfx.js` and `dalil_img.js` load with `defer`. Fonts connect early (`preconnect`).
+- **Saved page setup.** `/api/meta` (languages, samples, tips) is kept in the browser and refreshed in the background, so a returning visit shows the page without waiting for the server. The server builds that answer once (`lru_cache`) and sends it with `Cache-Control`.
+- **Compression.** The API gzips answers over 800 bytes (`GZipMiddleware`); the static site is compressed by Vercel.
+- **CDN.** Vercel serves the site from its edge network and Flutter loads CanvasKit from Google's CDN. `vercel.json` adds long cache headers for the icons.
+- **Fewer repaints.** The header is a solid bar (a live blur over scrolling content is slow), the hero, the language strip, the spectrum and the lower sections sit in `RepaintBoundary`, and typing in the paste box rebuilds the page only when the "Explain this" button changes state.
+- **Loading skeleton.** A placeholder shaped like the home page shows while the first answer is on its way.
+
+Left out on purpose:
+
+- **Caching review results.** It would mean keeping text from people's documents on the server, which breaks the promise that nothing is saved. Only public data (languages, samples) is cached.
+- **A load balancer.** Vercel already runs the API as functions that scale by themselves, and a separate balancer would add cost and a point of failure.
+- **Lazily built page sections.** The "How it works" and "Languages" links scroll to sections by key, and a section that is not built yet cannot be scrolled to. The sections are cheap now that they are repaint boundaries.
+- **Pagination.** The language picker is already a lazy list, and My cases stays short.
+- **Minifying.** `flutter build web --release` already minifies and tree-shakes the app; the two small scripts are left readable (Vercel compresses them).
+- **Unused packages.** Every dependency in `pubspec.yaml` and `requirements.txt` is used.

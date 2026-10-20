@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dalil_app/api.dart';
 import 'package:dalil_app/cases.dart';
 import 'package:dalil_app/deadlines.dart';
@@ -9,6 +11,7 @@ import 'package:dalil_app/theme.dart';
 import 'package:dalil_app/widgets.dart';
 import 'package:dalil_app/main.dart';
 import 'package:dalil_app/models.dart';
+import 'package:dalil_app/skeleton.dart';
 import 'package:dalil_app/motion.dart';
 import 'package:dalil_app/report_text.dart';
 import 'package:dalil_app/report_view.dart';
@@ -490,4 +493,57 @@ void main() {
     expect(find.byTooltip('Text size'), findsOneWidget);
     expect(find.byTooltip('Light or dark'), findsOneWidget);
   });
+
+  testWidgets('a placeholder shows while the first answer is on its way, then the page', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final gate = Completer<void>();
+    await tester.pumpWidget(DalilApp(api: SlowApi(gate.future)));
+    await tester.pump();
+    expect(find.byType(PageSkeleton), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('Explain this'), findsNothing);
+
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(find.byType(PageSkeleton), findsNothing);
+    expect(find.byType(LanguageTicker), findsOneWidget);
+  });
+
+  testWidgets('typing in the paste box only rebuilds the page when the button changes', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(DalilApp(api: FakeApi()));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('Paste text'));
+    await tester.tap(find.text('Paste text'));
+    await tester.pumpAndSettle();
+    final box = find.byWidgetPredicate((w) => w is TextField && (w.decoration?.hintText ?? '').startsWith('Paste the text'));
+    FilledButton explain() => tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Explain this'));
+    await reveal(tester, box);
+    await tester.enterText(box, 'short');
+    await tester.pump();
+    expect(explain().onPressed, isNull); // too short to read
+    await tester.enterText(box, 'This is a long enough made-up letter to explain.');
+    await tester.pump();
+    expect(explain().onPressed, isNotNull); // the button woke up even though the page was not rebuilt on each key
+    await tester.enterText(box, 'tiny');
+    await tester.pump();
+    expect(explain().onPressed, isNull);
+  });
+}
+
+class SlowApi extends FakeApi {
+  SlowApi(this.gate);
+  final Future<void> gate;
+
+  @override
+  Future<Meta> meta() async {
+    await gate;
+    return super.meta();
+  }
 }

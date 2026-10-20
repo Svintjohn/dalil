@@ -212,7 +212,7 @@ class _LanguageTickerState extends State<LanguageTicker> with SingleTickerProvid
           controller: _scroll,
           scrollDirection: Axis.horizontal,
           physics: const NeverScrollableScrollPhysics(),
-          child: Center(child: Row(children: [set(), set()])),
+          child: Center(child: RepaintBoundary(child: Row(children: [set(), set()]))),
         ),
       ),
     );

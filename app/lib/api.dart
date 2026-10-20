@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'local_store.dart';
 import 'models.dart';
 
 abstract class DalilApi {
@@ -72,8 +73,36 @@ class HttpDalilApi implements DalilApi {
   Future<Map<String, dynamic>> _post(String path, Map<String, dynamic> body) =>
       _send(() => _client.post(Uri.parse('$base$path'), headers: _headers, body: jsonEncode(body)));
 
+  /// Where the page setup data (languages, samples, tips) is kept between visits. It is public data, never a document.
+  static const String metaKey = 'dalil.meta.v1';
+
+  Future<Map<String, dynamic>> _fetchMeta() async {
+    final j = await _send(() => _client.get(Uri.parse('$base/api/meta'), headers: _headers), timeout: const Duration(seconds: 20));
+    LocalStore.write(metaKey, jsonEncode(j));
+    return j;
+  }
+
+  Future<void> _refreshMeta() async {
+    try {
+      await _fetchMeta();
+    } catch (_) {} // the saved copy keeps working
+  }
+
+  /// The saved copy shows the page at once and is refreshed in the background, so the next visit is current.
   @override
-  Future<Meta> meta() async => Meta.fromJson(await _send(() => _client.get(Uri.parse('$base/api/meta'), headers: _headers), timeout: const Duration(seconds: 20)));
+  Future<Meta> meta() async {
+    final saved = LocalStore.read(metaKey);
+    if (saved != null) {
+      try {
+        final m = Meta.fromJson(Map<String, dynamic>.from(jsonDecode(saved) as Map));
+        if (m.languages.isNotEmpty) {
+          unawaited(_refreshMeta());
+          return m;
+        }
+      } catch (_) {} // a damaged copy is ignored
+    }
+    return Meta.fromJson(await _fetchMeta());
+  }
 
   @override
   Future<QualityResult> photoCheck(String imageBase64) async =>

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dalil_app/fonts.dart';
 import 'package:dalil_app/motion.dart';
 import 'package:dalil_app/sfx.dart';
-import 'package:dalil_app/sound_studio.dart';
+import 'package:dalil_app/sound_pill.dart';
 import 'package:dalil_app/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

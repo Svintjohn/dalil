@@ -4,7 +4,7 @@ import 'api.dart';
 import 'home.dart';
 import 'settings.dart';
 import 'sfx.dart';
-import 'sound_studio.dart';
+import 'sound_pill.dart';
 import 'theme.dart';
 
 void main() {

@@ -999,3 +999,27 @@ def test_money_due_labels_exist():
 
     for k in ("due_amount", "due_by", "due_check", "numbers_flag"):
         assert LABEL_KEYS[k].strip()
+
+
+def test_meta_is_compressed_cached_and_built_once():
+    from dalil import app as appmod
+
+    c = TestClient(appmod.app)
+    appmod._meta_body.cache_clear()
+    a = c.get("/api/meta", headers={"Accept-Encoding": "gzip"})
+    assert a.status_code == 200
+    assert a.headers.get("content-encoding") == "gzip"  # the language list and samples are large
+    assert "max-age" in a.headers["cache-control"]
+    b = c.get("/api/meta")
+    assert b.json() == a.json()
+    assert appmod._meta_body.cache_info().hits >= 1  # the second visit reused the first answer
+    assert a.json()["languages"] and a.json()["limits"]["max_images"] >= 1
+
+
+def test_small_answers_are_not_compressed():
+    from dalil import app as appmod
+
+    c = TestClient(appmod.app)
+    r = c.get("/api/health", headers={"Accept-Encoding": "gzip"})
+    assert r.status_code == 200 and r.json()["ok"] is True
+    assert r.headers.get("content-encoding") != "gzip"

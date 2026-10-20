@@ -4,7 +4,6 @@ import 'deadlines.dart';
 import 'download.dart';
 import 'landing.dart';
 import 'theme.dart';
-import 'widgets.dart';
 
 void _say(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));

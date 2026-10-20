@@ -3,9 +3,16 @@ import 'package:flutter/material.dart';
 import 'api.dart';
 import 'home.dart';
 import 'settings.dart';
+import 'sfx.dart';
+import 'sound_studio.dart';
 import 'theme.dart';
 
-void main() => runApp(DalilApp(api: HttpDalilApi()));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Sfx.instance.load();
+  Sfx.instance.attach();
+  runApp(DalilApp(api: HttpDalilApi()));
+}
 
 class DalilApp extends StatelessWidget {
   const DalilApp({super.key, required this.api});
@@ -27,7 +34,7 @@ class DalilApp extends StatelessWidget {
             final mq = MediaQuery.of(context);
             return MediaQuery(
               data: mq.copyWith(textScaler: TextScaler.linear(mq.textScaler.scale(1) * scale)),
-              child: child ?? const SizedBox.shrink(),
+              child: TapSounds(child: child ?? const SizedBox.shrink()),
             );
           },
           home: HomePage(api: api),

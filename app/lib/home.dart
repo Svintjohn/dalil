@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -24,6 +23,8 @@ import 'print_page.dart';
 import 'report_text.dart';
 import 'report_view.dart';
 import 'settings.dart';
+import 'sfx.dart';
+import 'sound_studio.dart';
 import 'speech.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -240,12 +241,14 @@ class _HomePageState extends State<HomePage> {
       );
       if (!mounted) return;
       setState(() => report = r);
+      if (r.recognized) Sfx.instance.event(r.scam.stop ? 'warn' : 'done');
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToResult());
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
         error = e.message;
         calmError = isBusyCode(e.code) ? e.message : null;
+        if (!isBusyCode(e.code)) Sfx.instance.event('error');
         if (e.code == 'photo_unreadable' || e.code == 'photo_quality') blocking = _issuesFrom(e);
       });
     } finally {
@@ -452,6 +455,8 @@ class _HomePageState extends State<HomePage> {
     showSpringDialog<void>(context, (_) => PrivacyDialog(headline: m.privacyHeadline, points: m.privacyPoints));
   }
 
+  void _sound() => showSpringDialog<void>(context, (_) => const SoundStudio());
+
   void _toggleTheme() => AppSettings.themeMode.value = Theme.of(context).brightness == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
 
   Widget _header(BuildContext context) {
@@ -536,6 +541,7 @@ class _HomePageState extends State<HomePage> {
                         label: Text('Privacy', style: TextStyle(color: p.ink, fontWeight: FontWeight.w600)),
                       ),
                       IconButton(tooltip: 'Text size', onPressed: AppSettings.nextTextSize, icon: Icon(Icons.text_fields, color: p.inkSoft)),
+                      IconButton(tooltip: 'Sound studio', onPressed: _sound, icon: Icon(Icons.graphic_eq, color: p.inkSoft)),
                       themeButton,
                       const SizedBox(width: 6),
                       Pressable(
@@ -564,12 +570,14 @@ class _HomePageState extends State<HomePage> {
                           if (v == 'cases') _goTo(casesKey);
                           if (v == 'privacy') _privacy();
                           if (v == 'size') AppSettings.nextTextSize();
+                          if (v == 'sound') _sound();
                         },
                         itemBuilder: (context) => [
                           for (final n in links) PopupMenuItem<String>(value: n.$1, enabled: meta != null, child: Text(n.$2)),
                           if (CaseStore.instance.cases.value.isNotEmpty) const PopupMenuItem<String>(value: 'cases', child: Text('My cases')),
                           const PopupMenuItem<String>(value: 'privacy', child: Text('Privacy')),
                           const PopupMenuItem<String>(value: 'size', child: Text('Text size')),
+                          const PopupMenuItem<String>(value: 'sound', child: Text('Sound studio')),
                         ],
                       ),
                     ],
@@ -1118,6 +1126,7 @@ class _HomePageState extends State<HomePage> {
               : _body(context),
         ),
         Positioned(top: 0, left: 0, right: 0, child: _header(context)),
+        if (meta != null) const PositionedDirectional(bottom: 18, end: 18, child: SoundPill()),
       ]),
     );
   }

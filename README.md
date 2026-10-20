@@ -289,3 +289,17 @@ The translations are machine-written: have a native speaker review them before l
 Warm paper background, deep green ink, saffron highlighter. Headlines are set in Fraunces, body text in DM Sans, quoted documents in Source Serif, the wordmark in Reem Kufi. Cards use a thin ink border with a flat offset shadow instead of soft blurry shadows. The header is a floating bar; on narrow screens its links fold into a menu. Under the hero a slow strip shows every reply language. Sections are tighter than before, and cards rise on hover. All colors live in `app/lib/theme.dart` (`Palette`), all fonts in `app/lib/fonts.dart`.
 
 Endless background motion (the language strip) is switched off in tests with `Motion.ambient = false`, and for people who ask their device to reduce motion it does not move.
+
+## Sound studio
+
+A floating **Sound** button (and the header menu) opens the studio. Sound is **off until the person turns it on**, so a quiet office or a late-night bill never gets a surprise click.
+
+- **Sounds:** 15 click sounds in five groups (Linear, Tactile, Clicky, Silent, Special), including an oud pluck. Each one is built from tiny oscillator and noise layers.
+- **Matrix:** every sound is a dot on a map (pitch left to right, weight top to bottom). Tap a dot to pick it, or drag the puck to mix your own.
+- **Ambient:** rain, brown noise, white noise, wind, café, night hum. They can be mixed and keep playing while you read.
+- **Tuning:** pitch, decay, brightness, room, humanize, stereo spread, volume, and switches for click sounds, typing sounds (only inside text boxes) and result sounds (a chime when a result is ready, a low tone for a scam warning).
+- **Spectrum:** live bars that follow what is playing.
+
+Everything is made in the browser with the Web Audio API (`app/web/dalil_sfx.js`). There are no audio files, no music API, no account and no network call, so it costs nothing, works offline and sends nothing anywhere. Settings are saved in the browser only. The Flutter side is `sfx.dart` (settings), `sound_studio.dart` (screens) and `sfx_engine*.dart` (the bridge; it does nothing in tests).
+
+To add a sound, add its layers to `P` in `dalil_sfx.js` and an entry to `sfxPresets` in `sfx.dart`. A test checks that the two lists match.

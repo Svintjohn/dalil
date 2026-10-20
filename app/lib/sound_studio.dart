@@ -1,0 +1,548 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+
+import 'fonts.dart';
+import 'motion.dart';
+import 'sfx.dart';
+import 'sfx_engine.dart';
+import 'theme.dart';
+import 'widgets.dart';
+
+/// The small floating button that opens the sound studio.
+class SoundPill extends StatelessWidget {
+  const SoundPill({super.key, Sfx? sfx}) : _sfx = sfx;
+  final Sfx? _sfx;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    final sfx = _sfx ?? Sfx.instance;
+    return AnimatedBuilder(
+      animation: sfx,
+      builder: (context, _) {
+        final on = sfx.enabled;
+        return Semantics(
+          button: true,
+          label: 'Sound studio',
+          child: Pressable(
+            child: Material(
+              color: on ? p.accent : p.surface,
+              shape: StadiumBorder(side: BorderSide(color: on ? p.accent : p.ink.withAlpha(60), width: 1.2)),
+              elevation: 0,
+              child: InkWell(
+                key: const ValueKey('sound-pill'),
+                customBorder: const StadiumBorder(),
+                onTap: () => showSpringDialog<void>(context, (_) => SoundStudio(sfx: sfx)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(on ? Icons.graphic_eq : Icons.volume_off_outlined, size: 19, color: on ? p.onAccent : p.ink),
+                    const SizedBox(width: 8),
+                    Text('Sound', style: TextStyle(fontWeight: FontWeight.w700, color: on ? p.onAccent : p.ink)),
+                  ]),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Click sounds, a 2D sound matrix, ambient sounds and tuning, with a live spectrum.
+class SoundStudio extends StatefulWidget {
+  const SoundStudio({super.key, this.sfx});
+  final Sfx? sfx;
+
+  @override
+  State<SoundStudio> createState() => _SoundStudioState();
+}
+
+class _SoundStudioState extends State<SoundStudio> {
+  int tab = 0;
+  String group = 'All';
+
+  Sfx get sfx => widget.sfx ?? Sfx.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    return Dialog(
+      insetPadding: const EdgeInsets.all(14),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760, maxHeight: 780),
+        child: AnimatedBuilder(
+          animation: sfx,
+          builder: (context, _) => Column(children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 18, 12, 0),
+              child: Row(children: [
+                Expanded(
+                  child: Wrap(spacing: 12, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
+                    Text('Sound studio', style: Fonts.display(const TextStyle(fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: -0.6))),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: p.accentTint, borderRadius: BorderRadius.circular(999)),
+                      child: Text('Made in your browser', style: TextStyle(color: p.accent, fontWeight: FontWeight.w700, fontSize: 12)),
+                    ),
+                  ]),
+                ),
+                IconButton(tooltip: 'Close', onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text('Tactile click sounds, ambient focus sounds and tuning. Off until you turn it on. Nothing is downloaded or sent.', style: TextStyle(color: p.inkSoft, height: 1.4, fontSize: 14)),
+              ),
+            ),
+            if (!sfx.available)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 10, 22, 0),
+                child: Align(alignment: AlignmentDirectional.centerStart, child: Text('Sound is not available in this browser. Try Chrome, Edge or Safari.', style: TextStyle(color: p.mid, fontWeight: FontWeight.w600))),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 14, 22, 0),
+              child: _master(context),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 14, 22, 0),
+              child: Segmented(
+                labels: const ['Sounds', 'Matrix', 'Ambient', 'Tuning'],
+                icons: const [Icons.keyboard_alt_outlined, Icons.scatter_plot_outlined, Icons.cloud_outlined, Icons.tune],
+                index: tab,
+                onChanged: (i) => setState(() => tab = i),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(22, 18, 22, 8),
+                child: AnimatedSwitcher(
+                  duration: Motion.ms(context, 320),
+                  child: KeyedSubtree(
+                    key: ValueKey(tab),
+                    child: [_sounds(context), _matrix(context), _ambient(context), _tuning(context)][tab],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 22, 14),
+              child: Row(children: [
+                TextButton.icon(
+                  key: const ValueKey('sfx-reset'),
+                  onPressed: sfx.reset,
+                  icon: const Icon(Icons.restart_alt, size: 18),
+                  label: const Text('Reset defaults'),
+                ),
+                const Spacer(),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: FilledButton.styleFrom(shape: const StadiumBorder(), padding: const EdgeInsets.symmetric(horizontal: 30)),
+                  child: const Text('Done'),
+                ),
+              ]),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _master(BuildContext context) {
+    final p = Palette.of(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(18)),
+      child: Column(children: [
+        Row(children: [
+          Switch(key: const ValueKey('sfx-master'), value: sfx.enabled, onChanged: sfx.setEnabled),
+          const SizedBox(width: 6),
+          Flexible(child: Text(sfx.enabled ? 'Sound on' : 'Sound off', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700))),
+          const SizedBox(width: 14),
+          Expanded(child: SizedBox(height: 34, child: SpectrumBars(active: sfx.enabled))),
+        ]),
+        Row(children: [
+          Icon(Icons.volume_down_outlined, size: 20, color: p.inkSoft),
+          Expanded(child: Slider(key: const ValueKey('sfx-volume'), value: sfx.volume, onChanged: sfx.setVolume, semanticFormatterCallback: (v) => 'Volume ${(v * 100).round()} percent')),
+          Icon(Icons.volume_up_outlined, size: 20, color: p.inkSoft),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _sounds(BuildContext context) {
+    final p = Palette.of(context);
+    final shown = sfxPresets.where((s) => group == 'All' || s.group == group).toList();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final g in ['All', ...sfxGroups])
+          ChoiceChip(
+            label: Text(g),
+            selected: group == g,
+            showCheckmark: false,
+            onSelected: (_) => setState(() => group = g),
+            selectedColor: p.ink,
+            labelStyle: TextStyle(fontWeight: FontWeight.w700, color: group == g ? p.bg : p.ink),
+            backgroundColor: p.surface,
+            side: BorderSide(color: p.line),
+            shape: const StadiumBorder(),
+          ),
+      ]),
+      const SizedBox(height: 14),
+      LayoutBuilder(builder: (context, c) {
+        final cols = c.maxWidth >= 620 ? 3 : 2;
+        final w = (c.maxWidth - 10 * (cols - 1)) / cols;
+        return Wrap(spacing: 10, runSpacing: 10, children: [
+          for (final s in shown)
+            SizedBox(
+              width: w,
+              child: Pressable(
+                child: GestureDetector(
+                  key: ValueKey('preset-${s.id}'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => sfx.selectPreset(s.id),
+                  child: AnimatedContainer(
+                    duration: Motion.ms(context, 250),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: s.id == sfx.presetId ? p.accentTint : p.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: s.id == sfx.presetId ? p.accent : p.line, width: s.id == sfx.presetId ? 1.6 : 1),
+                    ),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Expanded(child: Text(s.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15))),
+                        if (s.id == sfx.presetId) Icon(Icons.check_circle, size: 18, color: p.accent),
+                      ]),
+                      const SizedBox(height: 3),
+                      Text(s.hint, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: p.inkSoft, fontSize: 13, height: 1.3)),
+                      const SizedBox(height: 6),
+                      Text(s.group.toUpperCase(), style: TextStyle(color: p.inkSoft, fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+                    ]),
+                  ),
+                ),
+              ),
+            ),
+        ]);
+      }),
+    ]);
+  }
+
+  Widget _matrix(BuildContext context) {
+    final p = Palette.of(context);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Text('Tap a dot to pick a sound, or drag the puck to mix your own: left to right is low to high, top to bottom is heavy to light.', style: TextStyle(color: p.inkSoft, height: 1.4)),
+      const SizedBox(height: 14),
+      MatrixPad(sfx: sfx),
+      const SizedBox(height: 10),
+      Text('Now: ${sfx.customX == null ? sfx.preset.name : '${sfx.preset.name}, mixed'}', style: const TextStyle(fontWeight: FontWeight.w700)),
+    ]);
+  }
+
+  Widget _ambient(BuildContext context) {
+    final p = Palette.of(context);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      LayoutBuilder(builder: (context, c) {
+        final cols = c.maxWidth >= 560 ? 3 : 2;
+        final w = (c.maxWidth - 10 * (cols - 1)) / cols;
+        return Wrap(spacing: 10, runSpacing: 10, children: [
+          for (final a in ambientSounds)
+            SizedBox(
+              width: w,
+              child: Pressable(
+                child: GestureDetector(
+                  key: ValueKey('ambient-${a.id}'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => sfx.toggleAmbient(a.id),
+                  child: AnimatedContainer(
+                    duration: Motion.ms(context, 250),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: sfx.ambient.contains(a.id) ? p.accent : p.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: sfx.ambient.contains(a.id) ? p.accent : p.line),
+                    ),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Icon(a.icon, color: sfx.ambient.contains(a.id) ? p.onAccent : p.accent),
+                      const SizedBox(height: 10),
+                      Text(a.name, style: TextStyle(fontWeight: FontWeight.w700, color: sfx.ambient.contains(a.id) ? p.onAccent : p.ink)),
+                      const SizedBox(height: 2),
+                      Text(a.hint, style: TextStyle(fontSize: 13, height: 1.3, color: sfx.ambient.contains(a.id) ? p.onAccent.withAlpha(215) : p.inkSoft)),
+                    ]),
+                  ),
+                ),
+              ),
+            ),
+        ]);
+      }),
+      const SizedBox(height: 16),
+      _slider('Ambient volume', sfx.ambientVolume, 0, 1, (v) => sfx.setAmbientVolume(v), '${(sfx.ambientVolume * 100).round()}%', const ValueKey('sfx-ambient-volume')),
+      Text('You can mix several. They keep playing while you read your result.', style: TextStyle(color: p.inkSoft, height: 1.4)),
+    ]);
+  }
+
+  Widget _slider(String label, double v, double min, double max, ValueChanged<double> on, String shown, Key key, {VoidCallback? end}) {
+    final p = Palette.of(context);
+    return Row(children: [
+      SizedBox(width: 118, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+      Expanded(child: Slider(key: key, value: v.clamp(min, max).toDouble(), min: min, max: max, onChanged: on, onChangeEnd: end == null ? null : (_) => end())),
+      SizedBox(width: 52, child: Text(shown, textAlign: TextAlign.end, style: TextStyle(color: p.inkSoft, fontWeight: FontWeight.w600))),
+    ]);
+  }
+
+  Widget _tuning(BuildContext context) {
+    final p = Palette.of(context);
+    String semi(double v) => '${v >= 0 ? '+' : ''}${v.round()} st';
+    String pct(double v) => '${(v * 100).round()}%';
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      _slider('Pitch', sfx.pitch, -12, 12, (v) => sfx.setTune(pitch: v.roundToDouble()), semi(sfx.pitch), const ValueKey('sfx-pitch'), end: sfx.preview),
+      _slider('Decay', sfx.decay, 0.4, 2.5, (v) => sfx.setTune(decay: v), '${sfx.decay.toStringAsFixed(1)}x', const ValueKey('sfx-decay'), end: sfx.preview),
+      _slider('Brightness', sfx.bright, 0, 1, (v) => sfx.setTune(bright: v), pct(sfx.bright), const ValueKey('sfx-bright'), end: sfx.preview),
+      _slider('Room (reverb)', sfx.reverb, 0, 1, (v) => sfx.setTune(reverb: v), pct(sfx.reverb), const ValueKey('sfx-reverb'), end: sfx.preview),
+      _slider('Humanize', sfx.human, 0, 1, (v) => sfx.setTune(human: v), pct(sfx.human), const ValueKey('sfx-human'), end: sfx.preview),
+      _slider('Stereo spread', sfx.pan, 0, 1, (v) => sfx.setTune(pan: v), pct(sfx.pan), const ValueKey('sfx-pan'), end: sfx.preview),
+      const SizedBox(height: 8),
+      Material(
+        color: p.inset,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: [
+          SwitchListTile(
+            key: const ValueKey('sfx-clicks'),
+            title: const Text('Click sounds', style: TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: const Text('A sound for each tap or click'),
+            value: sfx.clicks,
+            onChanged: (v) => sfx.setToggles(clicks: v),
+          ),
+          SwitchListTile(
+            key: const ValueKey('sfx-typing'),
+            title: const Text('Typing sounds', style: TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: const Text('A key sound when you type in a text box'),
+            value: sfx.typing,
+            onChanged: (v) => sfx.setToggles(typing: v),
+          ),
+          SwitchListTile(
+            key: const ValueKey('sfx-chimes'),
+            title: const Text('Result sounds', style: TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: const Text('A chime when your result is ready, a low tone for a scam warning'),
+            value: sfx.chimes,
+            onChanged: (v) => sfx.setToggles(chimes: v),
+          ),
+        ]),
+      ),
+      const SizedBox(height: 12),
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: OutlinedButton.icon(key: const ValueKey('sfx-test'), onPressed: sfx.preview, icon: const Icon(Icons.play_arrow_rounded), label: const Text('Play a test sound')),
+      ),
+    ]);
+  }
+}
+
+/// The 2D sound map. Every preset is a dot; the puck is the sound being used.
+class MatrixPad extends StatelessWidget {
+  const MatrixPad({super.key, required this.sfx});
+  final Sfx sfx;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    return LayoutBuilder(builder: (context, c) {
+      final w = c.maxWidth;
+      final h = math.min(380.0, w * 0.68);
+      Offset toPos(double x, double y) => Offset(18 + x * (w - 36), 18 + (1 - y) * (h - 36)); // y = 1 (heavy) is at the top
+      void pick(Offset local, {required bool drag, bool end = false}) {
+        final x = ((local.dx - 18) / (w - 36)).clamp(0.0, 1.0).toDouble();
+        final y = (1 - (local.dy - 18) / (h - 36)).clamp(0.0, 1.0).toDouble();
+        if (!drag) {
+          // a tap near a dot picks that preset
+          SfxPreset? hit;
+          var best = 26.0;
+          for (final s in sfxPresets) {
+            final d = (toPos(s.x, s.y) - local).distance;
+            if (d < best) {
+              best = d;
+              hit = s;
+            }
+          }
+          if (hit != null) {
+            sfx.selectPreset(hit.id);
+            return;
+          }
+        }
+        sfx.movePuck(x, y, preview: end);
+      }
+
+      final puck = toPos(sfx.puckX, sfx.puckY);
+      return GestureDetector(
+        key: const ValueKey('matrix-pad'),
+        behavior: HitTestBehavior.opaque,
+        onTapUp: (d) => pick(d.localPosition, drag: false, end: true),
+        onPanStart: (d) => pick(d.localPosition, drag: true),
+        onPanUpdate: (d) => pick(d.localPosition, drag: true),
+        onPanEnd: (_) => sfx.preview(),
+        child: Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(color: p.wall, borderRadius: BorderRadius.circular(20)),
+          child: Stack(children: [
+            Positioned.fill(child: CustomPaint(painter: _MatrixPainter(dot: p.wallInk, accent: p.markSolid, current: sfx.presetId))),
+            PositionedDirectional(top: 10, start: 14, child: _corner('DEEP · HEAVY', p)),
+            PositionedDirectional(top: 10, end: 14, child: _corner('HIGH · HEAVY', p)),
+            PositionedDirectional(bottom: 10, start: 14, child: _corner('DEEP · LIGHT', p)),
+            PositionedDirectional(bottom: 10, end: 14, child: _corner('HIGH · LIGHT', p)),
+            AnimatedPositioned(
+              duration: Motion.ms(context, 90),
+              left: puck.dx - 15,
+              top: puck.dy - 15,
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: p.markSolid,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: p.markSolid.withAlpha(140), blurRadius: 18, spreadRadius: 2)],
+                ),
+                child: Icon(Icons.graphic_eq, size: 17, color: p.wall),
+              ),
+            ),
+          ]),
+        ),
+      );
+    });
+  }
+
+  Widget _corner(String t, Palette p) => Text(t, style: TextStyle(color: p.wallInk.withAlpha(120), fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 1));
+}
+
+class _MatrixPainter extends CustomPainter {
+  _MatrixPainter({required this.dot, required this.accent, required this.current});
+  final Color dot, accent;
+  final String current;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final grid = Paint()..color = dot.withAlpha(34);
+    for (double x = 18; x <= w - 18; x += (w - 36) / 12) {
+      for (double y = 18; y <= h - 18; y += (h - 36) / 8) {
+        canvas.drawCircle(Offset(x, y), 1.1, grid);
+      }
+    }
+    for (final s in sfxPresets) {
+      final o = Offset(18 + s.x * (w - 36), 18 + (1 - s.y) * (h - 36));
+      final on = s.id == current;
+      canvas.drawCircle(o, on ? 9 : 6, Paint()..color = on ? accent : dot.withAlpha(210));
+      if (on) canvas.drawCircle(o, 14, Paint()..color = accent.withAlpha(60));
+    }
+  }
+
+  @override
+  bool shouldRepaint(_MatrixPainter old) => old.current != current || old.dot != dot || old.accent != accent;
+}
+
+/// Live bars that move with the sound that is playing.
+class SpectrumBars extends StatefulWidget {
+  const SpectrumBars({super.key, required this.active});
+  final bool active;
+
+  @override
+  State<SpectrumBars> createState() => _SpectrumBarsState();
+}
+
+class _SpectrumBarsState extends State<SpectrumBars> with SingleTickerProviderStateMixin {
+  static const n = 24;
+  Ticker? _ticker;
+  List<double> bars = List<double>.filled(n, 0);
+  Duration _last = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    if (Motion.ambient) {
+      _ticker = createTicker((t) {
+        if (t - _last < const Duration(milliseconds: 40)) return;
+        _last = t;
+        final next = widget.active ? sfxBands(n) : List<double>.filled(n, 0);
+        if (mounted) setState(() => bars = next.length == n ? next : List<double>.filled(n, 0));
+      })
+        ..start();
+    }
+  }
+
+  @override
+  void dispose() {
+    _ticker?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    return CustomPaint(painter: _BarsPainter(bars: bars, color: widget.active ? p.accent : p.inkSoft.withAlpha(90)), size: Size.infinite);
+  }
+}
+
+class _BarsPainter extends CustomPainter {
+  _BarsPainter({required this.bars, required this.color});
+  final List<double> bars;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final n = bars.length;
+    const gap = 3.0;
+    final bw = (size.width - gap * (n - 1)) / n;
+    final paint = Paint()..color = color;
+    for (var i = 0; i < n; i++) {
+      final v = bars[i].clamp(0.0, 1.0).toDouble();
+      final bh = math.max(3.0, v * size.height);
+      final x = i * (bw + gap);
+      canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x, size.height - bh, bw, bh), const Radius.circular(2)), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BarsPainter old) => true;
+}
+
+/// Plays the click sound for a tap or click anywhere in the app (when the person has turned it on).
+/// A drag or a scroll is not a tap, so it stays silent.
+class TapSounds extends StatefulWidget {
+  const TapSounds({super.key, required this.child, this.sfx});
+  final Widget child;
+  final Sfx? sfx;
+
+  @override
+  State<TapSounds> createState() => _TapSoundsState();
+}
+
+class _TapSoundsState extends State<TapSounds> {
+  Offset? _down;
+  DateTime _at = DateTime.fromMillisecondsSinceEpoch(0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (e) {
+        _down = e.position;
+        _at = DateTime.now();
+      },
+      onPointerUp: (e) {
+        final d = _down;
+        _down = null;
+        if (d == null) return;
+        final quick = DateTime.now().difference(_at) < const Duration(milliseconds: 600);
+        if (quick && (e.position - d).distance < 12) (widget.sfx ?? Sfx.instance).tap();
+      },
+      onPointerCancel: (_) => _down = null,
+      child: widget.child,
+    );
+  }
+}

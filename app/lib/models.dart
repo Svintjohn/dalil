@@ -211,6 +211,35 @@ String formatAmount(double v) {
   return '${neg ? '-' : ''}$whole.${parts[1]}';
 }
 
+/// The one amount a bill, fee notice or fine asks the person to pay. Dalil only shows it when it is plausible.
+class DueAmount {
+  const DueAmount({required this.amount, required this.currency, this.label = '', this.date = '', this.dateText = '', this.check = false});
+  final double amount;
+  final String currency, label, date, dateText; // date is YYYY-MM-DD or empty; dateText is how the paper writes it
+  final bool check; // the figures on the paper do not add up, so the amount may be wrong
+
+  String get money => '$currency ${formatAmount(amount)}';
+
+  static DueAmount? fromJson(dynamic v) {
+    if (v is! Map) return null;
+    final j = _m(v);
+    final amount = j['amount'] is num ? (j['amount'] as num).toDouble() : 0.0;
+    final currency = _s(j['currency']).trim().toUpperCase();
+    if (!(amount > 0) || amount >= 1e9 || !RegExp(r'^[A-Z]{3}$').hasMatch(currency)) return null;
+    return DueAmount(
+      amount: amount,
+      currency: currency,
+      label: _s(j['label']).trim(),
+      date: _s(j['date']).trim(),
+      dateText: _s(j['date_text']).trim(),
+      check: _b(j['check']),
+    );
+  }
+}
+
+/// True for trouble that is temporary (busy, slow, no connection), which deserves a calm "try again" and not an alarm.
+bool isBusyCode(String code) => const {'model_busy', 'busy', 'rate_limited', 'timeout', 'network', 'server'}.contains(code);
+
 class NumberLine {
   const NumberLine(this.label, this.amount, this.role);
   final String label, role; // role: item | subtotal | tax | discount | total
@@ -339,6 +368,7 @@ class Report {
     required this.ifIgnored,
     required this.prep,
     required this.numberCheck,
+    this.due,
     required this.notSure,
     required this.closing,
     required this.labels,
@@ -359,6 +389,7 @@ class Report {
   final ReportScam scam;
   final List<IgnoredItem> ifIgnored;
   final ReportPrep? prep; // what to bring and ask before a visit or call, when there is one
+  final DueAmount? due;
   final NumberCheck? numberCheck; // whether the amounts on the document add up, when it has amounts and a total
   final Map<String, String> labels;
   final int hiddenTotal;
@@ -397,6 +428,7 @@ class Report {
           .toList(),
       prep: _prepFrom(j['prep']),
       numberCheck: _numberFrom(j['number_check']),
+      due: DueAmount.fromJson(j['due']),
       notSure: _s(j['not_sure']),
       closing: _s(j['closing']),
       labels: lab,

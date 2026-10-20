@@ -220,6 +220,7 @@ SAMPLES: dict[str, dict] = {
                 {"label": "VAT", "value": "5%"},
             ],
             "findings": [],
+            "due": {"amount": 720.00, "currency": "AED", "label": "Utility bill, total to pay", "date": "", "date_text": ""},
             "amounts": {
                 "currency": "AED",
                 "lines": [
@@ -289,6 +290,7 @@ SAMPLES: dict[str, dict] = {
                 {"action": "Pay the Term 2 fee of AED 4,200 by the due date",
                  "consequence": "A late charge of AED 150 will be added.", "source": "document"},
             ],
+            "due": {"amount": 4200, "currency": "AED", "label": "Term 2 school fees", "date": _DUE.isoformat(), "date_text": _DUE_TEXT},
             "deadlines": [
                 {"label": "Pay the Term 2 school fee (AED 4,200)", "date": _DUE.isoformat(), "date_text": _DUE_TEXT},
                 {"label": "Return the signed trip permission slip", "within_days": 7},

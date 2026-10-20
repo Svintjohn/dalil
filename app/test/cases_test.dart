@@ -208,4 +208,61 @@ void main() {
       expect(compareWithEntry(withFacts([]), old2).comparable, isFalse);
     });
   });
+
+  group('money due', () {
+    Report bill(String type, num amount, {String currency = 'AED', String date = '', bool check = false}) => Report.fromJson({
+          'doc_type': type,
+          'summary': 's',
+          'due': {'amount': amount, 'currency': currency, 'label': type, 'date': date, 'check': check},
+        });
+
+    test('adds up what is unpaid per currency, never mixing currencies', () {
+      final store = CaseStore(storageKey: 'test.money.due.1');
+      store.addDocument(bill('Electricity', 720, date: '2026-12-01'), now: DateTime(2026, 10, 1));
+      store.addDocument(bill('School fee', 4200, date: '2026-11-15'), now: DateTime(2026, 10, 2));
+      store.addDocument(bill('UK invoice', 100, currency: 'GBP'), now: DateTime(2026, 10, 3));
+      final m = moneyDue(store.cases.value);
+      expect(m.totals, {'AED': 4920.0, 'GBP': 100.0});
+      expect(m.items.first.due.date, '2026-11-15'); // soonest date first
+      expect(m.items.last.due.currency, 'GBP'); // no date: last
+    });
+
+    test('counts only the latest amount in a case, so a reminder does not double the bill', () {
+      final store = CaseStore(storageKey: 'test.money.due.2');
+      final id = store.addDocument(bill('Electricity', 720), now: DateTime(2026, 10, 1))!;
+      store.addDocument(bill('Electricity reminder', 720), caseId: id, now: DateTime(2026, 10, 20));
+      expect(moneyDue(store.cases.value).totals, {'AED': 720.0});
+    });
+
+    test('paid items leave the total and closed cases are ignored', () {
+      final store = CaseStore(storageKey: 'test.money.due.3');
+      final a = store.addDocument(bill('Rent', 3000), now: DateTime(2026, 10, 1))!;
+      final b = store.addDocument(bill('Fine', 500), now: DateTime(2026, 10, 2))!;
+      final entry = store.cases.value.firstWhere((c) => c.id == a).entries.first;
+      store.setPaid(a, entry.id, true);
+      expect(moneyDue(store.cases.value).totals, {'AED': 500.0});
+      expect(moneyDue(store.cases.value).items.length, 2); // the paid one stays listed
+      store.setClosed(b, true);
+      expect(moneyDue(store.cases.value).totals, isEmpty);
+      store.setPaid(a, entry.id, false);
+      expect(moneyDue(store.cases.value).totals, {'AED': 3000.0});
+    });
+
+    test('the amount and the paid tick survive being saved and loaded', () {
+      final store = CaseStore(storageKey: 'test.money.due.4');
+      final id = store.addDocument(bill('Fine', 500, date: '2026-12-01', check: true), now: DateTime(2026, 10, 1))!;
+      store.setPaid(id, store.cases.value.first.entries.first.id, true);
+      final again = CaseStore(storageKey: 'test.money.due.4')..load();
+      final e = again.cases.value.first.entries.first;
+      expect(e.due!.amount, 500);
+      expect(e.due!.check, isTrue);
+      expect(e.paid, isTrue);
+    });
+
+    test('an older saved case with no amount still loads', () {
+      final e = CaseEntry.fromJson({'id': 'x', 'kind': 'document', 'date': '2026-10-01', 'title': 'Old'});
+      expect(e!.due, isNull);
+      expect(e.paid, isFalse);
+    });
+  });
 }

@@ -47,7 +47,7 @@ class HttpDalilApi implements DalilApi {
     try {
       r = await call().timeout(timeout);
     } on TimeoutException {
-      throw ApiException('timeout', 'Dalil took too long to answer. Try again.');
+      throw ApiException('timeout', 'Dalil is taking longer than usual. Please try again in a minute. Your document is still here.');
     } catch (_) {
       throw ApiException('network', 'Could not reach Dalil. Check your connection and try again.');
     }

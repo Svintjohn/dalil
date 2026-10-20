@@ -4,6 +4,7 @@ from __future__ import annotations
 import hmac
 import json
 import logging
+import re
 from contextlib import contextmanager
 
 from fastapi import FastAPI, Request, Response
@@ -97,24 +98,56 @@ def ai_slot(request: Request):
         gate.release(ip)
 
 
-def _model_problem(e: Exception) -> ApiError:
+# People see a short, calm message. The technical reason goes into "detail" (for whoever runs the server) and the log.
+def _is_busy(why: str) -> bool:
+    """Temporary trouble (rate limit, overload, timeout, no connection) that is worth retrying in a minute."""
+    if why == "connection":
+        return True
+    m = re.fullmatch(r"api_(\d+)", why)
+    return bool(m) and (int(m.group(1)) in (0, 408, 429) or 500 <= int(m.group(1)) < 600)
+
+
+_SETUP_HINTS = {
+    "api_400": "The AI service rejected the request (check the model name or API key).",
+    "api_401": "The AI service says the API key is not valid. Set a new key and redeploy.",
+    "api_403": "The AI service refused the API key (wrong, deleted, or not allowed). Set a new key and redeploy.",
+    "api_404": "The AI model name was not found. Set DALIL_MODEL to a model your key can use.",
+}
+BUSY_MESSAGE = "Dalil is very busy right now. Please try again in about a minute. Nothing you sent was saved."
+# The same calm message in the main languages of the people Dalil is for. Other languages get English.
+# (Short and plain on purpose; worth a check by a native speaker before a public launch.)
+BUSY_MESSAGES = {
+    "ar": "دليل مزدحم جدًا الآن. يُرجى المحاولة مرة أخرى بعد دقيقة تقريبًا. لم يتم حفظ أي شيء أرسلته.",
+    "tl": "Napakaraming gumagamit ng Dalil ngayon. Pakisubukan ulit sa loob ng mga isang minuto. Walang na-save sa ipinadala mo.",
+    "hi": "अभी दलील पर बहुत भीड़ है। कृपया लगभग एक मिनट बाद फिर कोशिश करें। आपने जो भेजा, उसमें से कुछ भी सहेजा नहीं गया।",
+    "ur": "اس وقت دلیل پر بہت رش ہے۔ براہِ کرم تقریباً ایک منٹ بعد دوبارہ کوشش کریں۔ آپ کی بھیجی ہوئی کوئی چیز محفوظ نہیں کی گئی۔",
+    "bn": "এখন দলিলে অনেক ভিড়। অনুগ্রহ করে প্রায় এক মিনিট পরে আবার চেষ্টা করুন। আপনি যা পাঠিয়েছেন তার কিছুই সংরক্ষিত হয়নি।",
+    "ne": "अहिले दलिलमा धेरै भिड छ। कृपया करिब एक मिनेटपछि फेरि प्रयास गर्नुहोस्। तपाईंले पठाएको कुनै पनि कुरा सुरक्षित गरिएको छैन।",
+    "si": "දැන් දලීල් වෙත ඉතා වැඩි පිරිසක් සිටී. කරුණාකර විනාඩියකින් පමණ නැවත උත්සාහ කරන්න. ඔබ එවූ කිසිවක් සුරකින ලද්දේ නැත.",
+    "ta": "இப்போது தலீலில் அதிக கூட்டம் உள்ளது. சுமார் ஒரு நிமிடம் கழித்து மீண்டும் முயற்சிக்கவும். நீங்கள் அனுப்பியது எதுவும் சேமிக்கப்படவில்லை.",
+    "ml": "ഇപ്പോൾ ദലീലിൽ വളരെ തിരക്കാണ്. ഏകദേശം ഒരു മിനിറ്റിനു ശേഷം വീണ്ടും ശ്രമിക്കുക. നിങ്ങൾ അയച്ചതൊന്നും സേവ് ചെയ്തിട്ടില്ല.",
+    "fr": "Dalil est très sollicité en ce moment. Veuillez réessayer dans environ une minute. Rien de ce que vous avez envoyé n'a été enregistré.",
+    "es": "Dalil tiene mucha demanda ahora mismo. Inténtalo de nuevo en aproximadamente un minuto. No se guardó nada de lo que enviaste.",
+    "zh-Hans": "Dalil 现在非常繁忙。请大约一分钟后再试。您发送的内容均未被保存。",
+    "ru": "Сейчас Dalil очень загружен. Пожалуйста, повторите попытку примерно через минуту. Ничего из отправленного вами не сохранено.",
+}
+
+
+def busy_message(lang: str = "en") -> str:
+    return BUSY_MESSAGES.get(lang or "en", BUSY_MESSAGE)
+
+
+def _model_problem(e: Exception, lang: str = "en") -> ApiError:
     if isinstance(e, agent.ModelUnavailable):
-        if str(e) == "no_api_key":
-            return ApiError(503, "model_unavailable", "Dalil's AI service is not set up on this server.")
         why = str(e)  # only a short code such as api_429, never any document text
+        if why == "no_api_key":
+            return ApiError(503, "model_unavailable", "Dalil is not available right now. Please try again later.", detail="The AI service is not set up on this server (no API key).")
         log.warning("model call failed: %s", why)
-        hints = {
-            "api_400": "The AI service rejected the request (check the model name or API key).",
-            "api_401": "The AI service says the API key is not valid. Set a new key and restart the server.",
-            "api_403": "The AI service refused the API key (wrong, deleted, or not allowed). Set a new key and restart the server.",
-            "api_404": "The AI model name was not found. Set DALIL_MODEL to a model your key can use.",
-            "api_408": "The AI took too long to answer. Try again, or set DALIL_MODEL to a faster model.",
-            "api_0": "Dalil could not connect to the AI service (internet, VPN, firewall or antivirus may be blocking it).",
-            "api_503": "Google's AI is overloaded right now. Wait a minute and try again.",
-            "api_429": "The AI service is busy or the free limit was reached. Wait a minute and try again.",
-        }
-        return ApiError(503, "model_unavailable", hints.get(why, "Dalil cannot reach its AI service right now. Try again in a minute.") + f" [{why}]")
-    return ApiError(502, "bad_model_output", "Dalil could not put together a clear answer. Try again, or send a clearer document.")
+        if _is_busy(why):
+            return ApiError(503, "model_busy", busy_message(lang), retry_after=60, detail=f"[{why}]")
+        hint = _SETUP_HINTS.get(why, "Dalil cannot reach its AI service.")
+        return ApiError(503, "model_unavailable", "Dalil is not available right now. Please try again in a few minutes.", detail=f"{hint} [{why}]")
+    return ApiError(502, "bad_model_output", "Dalil could not put together a clear answer this time. Please try again, or send a clearer document.")
 
 
 @app.get("/api/health")
@@ -194,7 +227,7 @@ def review(req: ReviewRequest, request: Request):
     except (agent.ModelUnavailable, agent.ModelOutputError) as e:
         if req.sample_id and (r := saved()):
             return r
-        raise _model_problem(e)
+        raise _model_problem(e, req.language)
     report["privacy"] = {"hidden": masked.counts if masked else {}, "hidden_total": masked.total if masked else 0}
     return report
 
@@ -212,7 +245,7 @@ def ask(req: AskRequest, request: Request):
         with ai_slot(request):
             return agent.ask(question=req.question, report=req.report, lang=languages.get_language(req.language), history=req.history)
     except (agent.ModelUnavailable, agent.ModelOutputError) as e:
-        raise _model_problem(e)
+        raise _model_problem(e, req.language)
 
 
 @app.post("/api/letter")
@@ -223,4 +256,4 @@ def letter(req: LetterRequest, request: Request):
         with ai_slot(request):
             return agent.draft_letter(report=req.report, recipient=req.recipient, note=req.note, lang=languages.get_language(req.language))
     except (agent.ModelUnavailable, agent.ModelOutputError) as e:
-        raise _model_problem(e)
+        raise _model_problem(e, req.language)

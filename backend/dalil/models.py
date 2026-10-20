@@ -257,6 +257,26 @@ class RawAmounts(_Lenient):
         return [x for x in v if isinstance(x, dict)] if isinstance(v, list) else []
 
 
+class RawDue(_Lenient):
+    """The one amount the document asks the person to pay (a bill, fee notice, fine, rent). Empty for anything else."""
+
+    amount: float | None = None
+    currency: str = ""
+    label: str = ""
+    date: str = ""
+    date_text: str = ""
+
+    @field_validator("currency", "label", "date", "date_text", mode="before")
+    @classmethod
+    def _t(cls, v):
+        return _as_text(v)
+
+    @field_validator("amount", mode="before")
+    @classmethod
+    def _n(cls, v):
+        return _to_amount(v)
+
+
 class RawScam(_Lenient):
     level: str = "none"  # none | caution | stop
     reasons: list[str] = Field(default_factory=list)
@@ -292,6 +312,7 @@ class RawReport(_Lenient):
     if_ignored: list[RawIgnored] = Field(default_factory=list)
     prep: RawPrep = Field(default_factory=RawPrep)
     amounts: RawAmounts = Field(default_factory=RawAmounts)
+    due: RawDue = Field(default_factory=RawDue)
     not_sure: str = ""
     closing: str = ""
     labels: dict[str, str] = Field(default_factory=dict)
@@ -299,6 +320,11 @@ class RawReport(_Lenient):
     @field_validator("amounts", mode="before")
     @classmethod
     def _amounts(cls, v):
+        return v if isinstance(v, dict) else {}
+
+    @field_validator("due", mode="before")
+    @classmethod
+    def _due(cls, v):
         return v if isinstance(v, dict) else {}
 
     @field_validator("prep", mode="before")

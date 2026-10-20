@@ -25,6 +25,12 @@ String two(int n) => n.toString().padLeft(2, '0');
 
 String isoDate(DateTime d) => '${d.year.toString().padLeft(4, '0')}-${two(d.month)}-${two(d.day)}';
 
+/// When an amount is due: the date in plain form if it is a real date, else the words from the paper.
+String dueWhen(DueAmount d) {
+  final dt = parseIsoDate(d.date);
+  return dt != null ? fmtDate(dt) : d.dateText;
+}
+
 String fmtDate(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
 
 /// Whole calendar days from [today] to [due]. Negative means it has passed.

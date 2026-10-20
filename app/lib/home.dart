@@ -43,6 +43,7 @@ class ChatTurn {
   final bool byVoice; // the question was spoken, so the answer is read aloud
   AskAnswer? a;
   String? error;
+  bool errorCalm = false; // temporary trouble (busy, slow): shown calmly
 }
 
 class HomePage extends StatefulWidget {
@@ -75,6 +76,7 @@ class _HomePageState extends State<HomePage> {
   bool slow = false;
   Timer? slowTimer;
   String? error;
+  String? calmError; // the message of a temporary problem (busy, slow), shown in a calm style
   List<QualityIssue> blocking = [];
   Report? report;
   final chat = <ChatTurn>[];
@@ -242,6 +244,7 @@ class _HomePageState extends State<HomePage> {
       if (!mounted) return;
       setState(() {
         error = e.message;
+        calmError = isBusyCode(e.code) ? e.message : null;
         if (e.code == 'photo_unreadable' || e.code == 'photo_quality') blocking = _issuesFrom(e);
       });
     } finally {
@@ -417,6 +420,7 @@ class _HomePageState extends State<HomePage> {
       turn.a = await widget.api.ask(question: q, report: report!.json, language: language!.code, history: history);
     } on ApiException catch (e) {
       turn.error = e.message;
+      turn.errorCalm = isBusyCode(e.code);
     } finally {
       if (mounted) {
         setState(() {
@@ -651,18 +655,21 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 
-  Widget _inlineNotice(BuildContext context, String title, List<String> lines) {
+  Widget _inlineNotice(BuildContext context, String title, List<String> lines, {bool calm = false}) {
     final p = Palette.of(context);
+    final ink = calm ? p.mid : p.high;
     return Container(
+      key: calm ? const ValueKey('calm-notice') : null,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: p.highTint, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: calm ? p.midTint : p.highTint, borderRadius: BorderRadius.circular(14)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.error_outline, size: 20, color: p.high),
+        Icon(calm ? Icons.hourglass_empty : Icons.error_outline, size: 20, color: ink),
         const SizedBox(width: 10),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: TextStyle(color: p.high, fontWeight: FontWeight.w800)),
-            for (final l in lines) Padding(padding: const EdgeInsets.only(top: 2), child: Text(l, style: TextStyle(color: p.high, height: 1.4))),
+            Text(title, style: TextStyle(color: ink, fontWeight: FontWeight.w800, height: 1.4)),
+            if (calm) Padding(padding: const EdgeInsets.only(top: 4), child: Text('Your document is still here. Press the button again in a minute.', style: TextStyle(color: ink, height: 1.4))),
+            for (final l in lines) Padding(padding: const EdgeInsets.only(top: 2), child: Text(l, style: TextStyle(color: ink, height: 1.4))),
           ]),
         ),
       ]),
@@ -764,7 +771,7 @@ class _HomePageState extends State<HomePage> {
           duration: Motion.ms(context, 520),
           curve: Motion.smooth,
           alignment: Alignment.topCenter,
-          child: error == null ? const SizedBox(width: double.infinity) : Padding(padding: const EdgeInsets.only(bottom: 14), child: _inlineNotice(context, error!, blocking.map((q) => q.message).toList())),
+          child: error == null ? const SizedBox(width: double.infinity) : Padding(padding: const EdgeInsets.only(bottom: 14), child: _inlineNotice(context, error!, blocking.map((q) => q.message).toList(), calm: error == calmError)),
         ),
         Pressable(
           enabled: _canReview,
@@ -901,7 +908,7 @@ class _HomePageState extends State<HomePage> {
             Text(t.q, style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: 6),
             if (t.error != null)
-              Text(t.error!, style: TextStyle(color: p.high))
+              Text(t.error!, style: TextStyle(color: t.errorCalm ? p.mid : p.high, fontWeight: t.errorCalm ? FontWeight.w600 : null))
             else if (t.a == null)
               Text('Checking official sources', style: TextStyle(color: p.inkSoft))
             else ...[
@@ -1038,6 +1045,7 @@ class _LetterDialogState extends State<LetterDialog> {
   final note = TextEditingController();
   bool busy = false;
   String? error;
+  bool errorCalm = false;
   Letter? letter;
 
   @override
@@ -1050,12 +1058,18 @@ class _LetterDialogState extends State<LetterDialog> {
     setState(() {
       busy = true;
       error = null;
+      errorCalm = false;
     });
     try {
       final l = await widget.api.letter(report: widget.report.json, language: widget.language.code, recipient: recipient, note: note.text);
       if (mounted) setState(() => letter = l);
     } on ApiException catch (e) {
-      if (mounted) setState(() => error = e.message);
+      if (mounted) {
+        setState(() {
+          error = e.message;
+          errorCalm = isBusyCode(e.code);
+        });
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -1104,7 +1118,7 @@ class _LetterDialogState extends State<LetterDialog> {
             const SizedBox(height: 10),
             TextField(controller: note, maxLines: 2, decoration: const InputDecoration(hintText: 'Anything to add? (optional)')),
             const SizedBox(height: 14),
-            if (error != null) Padding(padding: const EdgeInsets.only(bottom: 10), child: Text(error!, style: TextStyle(color: p.high, fontWeight: FontWeight.w600))),
+            if (error != null) Padding(padding: const EdgeInsets.only(bottom: 10), child: Text(error!, style: TextStyle(color: errorCalm ? p.mid : p.high, fontWeight: FontWeight.w600, height: 1.4))),
             FilledButton(
               onPressed: busy ? null : _make,
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50), backgroundColor: p.accent, foregroundColor: p.onAccent, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),

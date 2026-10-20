@@ -417,4 +417,33 @@ void main() {
     expect(reportToText(bad), contains('AED 720.00'));
     expect(reportToSpeech(bad), contains('AED 405.50'));
   });
+
+  testWidgets('amount due shows under the overview, with a warning when the figures do not add up', (tester) async {
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    Future<void> show(Map<String, dynamic> extra) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(body: SingleChildScrollView(child: ReportView(report: Report.fromJson({'summary': 'A bill.', ...extra}), onOpen: (_) {}))),
+      ));
+      await tester.pumpAndSettle();
+    }
+
+    await show({'due': {'amount': 720, 'currency': 'AED', 'label': 'Utility bill', 'date': '2026-12-01'}});
+    expect(find.byKey(const ValueKey('due-amount')), findsOneWidget);
+    expect(find.text('AED 720.00'), findsOneWidget);
+    expect(find.textContaining('Pay by 1 Dec 2026'), findsOneWidget);
+    expect(find.textContaining('do not add up'), findsNothing);
+
+    await show({'due': {'amount': 720, 'currency': 'AED', 'check': true}});
+    expect(find.text('Check this figure: the amounts on the paper do not add up.'), findsOneWidget);
+
+    await show({});
+    expect(find.byKey(const ValueKey('due-amount')), findsNothing);
+
+    final r = Report.fromJson({'summary': 'A bill.', 'due': {'amount': 720, 'currency': 'AED', 'date_text': '1 Dec'}});
+    expect(reportToText(r), contains('Amount due: AED 720.00, Pay by 1 Dec'));
+    expect(reportToSpeech(r), contains('AED 720.00'));
+  });
 }

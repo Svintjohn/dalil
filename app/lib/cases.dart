@@ -88,12 +88,18 @@ class CaseEntry {
     this.steps = const [],
     this.facts = const [],
     this.watchCount = 0,
+    this.due,
+    this.paid = false,
   });
 
   final String id, kind, title, summary; // kind is 'document' or 'note'
   final DateTime date;
   final List<String> steps, facts;
   final int watchCount;
+  final DueAmount? due; // the amount this document asks to pay, if any
+  final bool paid; // the person marked it as paid
+
+  CaseEntry withPaid(bool value) => CaseEntry(id: id, kind: kind, date: date, title: title, summary: summary, steps: steps, facts: facts, watchCount: watchCount, due: due, paid: value);
 
   bool get isNote => kind == 'note';
 
@@ -106,6 +112,9 @@ class CaseEntry {
         'steps': steps,
         'facts': facts,
         'watch': watchCount,
+        if (due != null)
+          'due': {'amount': due!.amount, 'currency': due!.currency, 'label': due!.label, 'date': due!.date, 'date_text': due!.dateText, 'check': due!.check},
+        if (paid) 'paid': true,
       };
 
   static CaseEntry? fromJson(dynamic j) {
@@ -124,6 +133,8 @@ class CaseEntry {
       steps: _strings(j['steps'], 4, 300),
       facts: _strings(j['facts'], 6, 200),
       watchCount: j['watch'] is int ? j['watch'] as int : 0,
+      due: DueAmount.fromJson(j['due']),
+      paid: j['paid'] == true,
     );
   }
 }
@@ -236,6 +247,7 @@ class CaseStore {
       steps: [for (final s in steps) _cap(s, 300)],
       facts: [for (final f in facts) _cap(f, 200)],
       watchCount: r.findings.length,
+      due: r.due,
     );
     final list = [...cases.value];
     final at = caseId == null ? -1 : list.indexWhere((c) => c.id == caseId);
@@ -266,6 +278,12 @@ class CaseStore {
     return true;
   }
 
+  /// Marks the amount in one entry as paid (or not paid), so it leaves (or returns to) the money due total.
+  void setPaid(String caseId, String entryId, bool paid) => _commit([
+        for (final c in cases.value)
+          if (c.id == caseId) c.copyWith(entries: [for (final e in c.entries) e.id == entryId ? e.withPaid(paid) : e]) else c,
+      ]);
+
   void setClosed(String caseId, bool closed) => _commit([for (final c in cases.value) c.id == caseId ? c.copyWith(closed: closed) : c]);
 
   void removeEntry(String caseId, String entryId) => _commit([
@@ -285,4 +303,52 @@ List<CaseFile> sortedCases(List<CaseFile> list) {
     return byDate != 0 ? byDate : b.id.compareTo(a.id);
   });
   return out;
+}
+
+/// One amount that still has to be paid, with the case it belongs to.
+class MoneyDueItem {
+  const MoneyDueItem({required this.caseId, required this.caseTitle, required this.entryId, required this.due, required this.paid});
+  final String caseId, caseTitle, entryId;
+  final DueAmount due;
+  final bool paid;
+}
+
+/// The amounts to pay across open cases. To avoid counting a bill twice, only the latest document with an amount in each
+/// case counts (a reminder replaces the first bill). Items marked as paid stay in the list but are not in the totals.
+class MoneyDue {
+  const MoneyDue({required this.items});
+  final List<MoneyDueItem> items;
+
+  List<MoneyDueItem> get unpaid => [for (final i in items) if (!i.paid) i];
+
+  /// Currency code -> total still to pay. Different currencies are never added together.
+  Map<String, double> get totals {
+    final out = <String, double>{};
+    for (final i in unpaid) {
+      out[i.due.currency] = (out[i.due.currency] ?? 0) + i.due.amount;
+    }
+    return out;
+  }
+
+  bool get isEmpty => items.isEmpty;
+}
+
+MoneyDue moneyDue(List<CaseFile> all) {
+  final items = <MoneyDueItem>[];
+  for (final c in all) {
+    if (c.closed) continue;
+    CaseEntry? latest;
+    for (final e in c.entries) {
+      if (!e.isNote && e.due != null) latest = e;
+    }
+    if (latest != null) items.add(MoneyDueItem(caseId: c.id, caseTitle: c.title, entryId: latest.id, due: latest.due!, paid: latest.paid));
+  }
+  // soonest date first; amounts with no date last
+  items.sort((a, b) {
+    final x = a.due.date.isEmpty ? '9999' : a.due.date;
+    final y = b.due.date.isEmpty ? '9999' : b.due.date;
+    final c = x.compareTo(y);
+    return c != 0 ? c : a.caseTitle.compareTo(b.caseTitle);
+  });
+  return MoneyDue(items: items);
 }

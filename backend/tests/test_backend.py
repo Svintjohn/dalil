@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import io
 import json
+from datetime import date
 from types import SimpleNamespace as NS
 
 import httpx
@@ -876,3 +877,125 @@ def test_gemini_404_skips_the_retired_model_even_if_still_listed(monkeypatch):
     gemini._PICKED.clear()
     resp = gemini.GeminiClient("k").messages.create(model="gemini-2.5-flash", max_tokens=10, system="s", messages=[{"role": "user", "content": "x"}])
     assert resp.content[0].text == "hi" and "gemini-3.8-flash" in calls[-1]
+
+
+# ---- Money due and friendly busy messages
+
+def _due_raw(**due):
+    from dalil.models import RawReport
+
+    return RawReport.model_validate({"summary": "s", "due": due})
+
+
+def test_clean_due_keeps_a_plausible_amount_and_checks_pasted_text():
+    raw = _due_raw(amount="AED 1,200.50", currency="aed", label=" School  fee ", date="2026-12-01", date_text="1 Dec 2026")
+    d = agent.clean_due(raw.due, "Please pay AED 1,200.50 by 1 Dec 2026.", today=date(2026, 10, 20))
+    assert d == {"amount": 1200.5, "currency": "AED", "label": "School fee", "date": "2026-12-01", "date_text": "1 Dec 2026", "check": False}
+    # the figure is not in the pasted text: dropped
+    assert agent.clean_due(raw.due, "Please pay AED 900 by 1 Dec 2026.", today=date(2026, 10, 20)) is None
+    # a photo has no text to check against, so it is kept
+    assert agent.clean_due(raw.due, "", today=date(2026, 10, 20))["amount"] == 1200.5
+
+
+def test_clean_due_rejects_bad_values_and_bad_dates():
+    t = date(2026, 10, 20)
+    for bad in (dict(amount=None, currency="AED"), dict(amount=0, currency="AED"), dict(amount=-5, currency="AED"), dict(amount=10, currency=""), dict(amount=10, currency="DIRHAMS"), dict(amount="lots", currency="AED")):
+        assert agent.clean_due(_due_raw(**bad).due, "", today=t) is None, bad
+    d = agent.clean_due(_due_raw(amount=10, currency="USD", date="2099-01-01").due, "", today=t)
+    assert d["date"] == ""  # a date far in the future is not trusted
+    assert agent.clean_due(_due_raw(amount=10, currency="USD", date="not a date").due, "", today=t)["date"] == ""
+
+
+def test_due_survives_bad_model_output():
+    from dalil.models import RawReport
+
+    for junk in ("AED 5", ["x"], 12, {"amount": {"a": 1}, "currency": 5, "label": None}):
+        raw = RawReport.model_validate({"summary": "s", "due": junk})
+        assert agent.clean_due(raw.due, "") is None
+
+
+def _finalize(due, text="", scam=None, amounts=None):
+    from dalil.models import RawReport
+
+    body = {"summary": "s", "due": due}
+    if scam:
+        body["scam"] = scam
+    if amounts:
+        body["amounts"] = amounts
+    return agent.finalize_report(RawReport.model_validate(body), languages.get_language("en"), text)
+
+
+def test_due_is_shown_for_a_normal_bill_and_flagged_when_the_figures_do_not_add_up():
+    ok = _finalize({"amount": 720, "currency": "AED", "label": "Bill"}, "Total to pay AED 720")
+    assert ok["due"]["amount"] == 720 and ok["due"]["check"] is False
+    bad = _finalize(
+        {"amount": 720, "currency": "AED", "label": "Bill"},
+        "Total to pay AED 720",
+        amounts={"currency": "AED", "lines": [
+            {"label": "A", "amount": 100, "role": "item"}, {"label": "B", "amount": 50, "role": "item"}, {"label": "Total", "amount": 720, "role": "total"}]},
+    )
+    assert bad["number_check"]["status"] == "mismatch" and bad["due"]["check"] is True
+
+
+def test_due_is_never_shown_next_to_a_scam_warning_or_for_an_unrecognized_document():
+    txt = "Pay AED 500 now. Send your OTP and pay with a gift card within 2 hours: http://pay-now.top"
+    assert _finalize({"amount": 500, "currency": "AED"}, txt)["due"] is None
+    assert _finalize({"amount": 500, "currency": "AED"}, "Pay AED 500", scam={"level": "caution", "reasons": ["odd link"]})["due"] is None
+    from dalil.models import RawReport
+
+    r = agent.finalize_report(RawReport.model_validate({"summary": "s", "recognized": False, "due": {"amount": 5, "currency": "AED"}}), languages.get_language("en"), "")
+    assert r["due"] is None
+
+
+def test_prompt_asks_for_the_due_amount():
+    from dalil import prompts
+
+    s = prompts.review_system(languages.get_language("en"), None, [])
+    assert '"due"' in s and "Amount due" in s
+
+
+def test_sample_bill_and_school_have_a_due_amount():
+    bill = samples.saved_report("bill")
+    school = samples.saved_report("school")
+    assert bill["due"]["amount"] == 720 and bill["due"]["check"] is True
+    assert school["due"]["amount"] == 4200 and school["due"]["date"]
+
+
+def test_busy_trouble_gets_a_calm_message_and_a_retry_code():
+    from dalil import app as appmod
+
+    for why in ("api_429", "api_503", "api_408", "api_0", "api_529", "connection"):
+        e = appmod._model_problem(agent.ModelUnavailable(why))
+        assert e.status == 503 and e.code == "model_busy" and "very busy" in e.message
+        assert e.extra["retry_after"] == 60
+        assert "api_" not in e.message and "[" not in e.message  # no technical codes in what people read
+
+
+def test_setup_problems_do_not_show_technical_hints_to_people():
+    from dalil import app as appmod
+
+    for why in ("api_401", "api_403", "api_404", "api_400"):
+        e = appmod._model_problem(agent.ModelUnavailable(why))
+        assert e.code == "model_unavailable" and "DALIL_MODEL" not in e.message and "key" not in e.message.lower()
+        assert why in e.extra["detail"]
+    e = appmod._model_problem(agent.ModelUnavailable("no_api_key"))
+    assert e.code == "model_unavailable" and "API key" not in e.message
+    assert appmod._model_problem(agent.ModelOutputError("x")).code == "bad_model_output"
+
+
+def test_busy_message_is_in_the_readers_language_and_falls_back_to_english():
+    from dalil import app as appmod
+
+    ar = appmod._model_problem(agent.ModelUnavailable("api_429"), "ar")
+    assert ar.code == "model_busy" and ar.message != appmod.BUSY_MESSAGE and "دليل" in ar.message
+    assert appmod._model_problem(agent.ModelUnavailable("api_429"), "xx").message == appmod.BUSY_MESSAGE
+    assert appmod._model_problem(agent.ModelUnavailable("api_429")).message == appmod.BUSY_MESSAGE
+    for code, text in appmod.BUSY_MESSAGES.items():
+        assert text.strip() and "api_" not in text and "[" not in text, code
+
+
+def test_money_due_labels_exist():
+    from dalil.prompts import LABEL_KEYS
+
+    for k in ("due_amount", "due_by", "due_check", "numbers_flag"):
+        assert LABEL_KEYS[k].strip()

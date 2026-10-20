@@ -211,12 +211,91 @@ class MyCasesSection extends StatelessWidget {
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 760),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                MoneyDueCard(key: const ValueKey('money-due'), due: moneyDue(list), cases: cases),
                 for (final c in sorted) _CaseCard(key: ValueKey(c.id), item: c, cases: cases, deadlines: deadlines),
               ]),
             ),
           ]),
         );
       },
+    );
+  }
+}
+
+/// "Money due": what still has to be paid across open cases, with a tick to mark each one as paid.
+class MoneyDueCard extends StatelessWidget {
+  const MoneyDueCard({super.key, required this.due, required this.cases});
+  final MoneyDue due;
+  final CaseStore cases;
+
+  @override
+  Widget build(BuildContext context) {
+    if (due.isEmpty) return const SizedBox.shrink();
+    final p = Palette.of(context);
+    final totals = due.totals;
+    final allPaid = due.unpaid.isEmpty;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: p.line)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          Icon(Icons.payments_outlined, color: p.accent),
+          const SizedBox(width: 10),
+          const Expanded(child: Text('Money due', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
+        ]),
+        const SizedBox(height: 10),
+        if (allPaid)
+          Row(children: [
+            Icon(Icons.check_circle_outline, size: 20, color: p.ok),
+            const SizedBox(width: 8),
+            Text('Nothing left to pay in your open cases.', style: TextStyle(color: p.ok, fontWeight: FontWeight.w700)),
+          ])
+        else
+          for (final e in totals.entries)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text('${e.key} ${formatAmount(e.value)} still to pay', key: ValueKey('money-total-${e.key}'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, height: 1.3)),
+            ),
+        const SizedBox(height: 8),
+        for (final i in due.items) _row(context, i),
+        const SizedBox(height: 6),
+        Text(
+          'Uses the amount Dalil read from your papers, the latest one in each case. Check every figure against the paper. Different currencies are not added together.',
+          style: TextStyle(color: p.inkSoft, fontSize: 13, height: 1.4),
+        ),
+      ]),
+    );
+  }
+
+  Widget _row(BuildContext context, MoneyDueItem i) {
+    final p = Palette.of(context);
+    final when = dueWhen(i.due);
+    final what = i.due.label.isEmpty ? i.caseTitle : '${i.due.label} (${i.caseTitle})';
+    final muted = i.paid ? p.inkSoft : p.ink;
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(
+          width: 32,
+          height: 32,
+          child: Checkbox(
+            key: ValueKey('paid-${i.entryId}'),
+            value: i.paid,
+            onChanged: (v) => cases.setPaid(i.caseId, i.entryId, v == true),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(what, style: TextStyle(fontWeight: FontWeight.w600, height: 1.4, color: muted, decoration: i.paid ? TextDecoration.lineThrough : null)),
+            if (when.isNotEmpty) Text('Pay by $when', style: TextStyle(color: p.inkSoft, fontSize: 13, height: 1.4)),
+            if (i.due.check && !i.paid) Text('The figures on this paper do not add up. Check the amount.', style: TextStyle(color: p.mid, fontSize: 13, fontWeight: FontWeight.w600, height: 1.4)),
+          ]),
+        ),
+        const SizedBox(width: 10),
+        Text(i.due.money, style: TextStyle(fontWeight: FontWeight.w700, color: muted, decoration: i.paid ? TextDecoration.lineThrough : null)),
+      ]),
     );
   }
 }
@@ -288,6 +367,11 @@ class _CaseCardState extends State<_CaseCard> {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   for (final s in e.steps) Text('• $s', style: TextStyle(color: p.inkSoft, fontSize: 13, height: 1.5)),
                 ]),
+              ),
+            if (e.due != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text('Amount due: ${e.due!.money}${e.paid ? ' (paid)' : ''}', style: TextStyle(color: p.ink, fontSize: 13, fontWeight: FontWeight.w600)),
               ),
             if (e.watchCount > 0)
               Padding(

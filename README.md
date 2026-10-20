@@ -271,3 +271,15 @@ Protection Law (Federal Decree-Law No. 45 of 2021) in mind. Get legal review bef
 - Language quality outside the main languages has not been reviewed by native speakers.
 - Spoken questions use the browser's speech recognition, which works in Chrome, Edge and Safari.
 - WhatsApp is planned but not built.
+
+## Money due
+
+When a document asks for a payment, the report shows **Amount due** (amount, currency, pay-by date). It is never shown for a scam warning or an unrecognized document. If the amounts on the paper do not add up, the card carries a "check this figure" warning.
+
+The **Money due** card above the cases adds up what is still unpaid, **per currency** (different currencies are never added together). Only the latest amount in each open case counts, so a reminder does not double a bill. Tick **Paid** to remove an item from the total; closed cases are ignored. Everything stays in the browser, like the rest of My cases.
+
+## Friendly "busy" messages
+
+When the AI is busy or rate-limited, people see a calm message ("Many people are using Dalil right now, please try again in about a minute") instead of a technical error. The backend answers `503` with `code: model_busy` and `retry_after: 60`, in the reader's language (`BUSY_MESSAGES` in `backend/dalil/app.py`; unknown languages fall back to English). The app shows it as an amber notice, not a red error.
+
+The translations are machine-written: have a native speaker review them before launch.

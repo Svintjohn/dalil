@@ -24,6 +24,11 @@ String reportToText(Report r) {
   }
   if (r.docType.isNotEmpty) b.writeln(r.docType);
   b.writeln(r.summary);
+  final due = r.due;
+  if (due != null) {
+    final when = dueWhen(due);
+    b.writeln('${r.label('due_amount', 'Amount due')}: ${due.money}${when.isEmpty ? '' : ', ${r.label('due_by', 'Pay by')} $when'}');
+  }
   if (r.nextSteps.isNotEmpty) {
     b.writeln();
     b.writeln(r.label('next_steps', 'What to do'));
@@ -110,6 +115,11 @@ String reportToSpeech(Report r) {
     }
   }
   b.writeln(r.summary);
+  final due = r.due;
+  if (due != null) {
+    final when = dueWhen(due);
+    b.writeln('${r.label('due_amount', 'Amount due')}: ${due.money}.${when.isEmpty ? '' : ' ${r.label('due_by', 'Pay by')} $when.'}');
+  }
   if (r.nextSteps.isNotEmpty) {
     b.writeln(r.label('next_steps', 'What to do'));
     for (final s in r.nextSteps) {

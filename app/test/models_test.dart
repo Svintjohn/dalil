@@ -156,4 +156,28 @@ void main() {
     expect(n.money(720), 'AED 720.00');
     expect(n.issues.first.difference, 58.5);
   });
+
+  group('amount due', () {
+    test('reads a plausible amount and rejects junk', () {
+      final r = Report.fromJson({
+        'summary': 's',
+        'due': {'amount': 720, 'currency': 'aed', 'label': 'Utility bill', 'date': '2026-12-01', 'date_text': '1 Dec 2026', 'check': true},
+      });
+      expect(r.due!.money, 'AED 720.00');
+      expect(r.due!.check, isTrue);
+      expect(r.due!.label, 'Utility bill');
+      for (final bad in [null, 'AED 5', 5, {'amount': 0, 'currency': 'AED'}, {'amount': -3, 'currency': 'AED'}, {'amount': 5, 'currency': 'DIRHAM'}, {'amount': 'lots', 'currency': 'AED'}, {'amount': 5}]) {
+        expect(Report.fromJson({'summary': 's', 'due': bad}).due, isNull, reason: '$bad');
+      }
+    });
+
+    test('busy codes are the temporary ones', () {
+      for (final c in ['model_busy', 'busy', 'rate_limited', 'timeout', 'network', 'server']) {
+        expect(isBusyCode(c), isTrue, reason: c);
+      }
+      for (final c in ['photo_quality', 'model_unavailable', 'bad_request', 'empty']) {
+        expect(isBusyCode(c), isFalse, reason: c);
+      }
+    });
+  });
 }

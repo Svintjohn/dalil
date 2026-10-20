@@ -16,7 +16,7 @@ from .failover import FailoverClient
 from .gemini import GeminiClient, LLMError
 from .openai_compat import OpenAICompatClient
 from .languages import Language
-from .models import READABILITY_CODES, READABILITY_MESSAGES, RawReport
+from .models import READABILITY_CODES, READABILITY_MESSAGES, RawReport, _to_amount
 from .prompts import LABEL_KEYS, ask_system, letter_system, review_system
 from .tools import TOOL_DEFS, run_tool
 
@@ -172,6 +172,47 @@ def clean_deadlines(raw: list, today: date | None = None) -> list[dict]:
     return out[:6]
 
 
+_NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
+
+
+def _numbers_in(text: str) -> list[float]:
+    out = []
+    for m in _NUMBER.finditer(text or ""):
+        v = _to_amount(m.group(0))
+        if v is not None:
+            out.append(v)
+    return out
+
+
+def clean_due(raw, doc_text: str = "", today: date | None = None) -> dict | None:
+    """The amount to pay, kept only when it is plausible. When the person pasted text, the figure must really be in it."""
+    today = today or date.today()
+    amount = raw.amount
+    if amount is None or not (0 < amount < 1e9):
+        return None
+    currency = re.sub(r"[^A-Za-z]", "", raw.currency or "").upper()
+    if len(currency) != 3:
+        return None
+    if (doc_text or "").strip() and not any(abs(amount - n) < 0.005 for n in _numbers_in(doc_text)):
+        return None  # the model's figure is not in the pasted text: do not show it
+    iso = ""
+    if raw.date:
+        try:
+            d = date.fromisoformat(raw.date.strip())
+        except ValueError:
+            d = None
+        if d and today.year - 2 <= d.year <= today.year + 10:
+            iso = d.isoformat()
+    return {
+        "amount": round(amount, 2),
+        "currency": currency,
+        "label": " ".join((raw.label or "").split())[:100],
+        "date": iso,
+        "date_text": " ".join((raw.date_text or "").split())[:80],
+        "check": False,
+    }
+
+
 def _dedupe(rows: list[dict], key: str) -> list[dict]:
     seen, out = set(), []
     for r in rows:
@@ -268,6 +309,11 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
     if scam["level"] == "stop":
         number_check = None
 
+    # Money due: never for anything the scam shield warned about, and flagged when the figures on the paper do not add up.
+    due = clean_due(raw.due, doc_text) if raw.recognized and scam["level"] == "none" else None
+    if due and number_check and number_check["status"] == "mismatch":
+        due["check"] = True
+
     return {
         "readable": True,
         "recognized": raw.recognized,
@@ -290,6 +336,7 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
         "if_ignored": ignored,
         "prep": prep,
         "number_check": number_check,
+        "due": due,
         "not_sure": raw.not_sure,
         "closing": raw.closing,
         "labels": labels,

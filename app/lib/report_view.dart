@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'deadlines.dart';
 import 'fonts.dart';
 import 'models.dart';
 import 'motion.dart';
@@ -147,6 +148,35 @@ class _ReportViewState extends State<ReportView> {
             Text('${r.label(sev, sev)} · ${counts[sev]}', style: TextStyle(color: p.sev(sev), fontWeight: FontWeight.w700)),
           ]),
     ]);
+  }
+
+  Widget _due(BuildContext context) {
+    final p = Palette.of(context);
+    final d = r.due!;
+    final when = dueWhen(d);
+    return Container(
+      key: const ValueKey('due-amount'),
+      margin: const EdgeInsets.only(top: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: p.accentTint, borderRadius: BorderRadius.circular(14)),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(Icons.payments_outlined, color: p.accent),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(r.label('due_amount', 'Amount due'), style: TextStyle(color: p.inkSoft, fontSize: 13, fontWeight: FontWeight.w600)),
+            Text(d.money, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, height: 1.3)),
+            if (d.label.isNotEmpty) Text(d.label, style: TextStyle(color: p.inkSoft, height: 1.4)),
+            if (when.isNotEmpty) Text('${r.label('due_by', 'Pay by')} $when', style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4)),
+            if (d.check)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(r.label('due_check', 'Check this figure: the amounts on the paper do not add up.'), style: TextStyle(color: p.mid, fontWeight: FontWeight.w600, height: 1.4)),
+              ),
+          ]),
+        ),
+      ]),
+    );
   }
 
   Widget _plainWords(BuildContext context) {
@@ -540,6 +570,7 @@ class _ReportViewState extends State<ReportView> {
           if (r.recognized) ...[
             const SizedBox(height: 18),
             _overview(context),
+            if (r.due != null) _due(context),
             if (r.nextSteps.isNotEmpty) ...[_heading(context, r.label('next_steps', 'What to do')), _nextSteps(context)],
             if (r.ifIgnored.isNotEmpty || (r.deadlines.isNotEmpty && !r.scam.stop)) ...[_heading(context, r.label('if_ignored', 'If you do nothing')), _ifIgnored(context)],
             if (r.prep != null) ...[_heading(context, r.label('prep', 'Before you go')), _prep(context)],

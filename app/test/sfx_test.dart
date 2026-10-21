@@ -164,7 +164,7 @@ void main() {
       final box = tester.getRect(pad);
       // the "Deep thock" dot
       final t = sfxPresets.firstWhere((p) => p.id == 'thock');
-      await tester.tapAt(Offset(box.left + 18 + t.x * (box.width - 36), box.top + 18 + (1 - t.y) * (box.height - 36)));
+      await tester.tapAt(Offset(box.left + 34 + t.x * (box.width - 34 - 16), box.top + 16 + (1 - t.y) * (box.height - 16 - 34)));
       await tester.pumpAndSettle();
       expect(s.presetId, 'thock');
       expect(s.customX, isNull);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'api.dart';
 import 'home.dart';
+import 'season.dart';
 import 'settings.dart';
 import 'sfx.dart';
 import 'sound_pill.dart';
@@ -10,6 +11,7 @@ import 'theme.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Sfx.instance.load();
+  SeasonSettings.instance.load();
   Sfx.instance.attach();
   runApp(DalilApp(api: HttpDalilApi()));
 }

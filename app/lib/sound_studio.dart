@@ -8,6 +8,7 @@ import 'motion.dart';
 import 'sfx.dart';
 import 'sfx_engine.dart';
 import 'theme.dart';
+import 'tilt.dart';
 import 'widgets.dart';
 
 /// Click sounds, a 2D sound matrix, ambient sounds and tuning, with a live spectrum.
@@ -159,7 +160,7 @@ class _SoundStudioState extends State<SoundStudio> {
           for (final s in shown)
             SizedBox(
               width: w,
-              child: Pressable(
+              child: TiltPress(
                 child: GestureDetector(
                   key: ValueKey('preset-${s.id}'),
                   behavior: HitTestBehavior.opaque,
@@ -197,8 +198,6 @@ class _SoundStudioState extends State<SoundStudio> {
       Text('Tap a dot to pick a sound, or drag the puck to mix your own: left to right is low to high, top to bottom is heavy to light.', style: TextStyle(color: p.inkSoft, height: 1.4)),
       const SizedBox(height: 14),
       MatrixPad(sfx: sfx),
-      const SizedBox(height: 10),
-      Text('Now: ${sfx.customX == null ? sfx.preset.name : '${sfx.preset.name}, mixed'}', style: const TextStyle(fontWeight: FontWeight.w700)),
     ]);
   }
 
@@ -212,7 +211,7 @@ class _SoundStudioState extends State<SoundStudio> {
           for (final a in ambientSounds)
             SizedBox(
               width: w,
-              child: Pressable(
+              child: TiltPress(
                 child: GestureDetector(
                   key: ValueKey('ambient-${a.id}'),
                   behavior: HitTestBehavior.opaque,
@@ -302,10 +301,12 @@ class _SoundStudioState extends State<SoundStudio> {
   }
 }
 
-/// The 2D sound map. Every preset is a dot; the puck is the sound being used.
+/// The 2D sound map, drawn like a ruled ledger page. Every preset is an ink dot; the puck is a seal that shows the sound in use.
 class MatrixPad extends StatelessWidget {
   const MatrixPad({super.key, required this.sfx});
   final Sfx sfx;
+
+  static const double _padL = 34, _padR = 16, _padT = 16, _padB = 34; // room for the axis words
 
   @override
   Widget build(BuildContext context) {
@@ -313,10 +314,11 @@ class MatrixPad extends StatelessWidget {
     return LayoutBuilder(builder: (context, c) {
       final w = c.maxWidth;
       final h = math.min(380.0, w * 0.68);
-      Offset toPos(double x, double y) => Offset(18 + x * (w - 36), 18 + (1 - y) * (h - 36)); // y = 1 (heavy) is at the top
+      final iw = w - _padL - _padR, ih = h - _padT - _padB;
+      Offset toPos(double x, double y) => Offset(_padL + x * iw, _padT + (1 - y) * ih); // y = 1 (heavy) is at the top
       void pick(Offset local, {required bool drag, bool end = false}) {
-        final x = ((local.dx - 18) / (w - 36)).clamp(0.0, 1.0).toDouble();
-        final y = (1 - (local.dy - 18) / (h - 36)).clamp(0.0, 1.0).toDouble();
+        final x = ((local.dx - _padL) / iw).clamp(0.0, 1.0).toDouble();
+        final y = (1 - (local.dy - _padT) / ih).clamp(0.0, 1.0).toDouble();
         if (!drag) {
           // a tap near a dot picks that preset
           SfxPreset? hit;
@@ -337,6 +339,9 @@ class MatrixPad extends StatelessWidget {
       }
 
       final puck = toPos(sfx.puckX, sfx.puckY);
+      final tagLeft = (puck.dx - 52).clamp(4.0, math.max(4.0, w - 108)).toDouble();
+      final tagBelow = puck.dy < h - _padB - 52;
+      final axis = TextStyle(color: p.inkSoft, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.2);
       return GestureDetector(
         key: const ValueKey('matrix-pad'),
         behavior: HitTestBehavior.opaque,
@@ -347,26 +352,57 @@ class MatrixPad extends StatelessWidget {
         child: Container(
           width: w,
           height: h,
-          decoration: BoxDecoration(color: p.wall, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(
+            color: p.inset,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: p.ink.withAlpha(46), width: 1.2),
+          ),
           child: Stack(children: [
-            Positioned.fill(child: CustomPaint(painter: _MatrixPainter(dot: p.wallInk, accent: p.markSolid, current: sfx.presetId))),
-            PositionedDirectional(top: 10, start: 14, child: _corner('DEEP · HEAVY', p)),
-            PositionedDirectional(top: 10, end: 14, child: _corner('HIGH · HEAVY', p)),
-            PositionedDirectional(bottom: 10, start: 14, child: _corner('DEEP · LIGHT', p)),
-            PositionedDirectional(bottom: 10, end: 14, child: _corner('HIGH · LIGHT', p)),
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _MatrixPainter(line: p.line, ink: p.ink, accent: p.accent, current: sfx.presetId, left: _padL, top: _padT, right: _padR, bottom: _padB),
+              ),
+            ),
+            PositionedDirectional(bottom: 8, start: _padL, end: _padR, child: Row(children: [Text('Low', style: axis), Expanded(child: Center(child: Text('Pitch', style: axis.copyWith(color: p.ink)))), Text('High', style: axis)])),
+            Positioned(
+              left: 4,
+              top: _padT,
+              bottom: _padB,
+              width: 24,
+              child: RotatedBox(quarterTurns: 3, child: Row(children: [Text('Light', style: axis), Expanded(child: Center(child: Text('Weight', style: axis.copyWith(color: p.ink)))), Text('Heavy', style: axis)])),
+            ),
             AnimatedPositioned(
               duration: Motion.ms(context, 90),
-              left: puck.dx - 15,
-              top: puck.dy - 15,
+              left: puck.dx - 16,
+              top: puck.dy - 16,
               child: Container(
-                width: 30,
-                height: 30,
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: p.markSolid,
+                  color: p.accent,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: p.markSolid.withAlpha(140), blurRadius: 18, spreadRadius: 2)],
+                  border: Border.all(color: p.surface, width: 2.5),
+                  boxShadow: [BoxShadow(color: p.ink.withAlpha(60), offset: const Offset(0, 3))],
                 ),
-                child: Icon(Icons.graphic_eq, size: 17, color: p.wall),
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: p.onAccent.withAlpha(190), width: 1.4)),
+                  child: Icon(Icons.graphic_eq, size: 12, color: p.onAccent),
+                ),
+              ),
+            ),
+            AnimatedPositioned(
+              duration: Motion.ms(context, 90),
+              left: tagLeft,
+              top: tagBelow ? puck.dy + 22 : puck.dy - 50,
+              child: IgnorePointer(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(8), border: Border.all(color: p.ink.withAlpha(60))),
+                  child: Text(sfx.customX == null ? sfx.preset.name : '${sfx.preset.name}, mixed', style: Fonts.display(TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.ink))),
+                ),
               ),
             ),
           ]),
@@ -374,34 +410,53 @@ class MatrixPad extends StatelessWidget {
       );
     });
   }
-
-  Widget _corner(String t, Palette p) => Text(t, style: TextStyle(color: p.wallInk.withAlpha(120), fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 1));
 }
 
 class _MatrixPainter extends CustomPainter {
-  _MatrixPainter({required this.dot, required this.accent, required this.current});
-  final Color dot, accent;
+  _MatrixPainter({required this.line, required this.ink, required this.accent, required this.current, required this.left, required this.top, required this.right, required this.bottom});
+  final Color line, ink, accent;
   final String current;
+  final double left, top, right, bottom;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width, h = size.height;
-    final grid = Paint()..color = dot.withAlpha(34);
-    for (double x = 18; x <= w - 18; x += (w - 36) / 12) {
-      for (double y = 18; y <= h - 18; y += (h - 36) / 8) {
-        canvas.drawCircle(Offset(x, y), 1.1, grid);
-      }
+    final w = size.width - left - right, h = size.height - top - bottom;
+    final hair = Paint()
+      ..color = line
+      ..strokeWidth = 1;
+    final strong = Paint()
+      ..color = ink.withAlpha(90)
+      ..strokeWidth = 1.2;
+    // ruled lines, like an account book
+    for (var i = 0; i <= 8; i++) {
+      final y = top + h * i / 8;
+      canvas.drawLine(Offset(left, y), Offset(left + w, y), i == 8 ? strong : hair);
     }
+    for (var i = 0; i <= 12; i++) {
+      final x = left + w * i / 12;
+      canvas.drawLine(Offset(x, top), Offset(x, top + h), i == 0 ? strong : hair);
+    }
+    // the middle cross
+    canvas.drawLine(Offset(left + w / 2, top), Offset(left + w / 2, top + h), Paint()..color = ink.withAlpha(40)..strokeWidth = 1.2);
     for (final s in sfxPresets) {
-      final o = Offset(18 + s.x * (w - 36), 18 + (1 - s.y) * (h - 36));
+      final o = Offset(left + s.x * w, top + (1 - s.y) * h);
       final on = s.id == current;
-      canvas.drawCircle(o, on ? 9 : 6, Paint()..color = on ? accent : dot.withAlpha(210));
-      if (on) canvas.drawCircle(o, 14, Paint()..color = accent.withAlpha(60));
+      canvas.drawCircle(o, on ? 8 : 5, Paint()..color = on ? accent.withAlpha(70) : ink.withAlpha(215));
+      if (on) {
+        canvas.drawCircle(
+          o,
+          8,
+          Paint()
+            ..color = ink.withAlpha(200)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.4,
+        );
+      }
     }
   }
 
   @override
-  bool shouldRepaint(_MatrixPainter old) => old.current != current || old.dot != dot || old.accent != accent;
+  bool shouldRepaint(_MatrixPainter old) => old.current != current || old.ink != ink || old.accent != accent || old.line != line;
 }
 
 /// Live bars that move with the sound that is playing.

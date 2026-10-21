@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'api.dart' show HttpDalilApi;
 import 'cases.dart';
 import 'deadlines.dart';
+import 'local_store.dart';
 import 'models.dart';
 import 'motion.dart';
+import 'season.dart';
+import 'sfx.dart';
 import 'theme.dart';
+import 'tilt.dart';
 
 class Sheet extends StatelessWidget {
   const Sheet({super.key, required this.child, this.padding = const EdgeInsets.all(24)});
@@ -45,7 +50,8 @@ class _HoverLiftState extends State<HoverLift> {
   @override
   Widget build(BuildContext context) {
     final p = Palette.of(context);
-    return MouseRegion(
+    return TiltOnHover(
+      child: MouseRegion(
       onEnter: (_) => setState(() => hover = true),
       onExit: (_) => setState(() => hover = false),
       child: AnimatedContainer(
@@ -60,6 +66,7 @@ class _HoverLiftState extends State<HoverLift> {
           boxShadow: [BoxShadow(color: p.ink.withAlpha(hover ? 28 : 0), offset: const Offset(0, 6))],
         ),
         child: widget.child,
+      ),
       ),
     );
   }
@@ -283,6 +290,29 @@ class _LanguageDialogState extends State<LanguageDialog> {
   }
 }
 
+/// Asks first, then removes everything Dalil saved on this device: cases, deadlines, sound settings and the saved page data.
+Future<void> confirmClearSaved(BuildContext context, {CaseStore? cases, DeadlineStore? deadlines}) async {
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (c) => AlertDialog(
+      title: const Text('Delete all saved data?'),
+      content: const Text('This removes every saved case and deadline, your sound and decoration settings and the saved page data from this device. It cannot be undone. Your documents were never saved.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Keep it')),
+        TextButton(key: const ValueKey('confirm-delete'), onPressed: () => Navigator.pop(c, true), child: const Text('Delete everything')),
+      ],
+    ),
+  );
+  if (ok == true) {
+    (cases ?? CaseStore.instance).clearAll();
+    (deadlines ?? DeadlineStore.instance).clearAll();
+    Sfx.instance.wipe();
+    SeasonSettings.instance.wipe();
+    LocalStore.remove(HttpDalilApi.metaKey);
+    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All saved data was deleted from this device.')));
+  }
+}
+
 class PrivacyDialog extends StatelessWidget {
   PrivacyDialog({super.key, required this.headline, required this.points, CaseStore? cases, DeadlineStore? deadlines})
       : cases = cases ?? CaseStore.instance,
@@ -292,24 +322,7 @@ class PrivacyDialog extends StatelessWidget {
   final CaseStore cases;
   final DeadlineStore deadlines;
 
-  Future<void> _confirmDelete(BuildContext context) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text('Delete all saved data?'),
-        content: const Text('This removes every saved case and deadline from this device. It cannot be undone. Your documents were never saved.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Keep it')),
-          TextButton(key: const ValueKey('confirm-delete'), onPressed: () => Navigator.pop(c, true), child: const Text('Delete everything')),
-        ],
-      ),
-    );
-    if (ok == true) {
-      cases.clearAll();
-      deadlines.clearAll();
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All saved cases and deadlines were deleted from this device.')));
-    }
-  }
+  Future<void> _confirmDelete(BuildContext context) => confirmClearSaved(context, cases: cases, deadlines: deadlines);
 
   Widget _saved(BuildContext context) {
     final p = Palette.of(context);

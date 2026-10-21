@@ -255,6 +255,15 @@ class Sfx extends ChangeNotifier {
     _changed(preview: keepOn);
   }
 
+  /// Forgets everything: back to the defaults, sound off, nothing left in the browser.
+  void wipe() {
+    enabled = false; // so the reset below does not play a sound
+    reset();
+    sfxEnable(false);
+    LocalStore.remove(_key);
+    notifyListeners();
+  }
+
   void preview() => sfxPlay('tap');
 
   /// A tap or click on the page.

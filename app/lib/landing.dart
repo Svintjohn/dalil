@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'fonts.dart';
 import 'models.dart';
+import 'season.dart';
 import 'motion.dart';
 import 'theme.dart';
+import 'tilt.dart';
 import 'widgets.dart';
 
 bool isWide(BuildContext c) => MediaQuery.sizeOf(c).width >= 960;
@@ -128,11 +130,11 @@ class HeroSection extends StatelessWidget {
         ]),
       ),
     ]);
-    final desk = Container(
+    final desk = TiltOnHover(degrees: 3, child: Container(
       padding: EdgeInsets.symmetric(horizontal: wide ? 34 : 14, vertical: wide ? 40 : 22),
       decoration: BoxDecoration(color: p.accentTint, borderRadius: BorderRadius.circular(32)),
       child: const AnnotatedPaper(),
-    );
+    ));
     return Band(
       top: wide ? 118 : 92,
       bottom: wide ? 64 : 40,
@@ -587,14 +589,39 @@ class SiteFooter extends StatelessWidget {
         style: TextStyle(color: p.inkSoft, fontSize: 14, height: 1.5),
       ),
     );
+    final season = currentSeason();
+    final links = Wrap(spacing: 8, runSpacing: 4, children: [
+      TextButton.icon(
+        key: const ValueKey('clear-storage'),
+        onPressed: () => confirmClearSaved(context),
+        style: TextButton.styleFrom(foregroundColor: p.inkSoft, textStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+        icon: const Icon(Icons.delete_outline, size: 17),
+        label: const Text('Clear saved data on this device'),
+      ),
+      if (season != Season.none)
+        AnimatedBuilder(
+          animation: SeasonSettings.instance,
+          builder: (context, _) => TextButton.icon(
+            key: const ValueKey('season-toggle'),
+            onPressed: () => SeasonSettings.instance.setEnabled(!SeasonSettings.instance.enabled),
+            style: TextButton.styleFrom(foregroundColor: p.inkSoft, textStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+            icon: Icon(SeasonSettings.instance.enabled ? Icons.auto_awesome : Icons.auto_awesome_outlined, size: 17),
+            label: Text('${seasonName(season)} decorations: ${SeasonSettings.instance.enabled ? 'on' : 'off'}'),
+          ),
+        ),
+    ]);
     return Container(
       decoration: BoxDecoration(border: Border(top: BorderSide(color: p.line))),
       child: Band(
         top: 36,
         bottom: 44,
         child: wide
-            ? Row(crossAxisAlignment: CrossAxisAlignment.center, children: [brand, const Spacer(), note])
-            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [brand, const SizedBox(height: 14), note]),
+            ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                brand,
+                const Spacer(),
+                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [note, const SizedBox(height: 10), links]),
+              ])
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [brand, const SizedBox(height: 14), note, const SizedBox(height: 10), links]),
       ),
     );
   }

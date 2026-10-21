@@ -22,6 +22,7 @@ import 'print_html.dart';
 import 'print_page.dart';
 import 'report_text.dart';
 import 'report_view.dart';
+import 'season_layer.dart';
 import 'settings.dart';
 import 'skeleton.dart';
 import 'sfx.dart';
@@ -1147,6 +1148,7 @@ class _HomePageState extends State<HomePage> {
                     ))
               : _body(context),
         ),
+        if (meta != null) const Positioned.fill(child: SeasonLayer()),
         Positioned(top: 0, left: 0, right: 0, child: _header(context)),
         if (meta != null) const PositionedDirectional(bottom: 18, end: 18, child: SoundPill()),
       ]),

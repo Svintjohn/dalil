@@ -325,3 +325,26 @@ Left out on purpose:
 - **Pagination.** The language picker is already a lazy list, and My cases stays short.
 - **Minifying.** `flutter build web --release` already minifies and tree-shakes the app; the two small scripts are left readable (Vercel compresses them).
 - **Unused packages.** Every dependency in `pubspec.yaml` and `requirements.txt` is used.
+
+## Seasonal decorations
+
+A few quiet decorations on holidays, drawn faintly over the page. They never take a tap, sit under the header and any dialog, use a handful of shapes, stop when the device asks for less motion, and can be switched off in the footer ("Christmas decorations: on/off"). The setting is remembered on the device.
+
+| Season | When | What |
+|---|---|---|
+| Halloween | 24 Oct to 1 Nov | three small bats crossing the top, a few rising embers |
+| Christmas | 1 to 26 Dec | sparse falling snow |
+| New Year | 30 Dec to 2 Jan | slow fireworks in the upper part of the page |
+| UAE National Day | 2 and 3 Dec, only when the device clock is on Gulf time | slow confetti in red, green and black |
+| Ramadan | the Islamic month 9 | a crescent and a few twinkling stars |
+| Eid | 1 to 3 Shawwal and 10 to 13 Dhu al-Hijjah | the crescent and soft gold bursts |
+
+The date comes from the device clock. No location is requested. The Islamic date comes from the browser (`web/dalil_date.js`), so Ramadan and Eid can be a day off from the moon sighting. To preview one, add `?season=christmas` (or `halloween`, `newyear`, `uae`, `ramadan`, `eid`, `off`) to the address. Code: `season.dart` (dates and the setting), `season_layer.dart` (the drawing).
+
+## Clear saved data
+
+The footer has "Clear saved data on this device", the same confirmation as in Privacy. It removes the cases, the deadlines, the sound settings, the decoration setting and the saved page data. Documents were never saved, so there is nothing else to remove.
+
+## Card tilt
+
+Cards lean a few degrees toward the mouse (`tilt.dart`). Touch screens have no hover, so nothing happens there, and nothing moves when the device asks for less motion.

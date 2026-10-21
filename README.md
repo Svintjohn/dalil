@@ -348,3 +348,7 @@ The footer has "Clear saved data on this device", the same confirmation as in Pr
 ## Card tilt
 
 Cards lean a few degrees toward the mouse (`tilt.dart`). Touch screens have no hover, so nothing happens there, and nothing moves when the device asks for less motion.
+
+## Support link
+
+The footer has a small coffee button that opens https://ko-fi.com/dalilapp in a new tab. It is a plain link: no widget, no script and no tracking from Ko-fi on the page.

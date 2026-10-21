@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'fonts.dart';
 import 'models.dart';
@@ -590,7 +591,16 @@ class SiteFooter extends StatelessWidget {
       ),
     );
     final season = currentSeason();
-    final links = Wrap(spacing: 8, runSpacing: 4, children: [
+    final links = Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
+      Tooltip(
+        message: 'Buy Dalil a coffee on Ko-fi',
+        child: TextButton(
+          key: const ValueKey('kofi'),
+          onPressed: () => launchUrl(Uri.https('ko-fi.com', '/dalilapp'), mode: LaunchMode.externalApplication),
+          style: TextButton.styleFrom(foregroundColor: p.inkSoft, minimumSize: const Size(44, 40)),
+          child: const Text('☕', semanticsLabel: 'Buy Dalil a coffee on Ko-fi', style: TextStyle(fontSize: 22, height: 1)),
+        ),
+      ),
       TextButton.icon(
         key: const ValueKey('clear-storage'),
         onPressed: () => confirmClearSaved(context),

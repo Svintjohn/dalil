@@ -135,7 +135,7 @@ class ShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: buildTheme(Brightness.light, accent: Profile.instance.accent),
+      data: buildTheme(Brightness.light, accent: Profile.instance.accent, hue: Profile.instance.customHue, sat: Profile.instance.customSat),
       child: Builder(builder: (context) {
         final p = Palette.of(context);
         final warn = data.stop;

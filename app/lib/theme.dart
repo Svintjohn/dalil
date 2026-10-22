@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import 'fonts.dart';
 import 'profile.dart';
 
+/// WCAG contrast ratio between two colours, 1 to 21.
+double contrastRatio(Color a, Color b) {
+  final x = a.computeLuminance(), y = b.computeLuminance();
+  final hi = x > y ? x : y, lo = x > y ? y : x;
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 @immutable
 class Palette {
   const Palette({
@@ -91,12 +98,68 @@ class Palette {
   );
 
   /// The palette for the current brightness and the accent colour the person picked.
-  static Palette of(BuildContext c) => forAccent(Profile.instance.accent, Theme.of(c).brightness == Brightness.dark);
+  static Palette of(BuildContext c) {
+    final pr = Profile.instance;
+    final isDark = Theme.of(c).brightness == Brightness.dark;
+    return pr.accent == Accent.custom ? custom(pr.customHue, pr.customSat, isDark) : forAccent(pr.accent, isDark);
+  }
 
-  static final Map<Accent, Palette> _lightByAccent = {for (final a in Accent.values) a: _tinted(light, a, false)};
-  static final Map<Accent, Palette> _darkByAccent = {for (final a in Accent.values) a: _tinted(dark, a, true)};
+  static final Map<Accent, Palette> _lightByAccent = {for (final a in presetAccents) a: _tinted(light, a, false)};
+  static final Map<Accent, Palette> _darkByAccent = {for (final a in presetAccents) a: _tinted(dark, a, true)};
 
-  static Palette forAccent(Accent a, bool isDark) => (isDark ? _darkByAccent : _lightByAccent)[a]!;
+  /// One of the ready-made colours. [Accent.custom] needs [custom], so here it falls back to the base teal.
+  static Palette forAccent(Accent a, bool isDark) => (isDark ? _darkByAccent : _lightByAccent)[a] ?? (isDark ? dark : light);
+
+  static final Map<String, Palette> _customCache = {};
+
+  /// A palette for any colour of the wheel. Only the hue and the strength are chosen; the lightness is searched for, so the
+  /// accent always reads at least 4.5 to 1 on the page, the cards, the insets and its own tint, in light and in dark.
+  static Palette custom(double hue, double sat, bool isDark) {
+    final h = ((hue % 360) + 360) % 360;
+    final s = sat.clamp(0.15, 0.95).toDouble();
+    return _customCache.putIfAbsent('${h.round()}|${(s * 100).round()}|$isDark', () => _makeCustom(h.roundToDouble(), (s * 100).round() / 100, isDark));
+  }
+
+  static Palette _makeCustom(double h, double s, bool isDark) {
+    final b = isDark ? dark : light;
+    Color hsl(double sat, double l) => HSLColor.fromAHSL(1, h, sat.clamp(0.0, 1.0).toDouble(), l.clamp(0.0, 1.0).toDouble()).toColor();
+    final tint = isDark ? hsl(s * 0.55, 0.16) : hsl(s * 0.8, 0.91);
+    bool readable(Color c) => [b.bg, b.surface, b.inset, tint].every((bg) => contrastRatio(c, bg) >= 4.6);
+    var accent = hsl(s, isDark ? 0.62 : 0.48);
+    for (var i = 0; i < 80; i++) {
+      final l = isDark ? 0.62 + i * 0.005 : 0.48 - i * 0.005;
+      accent = hsl(s, l);
+      if (readable(accent)) break;
+    }
+    final onAccent = [isDark ? hsl(s * 0.9, 0.08) : b.surface, const Color(0xFFFFFFFF), const Color(0xFF000000)]
+        .firstWhere((c) => contrastRatio(accent, c) >= 4.5, orElse: () => contrastRatio(accent, const Color(0xFF000000)) > contrastRatio(accent, const Color(0xFFFFFFFF)) ? const Color(0xFF000000) : const Color(0xFFFFFFFF));
+    return Palette(
+      bg: b.bg,
+      surface: b.surface,
+      inset: b.inset,
+      ink: b.ink,
+      inkSoft: b.inkSoft,
+      line: b.line,
+      accent: accent,
+      onAccent: onAccent,
+      accentTint: tint,
+      marker: b.marker,
+      high: b.high,
+      highTint: b.highTint,
+      mid: b.mid,
+      midTint: b.midTint,
+      low: b.low,
+      lowTint: b.lowTint,
+      ok: b.ok,
+      okTint: b.okTint,
+      shadow: b.shadow,
+      sign: hsl(s * 0.7, isDark ? 0.12 : 0.17),
+      signInk: b.signInk,
+      wall: b.wall,
+      wallInk: b.wallInk,
+      markSolid: b.markSolid,
+    );
+  }
 
   // accent, text on the accent, soft tint, dark sign panel
   static const _lightAccents = <Accent, List<int>>{
@@ -168,8 +231,9 @@ class Palette {
   }
 }
 
-ThemeData buildTheme(Brightness b, {Accent accent = Accent.teal}) {
-  final p = Palette.forAccent(accent, b == Brightness.dark);
+ThemeData buildTheme(Brightness b, {Accent accent = Accent.teal, double hue = 200, double sat = 0.55}) {
+  final isDark = b == Brightness.dark;
+  final p = accent == Accent.custom ? Palette.custom(hue, sat, isDark) : Palette.forAccent(accent, isDark);
   final scheme = ColorScheme.fromSeed(seedColor: p.accent, brightness: b).copyWith(
     primary: p.accent,
     onPrimary: p.onAccent,

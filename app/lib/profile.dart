@@ -6,7 +6,10 @@ import 'fonts.dart';
 import 'local_store.dart';
 
 /// The colour the app uses for buttons, links and highlights.
-enum Accent { teal, terracotta, indigo, rose }
+enum Accent { teal, terracotta, indigo, rose, custom }
+
+/// The four ready-made colours. [Accent.custom] comes from the colour wheel.
+const presetAccents = <Accent>[Accent.teal, Accent.terracotta, Accent.indigo, Accent.rose];
 
 String accentLabel(Accent a) {
   switch (a) {
@@ -18,6 +21,8 @@ String accentLabel(Accent a) {
       return 'Indigo';
     case Accent.rose:
       return 'Rose';
+    case Accent.custom:
+      return 'Custom';
   }
 }
 
@@ -78,6 +83,8 @@ class Profile extends ChangeNotifier {
   String name = '';
   bool asked = false; // the name was asked for once (saved or skipped), so it is not asked again
   Accent accent = Accent.teal;
+  double customHue = 200; // from the colour wheel, 0 to 360
+  double customSat = 0.55; // how strong that colour is
   bool easyRead = false;
 
   /// Changes only when the colours or the font change, so the whole app does not rebuild while a name is typed.
@@ -88,7 +95,7 @@ class Profile extends ChangeNotifier {
 
   void _syncLook() {
     Fonts.easy = easyRead;
-    look.value = '${accent.name}|$easyRead';
+    look.value = '${accent.name}|$easyRead${accent == Accent.custom ? '|${customHue.round()}|${(customSat * 100).round()}' : ''}';
   }
 
   void load() {
@@ -100,6 +107,8 @@ class Profile extends ChangeNotifier {
           name = cleanName(j['name'] is String ? j['name'] as String : '');
           asked = j['asked'] == true || name.isNotEmpty;
           accent = accentByName(j['accent']) ?? Accent.teal;
+          customHue = j['hue'] is num && (j['hue'] as num).isFinite ? ((j['hue'] as num).toDouble() % 360 + 360) % 360 : 200;
+          customSat = j['sat'] is num && (j['sat'] as num).isFinite ? (j['sat'] as num).toDouble().clamp(0.15, 0.95).toDouble() : 0.55;
           easyRead = j['easy'] == true;
         }
       }
@@ -113,7 +122,7 @@ class Profile extends ChangeNotifier {
   void writeRaw(String value) => LocalStore.write(_key, value);
 
   void _save() {
-    LocalStore.write(_key, jsonEncode({'name': name, 'asked': asked, 'accent': accent.name, 'easy': easyRead}));
+    LocalStore.write(_key, jsonEncode({'name': name, 'asked': asked, 'accent': accent.name, 'hue': customHue, 'sat': customSat, 'easy': easyRead}));
   }
 
   void setName(String raw) {
@@ -137,6 +146,16 @@ class Profile extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// A colour picked on the wheel: [hue] 0 to 360, [sat] how strong it is. The app picks the lightness so text stays readable.
+  void setCustom(double hue, double sat) {
+    customHue = ((hue % 360) + 360) % 360;
+    customSat = sat.clamp(0.15, 0.95).toDouble();
+    accent = Accent.custom;
+    _save();
+    _syncLook();
+    notifyListeners();
+  }
+
   void setEasyRead(bool on) {
     easyRead = on;
     _save();
@@ -149,6 +168,8 @@ class Profile extends ChangeNotifier {
     name = '';
     asked = false;
     accent = Accent.teal;
+    customHue = 200;
+    customSat = 0.55;
     easyRead = false;
     LocalStore.remove(_key);
     _syncLook();

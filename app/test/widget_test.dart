@@ -514,10 +514,12 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('personalize')));
     await tester.pumpAndSettle();
     expect(find.text('Make it yours'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('accent-indigo')));
     await tester.tap(find.byKey(const ValueKey('accent-indigo')));
     await tester.pumpAndSettle();
     final ctx = tester.element(find.byKey(const ValueKey('profile-done')));
     expect(Theme.of(ctx).colorScheme.primary, Palette.forAccent(Accent.indigo, false).accent);
+    await tester.ensureVisible(find.byKey(const ValueKey('profile-done')));
     await tester.tap(find.byKey(const ValueKey('profile-done')));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);

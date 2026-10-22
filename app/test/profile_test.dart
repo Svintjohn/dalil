@@ -159,7 +159,7 @@ void main() {
   group('colours', () {
     test('every accent is readable in light and dark', () {
       for (final dark in [false, true]) {
-        for (final a in Accent.values) {
+        for (final a in presetAccents) {
           final p = Palette.forAccent(a, dark);
           final tag = '${a.name} dark=$dark';
           expect(contrast(p.accent, p.onAccent), greaterThanOrEqualTo(4.5), reason: '$tag on button');
@@ -171,8 +171,8 @@ void main() {
     });
 
     test('accents differ, and the rest of the palette stays', () {
-      final colours = {for (final a in Accent.values) Palette.forAccent(a, false).accent.toARGB32()};
-      expect(colours.length, Accent.values.length);
+      final colours = {for (final a in presetAccents) Palette.forAccent(a, false).accent.toARGB32()};
+      expect(colours.length, presetAccents.length);
       expect(Palette.forAccent(Accent.rose, false).bg, Palette.light.bg);
       expect(Palette.forAccent(Accent.rose, true).high, Palette.dark.high);
       expect(identical(Palette.forAccent(Accent.teal, false), Palette.light), isTrue);
@@ -275,15 +275,18 @@ void main() {
     testWidgets('picks a colour and switches the easy-read font', (tester) async {
       final prof = await open(tester, 'test.dialog.1');
       expect(prof.accent, Accent.teal);
+      await tester.ensureVisible(find.byKey(const ValueKey('accent-indigo')));
       await tester.tap(find.byKey(const ValueKey('accent-indigo')));
       await tester.pumpAndSettle();
       expect(prof.accent, Accent.indigo);
+      await tester.ensureVisible(find.byKey(const ValueKey('accent-rose')));
       await tester.tap(find.byKey(const ValueKey('accent-rose')));
       await tester.pumpAndSettle();
       expect(prof.accent, Accent.rose);
       expect(find.byIcon(Icons.check), findsOneWidget); // only the chosen one is ticked
 
       expect(prof.easyRead, isFalse);
+      await tester.ensureVisible(find.byKey(const ValueKey('easy-read')));
       await tester.tap(find.byKey(const ValueKey('easy-read')));
       await tester.pumpAndSettle();
       expect(prof.easyRead, isTrue);
@@ -298,6 +301,7 @@ void main() {
       expect(prof.name, 'Mae');
 
       await tester.enterText(find.byKey(const ValueKey('profile-name')), 'Mae Ann');
+      await tester.ensureVisible(find.byKey(const ValueKey('profile-done')));
       await tester.tap(find.byKey(const ValueKey('profile-done')));
       await tester.pumpAndSettle();
       expect(prof.name, 'Mae Ann');

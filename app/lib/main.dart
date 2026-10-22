@@ -33,8 +33,8 @@ class DalilApp extends StatelessWidget {
           builder: (context, _, ___) => MaterialApp(
             title: 'Dalil',
             debugShowCheckedModeBanner: false,
-            theme: buildTheme(Brightness.light, accent: Profile.instance.accent),
-            darkTheme: buildTheme(Brightness.dark, accent: Profile.instance.accent),
+            theme: buildTheme(Brightness.light, accent: Profile.instance.accent, hue: Profile.instance.customHue, sat: Profile.instance.customSat),
+            darkTheme: buildTheme(Brightness.dark, accent: Profile.instance.accent, hue: Profile.instance.customHue, sat: Profile.instance.customSat),
             themeMode: mode,
             builder: (context, child) {
               final mq = MediaQuery.of(context);

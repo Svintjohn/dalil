@@ -354,7 +354,7 @@ Cards lean a few degrees toward the mouse (`tilt.dart`). Touch screens have no h
 Everything here is kept in the browser on this device (`dalil.profile.v1`) and is removed by "Clear saved data".
 
 - **Name and greeting.** The page asks "What should we call you?" once, in the hero, with "Not now" to skip for good. After that it greets by name in the chosen language and time of day ("Magandang gabi, John"). Greetings exist for English, Tagalog, Arabic, Hindi, Urdu, Bangla, Nepali, French, Spanish and German; other languages use English. A native speaker should check them.
-- **Colour.** Teal (default), terracotta, indigo or rose, in light and dark. Every accent is tested for contrast (at least 4.5 to 1) against buttons, tints, cards and the page.
+- **Colour wheel.** 24 hues in 3 rings (vivid, soft, muted). Move the mouse over it to preview (the hub and a small preview show the colour), click to use it; on a phone touch, drag and lift. Arrow keys and Enter work too. Only the hue and strength are chosen; the app searches the lightness so the accent reads at least 4.5 to 1 on the page, cards, insets and its own tint, in light and dark (tested for all 144 cells). The four ready-made colours (teal, terracotta, indigo, rose) stay as quick picks.
 - **Easy-read font.** One switch changes the whole app to Lexend, with no tight letter spacing. It is an option, not a medical claim.
 - **Where.** Header icon (palette) or the phone menu, "Make it yours".
 

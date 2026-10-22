@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'cases.dart';
+import 'color_wheel.dart';
 import 'deadlines.dart';
 import 'due_soon.dart';
 import 'fonts.dart';
@@ -174,8 +175,8 @@ class _PersonalizeDialogState extends State<PersonalizeDialog> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           AnimatedContainer(
             duration: Motion.ms(context, 220),
-            width: 52,
-            height: 52,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(color: shade.accent, shape: BoxShape.circle, border: Border.all(color: on ? p.ink : p.line, width: on ? 3 : 1)),
             child: on ? Icon(Icons.check, color: shade.onAccent) : null,
           ),
@@ -191,7 +192,7 @@ class _PersonalizeDialogState extends State<PersonalizeDialog> {
     return Dialog(
       insetPadding: const EdgeInsets.all(14),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520, maxHeight: 700),
+        constraints: const BoxConstraints(maxWidth: 520, maxHeight: 820),
         child: AnimatedBuilder(
           animation: profile,
           builder: (context, _) {
@@ -223,8 +224,12 @@ class _PersonalizeDialogState extends State<PersonalizeDialog> {
                 ]),
                 const SizedBox(height: 22),
                 const Text('Colour', style: TextStyle(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 10),
-                Wrap(spacing: 14, runSpacing: 10, children: [for (final a in Accent.values) _swatch(context, a)]),
+                const SizedBox(height: 12),
+                ColorStudio(profile: profile),
+                const SizedBox(height: 16),
+                Text('Quick picks', style: TextStyle(fontWeight: FontWeight.w700, color: p.inkSoft, fontSize: 13)),
+                const SizedBox(height: 8),
+                Wrap(spacing: 14, runSpacing: 10, children: [for (final a in presetAccents) _swatch(context, a)]),
                 const SizedBox(height: 20),
                 Material(
                   color: p.inset,

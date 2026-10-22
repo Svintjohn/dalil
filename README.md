@@ -349,6 +349,33 @@ The footer has "Clear saved data on this device", the same confirmation as in Pr
 
 Cards lean a few degrees toward the mouse (`tilt.dart`). Touch screens have no hover, so nothing happens there, and nothing moves when the device asks for less motion.
 
+## Make it yours
+
+Everything here is kept in the browser on this device (`dalil.profile.v1`) and is removed by "Clear saved data".
+
+- **Name and greeting.** The page asks "What should we call you?" once, in the hero, with "Not now" to skip for good. After that it greets by name in the chosen language and time of day ("Magandang gabi, John"). Greetings exist for English, Tagalog, Arabic, Hindi, Urdu, Bangla, Nepali, French, Spanish and German; other languages use English. A native speaker should check them.
+- **Colour.** Teal (default), terracotta, indigo or rose, in light and dark. Every accent is tested for contrast (at least 4.5 to 1) against buttons, tints, cards and the page.
+- **Easy-read font.** One switch changes the whole app to Lexend, with no tight letter spacing. It is an option, not a medical claim.
+- **Where.** Header icon (palette) or the phone menu, "Make it yours".
+
+## Due this week
+
+The header shows "2 due this week" when open deadlines or unpaid amounts fall within 7 days, or are already late (red). A bill that has both a deadline and an amount in the same case counts once. Tapping it scrolls to the deadlines. No notification is ever sent; it only shows when the app is open.
+
+## My mixes (sound)
+
+In Sound studio, "Save this sound" stores the preset, the puck position and all six tuning sliders under a name (up to 6, 16 characters each). Tap a chip to bring it back, the x to delete it. "Reset defaults" keeps them; "Clear saved data" removes them.
+
+## Share as a picture
+
+On a result, "Picture" makes a 1080 by 1350 card: document type, the plain-language summary, the first three steps, a count of things to watch out for, and "Explained by Dalil". It is drawn in the browser and never uploaded. On a phone it opens the share sheet; if the browser cannot share files it downloads the PNG instead.
+
+What keeps it private:
+- The person's name, the quoted text of the document and the numbers of the document are never on it.
+- Emails, phone numbers and long reference or account numbers are always covered with dots.
+- "Hide amounts" (on by default) also covers money amounts. Dates, times, percentages and small counts such as "30 days" stay.
+- This is a pattern check, not a promise. The card is shown first so the person can look before sending.
+
 ## Support link
 
 The footer has a small coffee button that opens https://ko-fi.com/dalilapp in a new tab. It is a plain link: no widget, no script and no tracking from Ko-fi on the page.

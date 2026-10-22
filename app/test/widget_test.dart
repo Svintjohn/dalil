@@ -13,6 +13,7 @@ import 'package:dalil_app/main.dart';
 import 'package:dalil_app/models.dart';
 import 'package:dalil_app/skeleton.dart';
 import 'package:dalil_app/motion.dart';
+import 'package:dalil_app/profile.dart';
 import 'package:dalil_app/report_text.dart';
 import 'package:dalil_app/report_view.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,9 @@ void main() {
   setUp(() {
     Fonts.web = false;
     Motion.ambient = false;
+    Profile.instance.wipe();
   });
+  tearDown(() => Profile.instance.wipe());
 
   testWidgets('sample text can be reviewed and the result appears', (tester) async {
     tester.view.physicalSize = const Size(1400, 1600);
@@ -492,6 +495,46 @@ void main() {
     expect(find.text('Privacy'), findsOneWidget);
     expect(find.byTooltip('Text size'), findsOneWidget);
     expect(find.byTooltip('Light or dark'), findsOneWidget);
+  });
+
+  testWidgets('the page asks for a name once, greets by name, and the colour can be changed', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(DalilApp(api: FakeApi()));
+    await tester.pumpAndSettle();
+    expect(find.text('What should we call you?'), findsOneWidget);
+    await tester.enterText(find.byKey(const ValueKey('hello-name')), 'Ana');
+    await tester.tap(find.byKey(const ValueKey('hello-save')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining(', Ana'), findsOneWidget);
+    expect(find.text('What should we call you?'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('personalize')));
+    await tester.pumpAndSettle();
+    expect(find.text('Make it yours'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('accent-indigo')));
+    await tester.pumpAndSettle();
+    final ctx = tester.element(find.byKey(const ValueKey('profile-done')));
+    expect(Theme.of(ctx).colorScheme.primary, Palette.forAccent(Accent.indigo, false).accent);
+    await tester.tap(find.byKey(const ValueKey('profile-done')));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('phone: the menu has Make it yours', (tester) async {
+    tester.view.physicalSize = const Size(420, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(DalilApp(api: FakeApi()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Make it yours'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('profile-name')), findsOneWidget);
   });
 
   testWidgets('a placeholder shows while the first answer is on its way, then the page', (tester) async {

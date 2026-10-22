@@ -42,9 +42,10 @@ TextStyle h2Style(BuildContext context, {Color? color}) {
 }
 
 class HeroSection extends StatelessWidget {
-  const HeroSection({super.key, required this.onTry, required this.onHow, required this.languageCount});
+  const HeroSection({super.key, required this.onTry, required this.onHow, required this.languageCount, this.hello});
   final VoidCallback onTry, onHow;
   final int languageCount;
+  final Widget? hello; // a greeting, or a question about the person's name
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +54,7 @@ class HeroSection extends StatelessWidget {
     final size = wide ? 68.0 : 42.0;
     final head = Fonts.display(TextStyle(fontSize: size, height: 1.0, fontWeight: FontWeight.w700, letterSpacing: wide ? -2.6 : -1.5, color: p.ink));
     final left = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      if (hello != null) hello!,
       Reveal(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

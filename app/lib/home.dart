@@ -20,10 +20,12 @@ import 'photo.dart' deferred as photo; // the Dart image code is big, and only t
 import 'photo_engine.dart';
 import 'print_html.dart';
 import 'print_page.dart';
+import 'profile_ui.dart';
 import 'report_text.dart';
 import 'report_view.dart';
 import 'season_layer.dart';
 import 'settings.dart';
+import 'share_card.dart';
 import 'skeleton.dart';
 import 'sfx.dart';
 import 'sound_pill.dart';
@@ -90,6 +92,7 @@ class _HomePageState extends State<HomePage> {
   final howKey = GlobalKey();
   final langKey = GlobalKey();
   final casesKey = GlobalKey();
+  final dueKey = GlobalKey();
   bool speaking = false;
   ChatTurn? speakingTurn; // which answer is being read, or null for the whole report
   bool _askedByVoice = false;
@@ -386,6 +389,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _card() async {
+    final r = report;
+    if (r == null) return;
+    await showSpringDialog<void>(context, (_) => ShareCardDialog(report: r));
+  }
+
   Future<void> _copy() async {
     final r = report;
     if (r == null) return;
@@ -469,6 +478,10 @@ class _HomePageState extends State<HomePage> {
 
   void _sound() => openSoundStudio(context);
 
+  void _personalize() => openPersonalize(context);
+
+  void _goToDue() => _goTo(DeadlineStore.instance.items.value.isNotEmpty ? dueKey : casesKey);
+
   void _toggleTheme() => AppSettings.themeMode.value = Theme.of(context).brightness == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
 
   Widget _header(BuildContext context) {
@@ -547,6 +560,7 @@ class _HomePageState extends State<HomePage> {
                                 child: const Text('My cases'),
                               ),
                       ),
+                      Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: DueBadge(onTap: _goToDue)),
                       TextButton.icon(
                         onPressed: meta == null ? null : _privacy,
                         icon: Icon(Icons.lock_outline, size: 18, color: p.inkSoft),
@@ -554,6 +568,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       IconButton(tooltip: 'Text size', onPressed: AppSettings.nextTextSize, icon: Icon(Icons.text_fields, color: p.inkSoft)),
                       IconButton(tooltip: 'Sound studio', onPressed: _sound, icon: Icon(Icons.graphic_eq, color: p.inkSoft)),
+                      IconButton(key: const ValueKey('personalize'), tooltip: 'Make it yours', onPressed: _personalize, icon: Icon(Icons.palette_outlined, color: p.inkSoft)),
                       themeButton,
                       const SizedBox(width: 6),
                       Pressable(
@@ -569,6 +584,7 @@ class _HomePageState extends State<HomePage> {
                       )
                     else ...[
                       const Spacer(),
+                      DueBadge(compact: true, onTap: _goToDue),
                       themeButton,
                       PopupMenuButton<String>(
                         tooltip: 'Menu',
@@ -583,6 +599,7 @@ class _HomePageState extends State<HomePage> {
                           if (v == 'privacy') _privacy();
                           if (v == 'size') AppSettings.nextTextSize();
                           if (v == 'sound') _sound();
+                          if (v == 'personalize') _personalize();
                         },
                         itemBuilder: (context) => [
                           for (final n in links) PopupMenuItem<String>(value: n.$1, enabled: meta != null, child: Text(n.$2)),
@@ -590,6 +607,7 @@ class _HomePageState extends State<HomePage> {
                           const PopupMenuItem<String>(value: 'privacy', child: Text('Privacy')),
                           const PopupMenuItem<String>(value: 'size', child: Text('Text size')),
                           const PopupMenuItem<String>(value: 'sound', child: Text('Sound studio')),
+                          const PopupMenuItem<String>(value: 'personalize', child: Text('Make it yours')),
                         ],
                       ),
                     ],
@@ -942,6 +960,7 @@ class _HomePageState extends State<HomePage> {
                 _tool(context, speaking ? Icons.stop_circle_outlined : Icons.volume_up_outlined, speaking ? 'Stop' : 'Listen', _listen),
                 _tool(context, Icons.copy_outlined, 'Copy', _copy),
                 _tool(context, Icons.share_outlined, 'Share', _share),
+                _tool(context, Icons.image_outlined, 'Picture', _card),
                 _tool(context, Icons.picture_as_pdf_outlined, 'Save as PDF', _savePdf),
                 _tool(context, Icons.mail_outline, 'Draft a letter', _letter),
               ]),
@@ -1071,7 +1090,12 @@ class _HomePageState extends State<HomePage> {
     return SingleChildScrollView(
       controller: scroll,
       child: SmoothWheel(controller: scroll, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        RepaintBoundary(child: HeroSection(onTry: () => _goTo(toolKey), onHow: () => _goTo(howKey), languageCount: m.languages.length)),
+        RepaintBoundary(child: HeroSection(
+          onTry: () => _goTo(toolKey),
+          onHow: () => _goTo(howKey),
+          languageCount: m.languages.length,
+          hello: HelloStrip(languageCode: language?.code ?? 'en', rtl: language?.rtl ?? false),
+        )),
         LanguageTicker(languages: m.languages),
         Band(
           key: toolKey,
@@ -1107,7 +1131,7 @@ class _HomePageState extends State<HomePage> {
           ]),
         ),
         KeyedSubtree(key: casesKey, child: MyCasesSection(cases: CaseStore.instance, deadlines: DeadlineStore.instance)),
-        MyDeadlinesSection(store: DeadlineStore.instance),
+        KeyedSubtree(key: dueKey, child: MyDeadlinesSection(store: DeadlineStore.instance)),
         KeyedSubtree(key: howKey, child: const ScrollReveal(child: RepaintBoundary(child: RouteSection()))),
         KeyedSubtree(
           key: langKey,

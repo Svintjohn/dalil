@@ -138,6 +138,8 @@ class _SoundStudioState extends State<SoundStudio> {
     final p = Palette.of(context);
     final shown = sfxPresets.where((s) => group == 'All' || s.group == group).toList();
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      _mixes(context),
+      const SizedBox(height: 16),
       Wrap(spacing: 8, runSpacing: 8, children: [
         for (final g in ['All', ...sfxGroups])
           ChoiceChip(
@@ -190,6 +192,73 @@ class _SoundStudioState extends State<SoundStudio> {
         ]);
       }),
     ]);
+  }
+
+  Future<void> _saveMix() async {
+    final c = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Name this sound'),
+        content: TextField(
+          key: const ValueKey('mix-name'),
+          controller: c,
+          autofocus: true,
+          maxLength: 16,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+          decoration: const InputDecoration(hintText: 'For example: Quiet desk'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          FilledButton(key: const ValueKey('mix-save'), onPressed: () => Navigator.pop(ctx, c.text), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (name == null || !mounted) return;
+    sfx.saveMix(name);
+  }
+
+  Widget _mixes(BuildContext context) {
+    final p = Palette.of(context);
+    final full = sfx.mixes.length >= Sfx.maxMixes;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 10, 12, 14),
+      decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(16)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text('My mixes', style: Fonts.display(const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)))),
+          TextButton.icon(
+            key: const ValueKey('mix-save-open'),
+            onPressed: full ? null : _saveMix,
+            icon: const Icon(Icons.bookmark_add_outlined, size: 18),
+            label: const Text('Save this sound'),
+          ),
+        ]),
+        if (sfx.mixes.isEmpty)
+          Text('Pick a sound, tune it until it feels right, then save it here with a name.', style: TextStyle(color: p.inkSoft, height: 1.4, fontSize: 14))
+        else
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (var i = 0; i < sfx.mixes.length; i++)
+              InputChip(
+                key: ValueKey('mix-$i'),
+                label: Text(sfx.mixes[i].name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                avatar: const Icon(Icons.graphic_eq, size: 16),
+                onPressed: () => sfx.applyMix(i),
+                onDeleted: () => sfx.deleteMix(i),
+                deleteButtonTooltipMessage: 'Delete ${sfx.mixes[i].name}',
+                backgroundColor: p.surface,
+                side: BorderSide(color: p.line),
+                shape: const StadiumBorder(),
+              ),
+          ]),
+        if (full)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text('${Sfx.maxMixes} of ${Sfx.maxMixes} saved. Delete one to add another.', style: TextStyle(color: p.inkSoft, fontSize: 13)),
+          ),
+      ]),
+    );
   }
 
   Widget _matrix(BuildContext context) {

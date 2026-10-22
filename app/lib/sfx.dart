@@ -34,6 +34,66 @@ const sfxPresets = <SfxPreset>[
   SfxPreset('chime', 'Chime', 'Special', 'High and ringing', 0.95, 0.15),
 ];
 
+/// A sound the person saved by name: the preset, where the puck sits and all six tuning sliders.
+class SfxMix {
+  const SfxMix({
+    required this.name,
+    required this.presetId,
+    this.cx,
+    this.cy,
+    this.pitch = 0,
+    this.decay = 1,
+    this.bright = 0.5,
+    this.reverb = 0.15,
+    this.human = 0.25,
+    this.pan = 0.2,
+  });
+
+  final String name, presetId;
+  final double? cx, cy;
+  final double pitch, decay, bright, reverb, human, pan;
+
+  Map<String, dynamic> toJson() => {
+        'n': name,
+        'p': presetId,
+        if (cx != null && cy != null) ...{'cx': cx, 'cy': cy},
+        'pitch': pitch,
+        'decay': decay,
+        'bright': bright,
+        'reverb': reverb,
+        'human': human,
+        'pan': pan,
+      };
+
+  static SfxMix? fromJson(Object? j) {
+    if (j is! Map) return null;
+    final n = cleanMixName(j['n'] is String ? j['n'] as String : '');
+    final id = j['p'];
+    if (n.isEmpty || id is! String || !sfxPresets.any((p) => p.id == id)) return null;
+    double clampNum(Object? v, double d, double a, double b) => v is num && v.isFinite ? v.toDouble().clamp(a, b).toDouble() : d;
+    final hasXY = j['cx'] is num && j['cy'] is num;
+    return SfxMix(
+      name: n,
+      presetId: id,
+      cx: hasXY ? clampNum(j['cx'], 0.5, 0, 1) : null,
+      cy: hasXY ? clampNum(j['cy'], 0.5, 0, 1) : null,
+      pitch: clampNum(j['pitch'], 0, -12, 12),
+      decay: clampNum(j['decay'], 1, 0.4, 2.5),
+      bright: clampNum(j['bright'], 0.5, 0, 1),
+      reverb: clampNum(j['reverb'], 0.15, 0, 1),
+      human: clampNum(j['human'], 0.25, 0, 1),
+      pan: clampNum(j['pan'], 0.2, 0, 1),
+    );
+  }
+}
+
+/// A saved sound's name: trimmed, one space between words, at most 16 characters.
+String cleanMixName(String raw) {
+  final t = raw.replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (t.length <= 16) return t;
+  return t.substring(0, 16).trimRight();
+}
+
 class AmbientSound {
   const AmbientSound(this.id, this.name, this.hint, this.icon);
   final String id, name, hint;
@@ -72,6 +132,8 @@ class Sfx extends ChangeNotifier {
   bool chimes = true; // a sound when a result is ready or a scam is flagged
   double ambientVolume = 0.5;
   final Set<String> ambient = {};
+  static const maxMixes = 6;
+  final List<SfxMix> mixes = [];
 
   SfxPreset get preset => sfxPresets.firstWhere((p) => p.id == presetId, orElse: () => sfxPresets.first);
   double get puckX => customX ?? preset.x;
@@ -108,6 +170,14 @@ class Sfx extends ChangeNotifier {
           typing = j['typing'] != false;
           chimes = j['chimes'] != false;
           ambientVolume = _num(j['amb'], 0.5, 0, 1);
+          mixes.clear();
+          final saved = j['mixes'];
+          if (saved is List) {
+            for (final e in saved) {
+              final m = SfxMix.fromJson(e);
+              if (m != null && mixes.length < maxMixes && !mixes.any((x) => x.name.toLowerCase() == m.name.toLowerCase())) mixes.add(m);
+            }
+          }
         }
       }
     } catch (_) {}
@@ -137,6 +207,7 @@ class Sfx extends ChangeNotifier {
         'typing': typing,
         'chimes': chimes,
         'amb': ambientVolume,
+        if (mixes.isNotEmpty) 'mixes': [for (final m in mixes) m.toJson()],
       }),
     );
   }
@@ -232,6 +303,45 @@ class Sfx extends ChangeNotifier {
     _changed();
   }
 
+  /// Saves the sound in use under a name. A name that is already taken is replaced. Returns false when the list is full.
+  bool saveMix(String rawName) {
+    var name = cleanMixName(rawName);
+    if (name.isEmpty) name = 'My mix ${mixes.length + 1}';
+    final at = mixes.indexWhere((m) => m.name.toLowerCase() == name.toLowerCase());
+    if (at < 0 && mixes.length >= maxMixes) return false;
+    final mix = SfxMix(name: name, presetId: presetId, cx: customX, cy: customY, pitch: pitch, decay: decay, bright: bright, reverb: reverb, human: human, pan: pan);
+    if (at >= 0) {
+      mixes[at] = mix;
+    } else {
+      mixes.add(mix);
+    }
+    _changed();
+    return true;
+  }
+
+  void applyMix(int index) {
+    if (index < 0 || index >= mixes.length) return;
+    final m = mixes[index];
+    presetId = m.presetId;
+    customX = m.cx;
+    customY = m.cy;
+    pitch = m.pitch;
+    decay = m.decay;
+    bright = m.bright;
+    reverb = m.reverb;
+    human = m.human;
+    pan = m.pan;
+    _pushPreset();
+    sfxTune(pitch, decay, bright, reverb, human, pan);
+    _changed(preview: true);
+  }
+
+  void deleteMix(int index) {
+    if (index < 0 || index >= mixes.length) return;
+    mixes.removeAt(index);
+    _changed();
+  }
+
   void reset() {
     final keepOn = enabled;
     sfxStopAll();
@@ -258,6 +368,7 @@ class Sfx extends ChangeNotifier {
   /// Forgets everything: back to the defaults, sound off, nothing left in the browser.
   void wipe() {
     enabled = false; // so the reset below does not play a sound
+    mixes.clear();
     reset();
     sfxEnable(false);
     LocalStore.remove(_key);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'fonts.dart';
+import 'profile.dart';
 
 @immutable
 class Palette {
@@ -89,7 +90,56 @@ class Palette {
     markSolid: Color(0xFFF5B93A),
   );
 
-  static Palette of(BuildContext c) => Theme.of(c).brightness == Brightness.dark ? dark : light;
+  /// The palette for the current brightness and the accent colour the person picked.
+  static Palette of(BuildContext c) => forAccent(Profile.instance.accent, Theme.of(c).brightness == Brightness.dark);
+
+  static final Map<Accent, Palette> _lightByAccent = {for (final a in Accent.values) a: _tinted(light, a, false)};
+  static final Map<Accent, Palette> _darkByAccent = {for (final a in Accent.values) a: _tinted(dark, a, true)};
+
+  static Palette forAccent(Accent a, bool isDark) => (isDark ? _darkByAccent : _lightByAccent)[a]!;
+
+  // accent, text on the accent, soft tint, dark sign panel
+  static const _lightAccents = <Accent, List<int>>{
+    Accent.terracotta: [0xFFA84A2B, 0xFFFFFCF6, 0xFFF6E3D8, 0xFF4F2112],
+    Accent.indigo: [0xFF3B4BA8, 0xFFFFFCF6, 0xFFE1E4F6, 0xFF1D2560],
+    Accent.rose: [0xFFB03060, 0xFFFFFCF6, 0xFFF8E1E8, 0xFF561530],
+  };
+  static const _darkAccents = <Accent, List<int>>{
+    Accent.terracotta: [0xFFF09A78, 0xFF3A1507, 0xFF3A2118, 0xFF3A1A10],
+    Accent.indigo: [0xFF9FB0FF, 0xFF111A4A, 0xFF1A2145, 0xFF151C45],
+    Accent.rose: [0xFFF29AB8, 0xFF3F0F20, 0xFF3C1A27, 0xFF3A1424],
+  };
+
+  static Palette _tinted(Palette b, Accent a, bool isDark) {
+    final c = (isDark ? _darkAccents : _lightAccents)[a];
+    if (c == null) return b; // teal is the base palette
+    return Palette(
+      bg: b.bg,
+      surface: b.surface,
+      inset: b.inset,
+      ink: b.ink,
+      inkSoft: b.inkSoft,
+      line: b.line,
+      accent: Color(c[0]),
+      onAccent: Color(c[1]),
+      accentTint: Color(c[2]),
+      marker: b.marker,
+      high: b.high,
+      highTint: b.highTint,
+      mid: b.mid,
+      midTint: b.midTint,
+      low: b.low,
+      lowTint: b.lowTint,
+      ok: b.ok,
+      okTint: b.okTint,
+      shadow: b.shadow,
+      sign: Color(c[3]),
+      signInk: b.signInk,
+      wall: b.wall,
+      wallInk: b.wallInk,
+      markSolid: b.markSolid,
+    );
+  }
 
   Color sev(String s) {
     switch (s) {
@@ -118,8 +168,8 @@ class Palette {
   }
 }
 
-ThemeData buildTheme(Brightness b) {
-  final p = b == Brightness.dark ? Palette.dark : Palette.light;
+ThemeData buildTheme(Brightness b, {Accent accent = Accent.teal}) {
+  final p = Palette.forAccent(accent, b == Brightness.dark);
   final scheme = ColorScheme.fromSeed(seedColor: p.accent, brightness: b).copyWith(
     primary: p.accent,
     onPrimary: p.onAccent,

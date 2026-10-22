@@ -6,6 +6,7 @@ import 'deadlines.dart';
 import 'local_store.dart';
 import 'models.dart';
 import 'motion.dart';
+import 'profile.dart';
 import 'season.dart';
 import 'sfx.dart';
 import 'theme.dart';
@@ -296,7 +297,7 @@ Future<void> confirmClearSaved(BuildContext context, {CaseStore? cases, Deadline
     context: context,
     builder: (c) => AlertDialog(
       title: const Text('Delete all saved data?'),
-      content: const Text('This removes every saved case and deadline, your sound and decoration settings and the saved page data from this device. It cannot be undone. Your documents were never saved.'),
+      content: const Text('This removes every saved case and deadline, your name, colour and font choices, your sound and decoration settings and the saved page data from this device. It cannot be undone. Your documents were never saved.'),
       actions: [
         TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Keep it')),
         TextButton(key: const ValueKey('confirm-delete'), onPressed: () => Navigator.pop(c, true), child: const Text('Delete everything')),
@@ -308,6 +309,7 @@ Future<void> confirmClearSaved(BuildContext context, {CaseStore? cases, Deadline
     (deadlines ?? DeadlineStore.instance).clearAll();
     Sfx.instance.wipe();
     SeasonSettings.instance.wipe();
+    Profile.instance.wipe();
     LocalStore.remove(HttpDalilApi.metaKey);
     if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All saved data was deleted from this device.')));
   }

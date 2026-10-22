@@ -3,6 +3,7 @@ import 'package:dalil_app/fonts.dart';
 import 'package:dalil_app/landing.dart';
 import 'package:dalil_app/local_store.dart';
 import 'package:dalil_app/motion.dart';
+import 'package:dalil_app/profile.dart';
 import 'package:dalil_app/season.dart';
 import 'package:dalil_app/season_layer.dart';
 import 'package:dalil_app/sfx.dart';
@@ -164,6 +165,8 @@ void main() {
       LocalStore.write(HttpDalilApi.metaKey, '{"languages":[1]}');
       Sfx.instance.setEnabled(true);
       SeasonSettings.instance.setEnabled(false);
+      Profile.instance.setName('Ana');
+      Profile.instance.setAccent(Accent.rose);
 
       await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const Scaffold(body: SingleChildScrollView(child: SiteFooter()))));
       await tester.tap(find.byKey(const ValueKey('clear-storage')));
@@ -173,6 +176,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(LocalStore.read(HttpDalilApi.metaKey), isNotNull); // keeping it changes nothing
       expect(Sfx.instance.enabled, isTrue);
+      expect(Profile.instance.name, 'Ana');
 
       await tester.tap(find.byKey(const ValueKey('clear-storage')));
       await tester.pumpAndSettle();
@@ -181,6 +185,8 @@ void main() {
       expect(LocalStore.read(HttpDalilApi.metaKey), isNull);
       expect(Sfx.instance.enabled, isFalse);
       expect(SeasonSettings.instance.enabled, isTrue);
+      expect(Profile.instance.name, '');
+      expect(Profile.instance.accent, Accent.teal);
     });
   });
 }

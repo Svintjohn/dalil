@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dalil_app/api.dart';
 import 'package:dalil_app/cases.dart';
@@ -13,6 +15,7 @@ import 'package:dalil_app/main.dart';
 import 'package:dalil_app/models.dart';
 import 'package:dalil_app/skeleton.dart';
 import 'package:dalil_app/motion.dart';
+import 'package:dalil_app/pdf_pick.dart';
 import 'package:dalil_app/profile.dart';
 import 'package:dalil_app/report_text.dart';
 import 'package:dalil_app/report_view.dart';
@@ -481,6 +484,68 @@ void main() {
 
     await reveal(tester, find.byKey(const ValueKey('drop-zone')));
     expect(find.text('Add a photo of your document'), findsOneWidget);
+  });
+
+  group('PDF upload', () {
+    final png = base64Decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+
+    Future<void> open(WidgetTester tester, Future<PdfPick?> Function(int, int) picker) async {
+      tester.view.physicalSize = const Size(1400, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: HomePage(api: FakeApi(), pdfPicker: picker)));
+      await tester.pumpAndSettle();
+      await reveal(tester, find.byKey(const ValueKey('pdf-button')));
+    }
+
+    testWidgets('a PDF with text fills the text box and can be explained', (tester) async {
+      await open(tester, (_, __) async => const PdfPick.text('bill.pdf', 1, 'Dear customer, your bill is due on 28 November. Please pay it.'));
+      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.pumpAndSettle();
+      expect(find.text('Dear customer, your bill is due on 28 November. Please pay it.'), findsOneWidget);
+      await reveal(tester, find.text('Explain this'));
+      await tester.tap(find.text('Explain this'));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      expect(find.text('Two things to check.'), findsOneWidget);
+    });
+
+    testWidgets('a scanned PDF adds page pictures and says when pages were left out', (tester) async {
+      await open(tester, (room, __) async => PdfPick.pages('scan.pdf', 8, [Uint8List.fromList(png), Uint8List.fromList(png)]));
+      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Only the first 2 of 8 pages were added.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('drop-zone')), findsNothing);
+    });
+
+    testWidgets('the room left and the text limit are passed to the reader', (tester) async {
+      int? room, chars;
+      await open(tester, (r, c) async {
+        room = r;
+        chars = c;
+        return null;
+      });
+      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.pumpAndSettle();
+      expect(room, 6);
+      expect(chars, 30000);
+      expect(find.byKey(const ValueKey('drop-zone')), findsOneWidget); // closing the chooser changes nothing
+    });
+
+    testWidgets('a locked or broken PDF gets a calm message', (tester) async {
+      await open(tester, (_, __) async => const PdfPick.failed('x.pdf', 'locked'));
+      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('locked with a password'), findsOneWidget);
+    });
+
+    test('every failure code has its own sentence', () {
+      final all = {for (final c in ['locked', 'empty', 'unsupported', 'bad', null]) pdfProblem(c)};
+      expect(all.length, 4); // bad and null share one
+      for (final m in all) {
+        expect(m.toLowerCase(), contains('photo'));
+      }
+    });
   });
 
   testWidgets('desktop: the header has the nav links and a call-to-action', (tester) async {

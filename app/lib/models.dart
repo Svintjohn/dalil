@@ -339,6 +339,22 @@ class ReportScam {
   }
 }
 
+/// Where a suspected scam can be reported (from the verified registry), and the warning signs in plain English.
+class ScamReportPack {
+  const ScamReportPack({this.countryName = '', this.authorities = const [], this.signsEn = const []});
+  final String countryName;
+  final List<Authority> authorities;
+  final List<String> signsEn;
+
+  factory ScamReportPack.fromJson(Map<String, dynamic> j) => ScamReportPack(
+        countryName: _s(j['country_name']),
+        authorities: _l(j['authorities']).map((e) => Authority.fromJson(_m(e))).where((a) => a.name.trim().isNotEmpty).toList(),
+        signsEn: _l(j['signs_en']).map((e) => _s(e).trim()).where((e) => e.isNotEmpty).toList(),
+      );
+}
+
+ScamReportPack? _scamPackFrom(dynamic v) => v is Map ? ScamReportPack.fromJson(_m(v)) : null;
+
 ReportPrep? _prepFrom(dynamic v) {
   if (v is! Map) return null;
   final p = ReportPrep.fromJson(_m(v));
@@ -365,6 +381,7 @@ class Report {
     required this.checklist,
     required this.deadlines,
     required this.scam,
+    this.scamReport,
     required this.ifIgnored,
     required this.prep,
     required this.numberCheck,
@@ -387,6 +404,7 @@ class Report {
   final List<ChecklistItem> checklist;
   final List<ReportDeadline> deadlines;
   final ReportScam scam;
+  final ScamReportPack? scamReport; // only when the scam shield is showing
   final List<IgnoredItem> ifIgnored;
   final ReportPrep? prep; // what to bring and ask before a visit or call, when there is one
   final DueAmount? due;
@@ -422,6 +440,7 @@ class Report {
       checklist: _l(j['checklist']).map((e) => ChecklistItem.fromJson(_m(e))).toList(),
       deadlines: _l(j['deadlines']).map((e) => ReportDeadline.fromJson(_m(e))).where((d) => d.label.trim().isNotEmpty).toList(),
       scam: j['scam'] is Map ? ReportScam.fromJson(_m(j['scam'])) : const ReportScam(),
+      scamReport: _scamPackFrom(j['scam_report']),
       ifIgnored: _l(j['if_ignored'])
           .map((e) => IgnoredItem.fromJson(_m(e)))
           .where((i) => i.action.trim().isNotEmpty && i.consequence.trim().isNotEmpty)

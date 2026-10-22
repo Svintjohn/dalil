@@ -17,6 +17,7 @@ import 'landing.dart';
 import 'models.dart';
 import 'motion.dart';
 import 'photo.dart' deferred as photo; // the Dart image code is big, and only the fallback needs it
+import 'pdf_engine.dart';
 import 'photo_engine.dart';
 import 'print_html.dart';
 import 'print_page.dart';
@@ -52,11 +53,12 @@ class ChatTurn {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.api, this.openUrl, this.speaker, this.dictation});
+  const HomePage({super.key, required this.api, this.openUrl, this.speaker, this.dictation, this.pdfPicker});
   final DalilApi api;
   final Future<void> Function(String url)? openUrl;
   final Speaker? speaker;
   final Dictation? dictation;
+  final Future<PdfPick?> Function(int maxPages, int maxChars)? pdfPicker; // for tests
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -195,6 +197,56 @@ class _HomePageState extends State<HomePage> {
       });
       _check(p);
     }
+  }
+
+  /// A PDF: its text goes into the text box (the person can read and change it), a scan goes in as page pictures.
+  Future<void> _addPdf() async {
+    final max = meta?.maxImages ?? 6;
+    final maxChars = meta?.maxTextChars ?? 30000;
+    final room = max - pages.length;
+    if (room <= 0) {
+      setState(() => error = 'You can add up to $max pages.');
+      return;
+    }
+    PdfPick? r;
+    try {
+      r = widget.pdfPicker != null ? await widget.pdfPicker!(room, maxChars) : await pickPdf(maxPages: room, maxChars: maxChars);
+    } catch (_) {
+      r = const PdfPick.failed('', 'unsupported');
+    }
+    if (r == null || !mounted) return;
+    if (!r.ok) {
+      setState(() => error = pdfProblem(r!.error));
+      return;
+    }
+    if (r.isText) {
+      setState(() {
+        photoMode = false;
+        textCtl.text = r!.text!;
+        sampleId = null;
+        error = null;
+        blocking = [];
+        _lastCanReview = _canReview;
+      });
+      if (r.truncated) _say('This PDF is long. Dalil took the first $maxChars characters.');
+      return;
+    }
+    for (final bytes in r.pages) {
+      final p = PageShot(bytes);
+      setState(() {
+        photoMode = true;
+        pages.add(p);
+        error = null;
+        blocking = [];
+        sampleId = null;
+      });
+      _check(p);
+    }
+    if (r.total > r.pages.length) _say('Only the first ${r.pages.length} of ${r.total} pages were added.');
+  }
+
+  void _say(String m) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
   }
 
   Future<void> _check(PageShot p) async {
@@ -743,7 +795,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 14),
                         Text('Add a photo of your document', style: Fonts.display(const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3))),
                         const SizedBox(height: 4),
-                        Text('Tap here, or use the buttons below. One photo per page, up to ${meta?.maxImages ?? 6} pages.', textAlign: TextAlign.center, style: TextStyle(color: p.inkSoft, height: 1.4)),
+                        Text('Tap here, or use the buttons below. One photo per page, up to ${meta?.maxImages ?? 6} pages. PDFs work too.', textAlign: TextAlign.center, style: TextStyle(color: p.inkSoft, height: 1.4)),
                       ]),
                     ),
                   ),
@@ -756,6 +808,7 @@ class _HomePageState extends State<HomePage> {
       Wrap(spacing: 10, runSpacing: 10, children: [
         Pressable(enabled: !busy, child: FilledButton.icon(style: primary, onPressed: busy ? null : () => _addPhoto(ImageSource.camera), icon: const Icon(Icons.photo_camera_outlined), label: const Text('Take photo'))),
         Pressable(enabled: !busy, child: OutlinedButton.icon(style: secondary, onPressed: busy ? null : () => _addPhoto(ImageSource.gallery), icon: const Icon(Icons.photo_library_outlined), label: const Text('Choose photos'))),
+        Pressable(enabled: !busy, child: OutlinedButton.icon(key: const ValueKey('pdf-button'), style: secondary, onPressed: busy ? null : _addPdf, icon: const Icon(Icons.picture_as_pdf_outlined), label: const Text('Choose PDF'))),
       ]),
       if (tips.isNotEmpty) ...[
         const SizedBox(height: 8),
@@ -819,6 +872,15 @@ class _HomePageState extends State<HomePage> {
           }
         },
         decoration: const InputDecoration(hintText: 'Paste the text of a letter, notice, bill, message or contract.'),
+      ),
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          key: const ValueKey('pdf-button-text'),
+          onPressed: busy ? null : _addPdf,
+          icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
+          label: const Text('Open a PDF'),
+        ),
       ),
       if (samples.isNotEmpty) ...[
         const SizedBox(height: 10),

@@ -222,6 +222,24 @@ def _dedupe(rows: list[dict], key: str) -> list[dict]:
     return out
 
 
+def scam_report_pack(code: str | None, scam: dict) -> dict | None:
+    """Where a suspected scam can be reported, only from the verified registry, and its warning signs in plain English.
+
+    The office list comes from the authorities the registry marks as covering "scams" (each with its official page and a
+    phone number only when an official page shows it). No model is involved, so this works even when the AI is busy.
+    """
+    if scam.get("level") not in ("caution", "stop"):
+        return None
+    country = registry.get_country(code) if code else None
+    offices = []
+    if country:
+        for a in country.authorities:
+            if "scams" in a.covers:
+                offices.append({"ref": f"{country.country}:{a.id}", "name": a.name, "url": a.url, "phone": a.phone or "", "phone_source": a.phone_source or ""})
+    signs = [scam_mod.SIGNALS[c][1] for c in scam.get("signals", []) if c in scam_mod.SIGNALS][:6]
+    return {"country": country.country if country else None, "country_name": country.name if country else None, "authorities": offices[:4], "signs_en": signs}
+
+
 def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
     code = (raw.country or "").upper() or None
     country = registry.get_country(code) if code else None
@@ -333,6 +351,7 @@ def finalize_report(raw: RawReport, lang: Language, doc_text: str = "") -> dict:
         "checklist": [c.model_dump() for c in raw.checklist if c.task.strip()][:6],
         "deadlines": deadlines,
         "scam": scam,
+        "scam_report": scam_report_pack(code, scam),
         "if_ignored": ignored,
         "prep": prep,
         "number_check": number_check,

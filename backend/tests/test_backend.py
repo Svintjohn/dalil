@@ -1023,3 +1023,40 @@ def test_small_answers_are_not_compressed():
     r = c.get("/api/health", headers={"Accept-Encoding": "gzip"})
     assert r.status_code == 200 and r.json()["ok"] is True
     assert r.headers.get("content-encoding") != "gzip"
+
+
+# ---- Report this scam ----
+
+def test_scam_report_pack_lists_only_scam_offices_from_the_registry():
+    out = _fin({"country": "AE", "scam": {"level": "stop", "reasons": ["a short deadline"]}}, "Pay now with a gift card or your account will be blocked, send the OTP")
+    pack = out["scam_report"]
+    assert pack["country"] == "AE" and pack["country_name"]
+    refs = [a["ref"] for a in pack["authorities"]]
+    assert refs and all(r.startswith("AE:") for r in refs)
+    police = next(a for a in registry.get_country("AE").authorities if "scams" in a.covers)
+    assert f"AE:{police.id}" in refs
+    for a in pack["authorities"]:
+        assert a["url"].startswith("http")
+        assert not a["phone"] or a["phone_source"]  # a number is shown only with the official page that shows it
+    assert pack["signs_en"] and all(isinstance(x, str) for x in pack["signs_en"])
+
+
+def test_scam_report_pack_is_missing_for_ordinary_documents_and_safe_for_unknown_countries():
+    assert _fin({"country": "AE"})["scam_report"] is None
+    unknown = _fin({"country": "ZZ", "scam": {"level": "caution", "reasons": ["a link that is not official"]}})["scam_report"]
+    assert unknown["authorities"] == [] and unknown["country"] is None  # the app then shows the general advice
+    none_country = _fin({"scam": {"level": "caution", "reasons": ["x y"]}})["scam_report"]
+    assert none_country["authorities"] == []
+
+
+def test_every_country_scam_office_has_an_official_link():
+    for code, c in registry.load_all().items():
+        for a in c.authorities:
+            if "scams" in a.covers:
+                assert a.url.startswith("https://"), (code, a.id)
+
+
+def test_report_scam_labels_exist():
+    from dalil import prompts
+
+    assert {"report_scam", "report_where", "report_msg", "report_none"} <= set(prompts.LABEL_KEYS)

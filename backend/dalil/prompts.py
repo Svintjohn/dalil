@@ -49,6 +49,10 @@ LABEL_KEYS = {
     "scam_caution": "Be careful with this one",
     "scam_steps": "Do not pay, send any code or open any link in it. Check with the office through its official app or website, typing the address yourself, or call a number you find yourself. Keep the message and ask someone you trust.",
     "scam_note": "Dalil cannot tell if this is genuine. These are warning signs only.",
+    "report_scam": "Report this scam",
+    "report_where": "Where to report it",
+    "report_msg": "A message you can send",
+    "report_none": "Report it to the police or the cyber-crime unit in the country where you received it.",
 }
 
 BASE = """You are Dalil, a plain-language helper. You help a person understand any document, letter, form, notice, bill, message, sign or screenshot that is hard for them to read or understand: government letters and forms, school notices, bills and bank messages, medical papers, visa and immigration papers, contracts, job offers, rental agreements, fines and anything similar. The person may be a migrant worker, a student, a parent or anyone who struggles with the language or the wording. Your goal is to remove misunderstanding: say what it is, say what it means in simple words, say what the person must do and by when, and point out anything unusual. You are not a lawyer, doctor or accountant and you never give legal, medical or financial advice.

@@ -17,7 +17,7 @@ has been handed something confusing.
 
 ## What it does
 
-- **Reads photos or pasted text.** Up to 6 pages per document.
+- **Reads photos, PDFs or pasted text.** Up to 6 pages per document.
 - **Explains it in your language.** 71 languages, shown next to the original wording, line by line.
 - **Flags the risky parts.** Unusual or one-sided terms, deadlines, and messages that look like scams.
 - **Shows its sources.** Rules come from a registry of official pages, each with a link and the date it was last checked.
@@ -154,6 +154,15 @@ closes. With "reduce motion" turned on in the system it shows for about 1 second
 The site can be installed on a phone or computer. In Chrome or Edge use the install icon in the address bar. On an iPhone
 use Share, then Add to Home Screen. Reading a document still needs an internet connection, because the AI runs on the server.
 
+## PDFs
+
+"Choose PDF" opens a PDF from the phone or computer. It is read in the browser (`app/web/dalil_pdf.js`, with the PDF.js reader in `app/web/pdfjs`, loaded only when a PDF is chosen). Nothing is uploaded until the person presses Explain.
+
+- A PDF with real text goes into the text box, so the person can read and change it. The words then go through the same personal-data masking as pasted text.
+- A scan becomes page pictures (up to the page limit), and goes through the same photo check as a photo.
+- A PDF in Arabic script is always read from pictures, because text pulled out of a PDF can come out in the wrong order.
+- A locked, broken or empty PDF gets a calm message that points to photos instead.
+
 ## Cases and deadlines
 
 A case keeps a short summary of each document (what it is, key details, next steps, how many things to watch) and the notes you add. Photos and full text are never saved. Everything lives in the browser's local storage, so clearing browser data removes it.
@@ -182,6 +191,14 @@ Dalil checks every document for warning signs of a scam and shows a calm card at
 - The model's own view is combined with the rules. The model alone cannot raise the level to "stop", and one weak sign alone shows nothing.
 - Dalil never says a document is a scam and never says it is safe. It only says what warning signs it sees and tells the person to check with the real office, typing the address themselves.
 - When the level is "stop", deadlines are not offered for tracking, so a scam's payment date never lands in the person's calendar.
+
+## Report this scam
+
+When the scam shield shows (caution or stop), the report has a "Report this scam" box:
+
+- **Where to report it.** The offices come from the verified rules registry: every authority that covers `scams` for the document's country, with its official page and a phone number only when an official page shows it. No AI is involved, so it also works when the AI is busy. If the country is unknown or has no scam office listed, the box gives the general advice (police or the cyber-crime unit).
+- **A message you can send.** A fixed English template with the warning signs in plain English and blanks for the date, sender, what the person did and their name. It never contains amounts, names or numbers from the document. "Copy" puts it on the clipboard.
+- The headings follow the reply language (labels `report_scam`, `report_where`, `report_msg`, `report_none`).
 
 ## If you do nothing
 

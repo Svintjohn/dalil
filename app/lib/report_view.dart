@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'deadlines.dart';
 import 'fonts.dart';
 import 'models.dart';
 import 'motion.dart';
+import 'scam_report.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -118,6 +120,50 @@ class _ReportViewState extends State<ReportView> {
         ),
         const SizedBox(height: 10),
         Text(r.label('scam_note', 'Dalil cannot tell if this is genuine. These are warning signs only.'), style: TextStyle(fontSize: 13, color: p.inkSoft, height: 1.4)),
+        if (r.scamReport != null) ...[
+          const SizedBox(height: 12),
+          _reportScam(context, r.scamReport!),
+        ],
+      ]),
+    );
+  }
+
+  /// Where to report it and a message to send. The offices come from the verified registry; the message is a fixed template.
+  Widget _reportScam(BuildContext context, ScamReportPack pack) {
+    final p = Palette.of(context);
+    return Disclosure(
+      key: const ValueKey('scam-report'),
+      icon: Icons.campaign_outlined,
+      title: r.label('report_scam', 'Report this scam'),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(r.label('report_where', 'Where to report it'), style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        if (pack.authorities.isEmpty)
+          Text(r.label('report_none', 'Report it to the police or the cyber-crime unit in the country where you received it.'), style: const TextStyle(height: 1.45))
+        else
+          for (final a in pack.authorities) Padding(padding: const EdgeInsets.only(bottom: 8), child: _authority(context, a)),
+        const SizedBox(height: 10),
+        Text(r.label('report_msg', 'A message you can send'), style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: p.inset, borderRadius: BorderRadius.circular(12)),
+          child: SelectableText(scamReportMessage(r), key: const ValueKey('scam-report-text'), textDirection: TextDirection.ltr, style: const TextStyle(fontSize: 14, height: 1.5)),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: OutlinedButton.icon(
+            key: const ValueKey('scam-report-copy'),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: scamReportMessage(r)));
+              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied. Fill in the brackets, then send it.')));
+            },
+            icon: const Icon(Icons.copy_outlined, size: 18),
+            label: const Text('Copy'),
+          ),
+        ),
       ]),
     );
   }

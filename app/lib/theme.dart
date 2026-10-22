@@ -231,6 +231,17 @@ class Palette {
   }
 }
 
+/// The tint a button takes on while the pointer is over it, and while it is pressed.
+WidgetStateProperty<Color?> _wash(Color base, int hover, int pressed) => WidgetStateProperty.resolveWith((s) {
+      if (s.contains(WidgetState.pressed)) return base.withAlpha(pressed);
+      if (s.contains(WidgetState.hovered)) return base.withAlpha(hover);
+      if (s.contains(WidgetState.focused)) return base.withAlpha(hover);
+      return null;
+    });
+
+/// A clear outline for keyboard focus, so people who tab through the page always see where they are.
+WidgetStateProperty<BorderSide?> _ring(Color ink, {BorderSide? rest}) => WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.focused) ? BorderSide(color: ink, width: 2.2) : rest);
+
 ThemeData buildTheme(Brightness b, {Accent accent = Accent.teal, double hue = 200, double sat = 0.55}) {
   final isDark = b == Brightness.dark;
   final p = accent == Accent.custom ? Palette.custom(hue, sat, isDark) : Palette.forAccent(accent, isDark);
@@ -274,6 +285,9 @@ ThemeData buildTheme(Brightness b, {Accent accent = Accent.teal, double hue = 20
         minimumSize: const Size(0, 48),
         shape: shape,
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
+      ).copyWith(
+        overlayColor: _wash(p.onAccent, 30, 56),
+        side: _ring(p.ink),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -283,10 +297,16 @@ ThemeData buildTheme(Brightness b, {Accent accent = Accent.teal, double hue = 20
         side: BorderSide(color: p.ink.withAlpha(70), width: 1.2),
         shape: shape,
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
+      ).copyWith(
+        overlayColor: _wash(p.ink, 14, 30),
+        side: _ring(p.ink, rest: BorderSide(color: p.ink.withAlpha(70), width: 1.2)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: p.accent, shape: shape, textStyle: const TextStyle(fontWeight: FontWeight.w700)),
+      style: TextButton.styleFrom(foregroundColor: p.accent, shape: shape, textStyle: const TextStyle(fontWeight: FontWeight.w700)).copyWith(
+        overlayColor: _wash(p.accent, 20, 40),
+        side: _ring(p.ink),
+      ),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,

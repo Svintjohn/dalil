@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'deadlines.dart';
@@ -5,6 +7,7 @@ import 'fonts.dart';
 import 'models.dart';
 import 'motion.dart';
 import 'theme.dart';
+import 'widgets.dart';
 
 class ReportView extends StatefulWidget {
   const ReportView({super.key, required this.report, required this.onOpen});
@@ -24,8 +27,12 @@ class _ReportViewState extends State<ReportView> {
   Widget _heading(BuildContext context, String text) {
     final p = Palette.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 36, bottom: 14),
-      child: Text(text, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: p.inkSoft)),
+      padding: const EdgeInsets.only(top: 40, bottom: 14),
+      child: Row(children: [
+        Container(width: 4, height: 18, decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(2))),
+        const SizedBox(width: 10),
+        Flexible(child: Text(text, style: Fonts.display(TextStyle(fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -0.3, color: p.ink)))),
+      ]),
     );
   }
 
@@ -165,7 +172,7 @@ class _ReportViewState extends State<ReportView> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(r.label('due_amount', 'Amount due'), style: TextStyle(color: p.inkSoft, fontSize: 13, fontWeight: FontWeight.w600)),
-            Text(d.money, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, height: 1.3)),
+            Text(d.money, style: Fonts.display(const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.5))),
             if (d.label.isNotEmpty) Text(d.label, style: TextStyle(color: p.inkSoft, height: 1.4)),
             if (when.isNotEmpty) Text('${r.label('due_by', 'Pay by')} $when', style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4)),
             if (d.check)
@@ -253,10 +260,12 @@ class _ReportViewState extends State<ReportView> {
     final p = Palette.of(context);
     final sev = const ['high', 'medium', 'low'].contains(f.severity) ? f.severity : 'medium';
     final scam = f.kind == 'scam_signal';
-    return Container(
-      margin: const EdgeInsets.only(bottom: 22),
-      padding: const EdgeInsetsDirectional.only(start: 16),
-      decoration: BoxDecoration(border: BorderDirectional(start: BorderSide(color: p.sev(sev), width: 3))),
+    return PremiumCard(
+      margin: const EdgeInsets.only(bottom: 16),
+      stripe: p.sev(sev),
+      tint: p.sevTint(sev).withAlpha(70),
+      padding: const EdgeInsetsDirectional.fromSTEB(22, 16, 18, 16),
+      lift: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -545,9 +554,29 @@ class _ReportViewState extends State<ReportView> {
     ]);
   }
 
+  /// Each part of the result comes in a little after the one before it, so the page builds itself instead of appearing all at once.
+  Widget _in(int i, Widget child) => Reveal(delayMs: i == 0 ? 0 : math.min(i, 6) * 70, lift: 0.025, child: child);
+
+  Widget _group(String heading, List<Widget> body) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_heading(context, heading), ...body]);
+
   @override
   Widget build(BuildContext context) {
     final p = Palette.of(context);
+    final groups = <Widget>[
+      if (r.recognized) ...[
+        if (r.nextSteps.isNotEmpty) _group(r.label('next_steps', 'What to do'), [_nextSteps(context)]),
+        if (r.ifIgnored.isNotEmpty || (r.deadlines.isNotEmpty && !r.scam.stop)) _group(r.label('if_ignored', 'If you do nothing'), [_ifIgnored(context)]),
+        if (r.prep != null) _group(r.label('prep', 'Before you go'), [_prep(context)]),
+        if (r.points.isNotEmpty) _group(r.label('plain_words', 'In plain words'), [_plainWords(context)]),
+        if (r.keyFacts.isNotEmpty) _group(r.label('key_facts', 'Key details'), [_keyFacts(context)]),
+        if (r.numberCheck != null) _group(r.label('numbers', 'Number check'), [_numberCheck(context)]),
+        if (r.findings.isNotEmpty) _group(r.label('watch_out', 'Watch out'), [for (final f in r.findings) _finding(context, f)]),
+        if (r.terms.isNotEmpty) _group(r.label('terms', 'Hard words explained'), [_terms(context)]),
+        if (r.checklist.isNotEmpty) _group(r.label('checklist', 'Your checklist'), [_checklist(context)]),
+        if (r.notSure.isNotEmpty) _group(r.label('not_sure', 'Not sure about'), [Text(r.notSure, style: TextStyle(color: p.inkSoft, height: 1.5))]),
+      ],
+    ];
     return Directionality(
       textDirection: r.rtl ? TextDirection.rtl : TextDirection.ltr,
       child: Column(
@@ -566,21 +595,11 @@ class _ReportViewState extends State<ReportView> {
               child: Text('Checked against official sources of ${r.countryName}, last verified ${r.registryChecked}.', style: TextStyle(fontSize: 13, color: p.inkSoft)),
             ),
           const SizedBox(height: 12),
-          Text(r.summary, style: Fonts.display(const TextStyle(fontSize: 27, fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.6))),
+          _in(0, Text(r.summary, style: Fonts.display(const TextStyle(fontSize: 27, fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.6)))),
           if (r.recognized) ...[
             const SizedBox(height: 18),
-            _overview(context),
-            if (r.due != null) _due(context),
-            if (r.nextSteps.isNotEmpty) ...[_heading(context, r.label('next_steps', 'What to do')), _nextSteps(context)],
-            if (r.ifIgnored.isNotEmpty || (r.deadlines.isNotEmpty && !r.scam.stop)) ...[_heading(context, r.label('if_ignored', 'If you do nothing')), _ifIgnored(context)],
-            if (r.prep != null) ...[_heading(context, r.label('prep', 'Before you go')), _prep(context)],
-            if (r.points.isNotEmpty) ...[_heading(context, r.label('plain_words', 'In plain words')), _plainWords(context)],
-            if (r.keyFacts.isNotEmpty) ...[_heading(context, r.label('key_facts', 'Key details')), _keyFacts(context)],
-            if (r.numberCheck != null) ...[_heading(context, r.label('numbers', 'Number check')), _numberCheck(context)],
-            if (r.findings.isNotEmpty) ...[_heading(context, r.label('watch_out', 'Watch out')), for (final f in r.findings) _finding(context, f)],
-            if (r.terms.isNotEmpty) ...[_heading(context, r.label('terms', 'Hard words explained')), _terms(context)],
-            if (r.checklist.isNotEmpty) ...[_heading(context, r.label('checklist', 'Your checklist')), _checklist(context)],
-            if (r.notSure.isNotEmpty) ...[_heading(context, r.label('not_sure', 'Not sure about')), Text(r.notSure, style: TextStyle(color: p.inkSoft, height: 1.5))],
+            _in(1, Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_overview(context), if (r.due != null) _due(context)])),
+            for (var i = 0; i < groups.length; i++) _in(i + 2, groups[i]),
           ],
           if (r.closing.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 32), child: Text(r.closing, style: TextStyle(color: p.inkSoft, fontSize: 14, height: 1.5))),
         ],

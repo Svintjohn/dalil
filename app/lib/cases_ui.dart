@@ -1,9 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'cases.dart';
 import 'deadlines.dart';
+import 'fonts.dart';
 import 'landing.dart';
 import 'models.dart';
+import 'motion.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -212,7 +216,13 @@ class MyCasesSection extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 760),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 MoneyDueCard(key: const ValueKey('money-due'), due: moneyDue(list), cases: cases),
-                for (final c in sorted) _CaseCard(key: ValueKey(c.id), item: c, cases: cases, deadlines: deadlines),
+                for (var i = 0; i < sorted.length; i++)
+                  Reveal(
+                    key: ValueKey('reveal-${sorted[i].id}'),
+                    delayMs: math.min(i, 5) * 60,
+                    lift: 0.03,
+                    child: _CaseCard(key: ValueKey(sorted[i].id), item: sorted[i], cases: cases, deadlines: deadlines),
+                  ),
               ]),
             ),
           ]),
@@ -234,15 +244,15 @@ class MoneyDueCard extends StatelessWidget {
     final p = Palette.of(context);
     final totals = due.totals;
     final allPaid = due.unpaid.isEmpty;
-    return Container(
+    return PremiumCard(
       margin: const EdgeInsets.only(bottom: 18),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: p.line)),
+      padding: const EdgeInsetsDirectional.fromSTEB(24, 18, 18, 18),
+      stripe: allPaid ? p.ok : p.accent,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           Icon(Icons.payments_outlined, color: p.accent),
           const SizedBox(width: 10),
-          const Expanded(child: Text('Money due', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
+          Expanded(child: Text('Money due', style: Fonts.display(const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, letterSpacing: -0.3)))),
         ]),
         const SizedBox(height: 10),
         if (allPaid)
@@ -255,7 +265,7 @@ class MoneyDueCard extends StatelessWidget {
           for (final e in totals.entries)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: Text('${e.key} ${formatAmount(e.value)} still to pay', key: ValueKey('money-total-${e.key}'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, height: 1.3)),
+              child: Text('${e.key} ${formatAmount(e.value)} still to pay', key: ValueKey('money-total-${e.key}'), style: Fonts.display(const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.5))),
             ),
         const SizedBox(height: 8),
         for (final i in due.items) _row(context, i),
@@ -406,19 +416,19 @@ class _CaseCardState extends State<_CaseCard> {
     final p = Palette.of(context);
     final c = widget.item;
     final n = c.entries.length;
-    return Container(
+    return PremiumCard(
       margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: p.line)),
+      stripe: c.closed ? p.ok : p.accent,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: () => setState(() => open = !open),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsetsDirectional.fromSTEB(22, 16, 16, 16),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(c.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, height: 1.3)),
+                  Text(c.title, style: Fonts.display(const TextStyle(fontSize: 19, fontWeight: FontWeight.w700, height: 1.3, letterSpacing: -0.2))),
                   const SizedBox(height: 2),
                   Text('${n == 1 ? '1 update' : '$n updates'}  ·  last ${fmtDate(c.lastUpdate)}', style: TextStyle(color: p.inkSoft, fontSize: 13)),
                   ValueListenableBuilder<List<TrackedDeadline>>(

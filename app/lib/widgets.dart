@@ -33,6 +33,68 @@ class Sheet extends StatelessWidget {
   }
 }
 
+/// A solid card: a thin ink border, a flat shadow, and a colour stripe on the leading edge that says how urgent or how done
+/// it is. With a pointer over it, it rises a little and the border darkens. Nothing moves for people who asked for less motion.
+class PremiumCard extends StatefulWidget {
+  const PremiumCard({
+    super.key,
+    required this.child,
+    this.stripe,
+    this.tint,
+    this.radius = 18,
+    this.padding = EdgeInsets.zero,
+    this.margin = EdgeInsets.zero,
+    this.lift = true,
+  });
+  final Widget child;
+  final Color? stripe; // the 4 pixel bar on the leading edge
+  final Color? tint; // a soft wash over the whole card
+  final double radius;
+  final EdgeInsetsGeometry padding, margin;
+  final bool lift;
+
+  @override
+  State<PremiumCard> createState() => _PremiumCardState();
+}
+
+class _PremiumCardState extends State<PremiumCard> {
+  bool hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    final up = hover && widget.lift && !Motion.reduced(context);
+    final r = BorderRadius.circular(widget.radius);
+    final stripe = widget.stripe;
+    return Padding(
+      padding: widget.margin,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => hover = true),
+        onExit: (_) => setState(() => hover = false),
+        child: AnimatedContainer(
+          duration: Motion.ms(context, 280),
+          curve: Motion.smooth,
+          transform: Matrix4.translationValues(0, up ? -2 : 0, 0),
+          decoration: BoxDecoration(
+            color: p.surface,
+            borderRadius: r,
+            border: Border.all(color: hover ? p.ink.withAlpha(110) : p.ink.withAlpha(46), width: 1.2),
+            boxShadow: [BoxShadow(color: p.ink.withAlpha(up ? 34 : 14), offset: Offset(0, up ? 8 : 4), blurRadius: up ? 14 : 0)],
+          ),
+          child: ClipRRect(
+            borderRadius: r,
+            child: Stack(children: [
+              if (widget.tint != null) Positioned.fill(child: ColoredBox(color: widget.tint!)),
+              Padding(padding: widget.padding, child: widget.child),
+              if (stripe != null) PositionedDirectional(start: 0, top: 0, bottom: 0, width: 4, child: ColoredBox(key: const ValueKey('card-stripe'), color: stripe)),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// A card that rises a little when the pointer is over it.
 class HoverLift extends StatefulWidget {
   const HoverLift({super.key, required this.child, this.radius = 18, this.color, this.padding = const EdgeInsets.all(16)});

@@ -1,9 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'deadlines.dart';
 import 'download.dart';
 import 'landing.dart';
+import 'motion.dart';
 import 'theme.dart';
+import 'widgets.dart';
 
 void _say(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
@@ -44,7 +48,13 @@ class MyDeadlinesSection extends StatelessWidget {
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 760),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                for (final d in sorted) _DeadlineRow(key: ValueKey(d.id), item: d, store: store, now: now),
+                for (var i = 0; i < sorted.length; i++)
+                  Reveal(
+                    key: ValueKey('reveal-${sorted[i].id}'),
+                    delayMs: math.min(i, 5) * 60,
+                    lift: 0.03,
+                    child: _DeadlineRow(key: ValueKey(sorted[i].id), item: sorted[i], store: store, now: now),
+                  ),
                 const SizedBox(height: 8),
                 Wrap(spacing: 12, runSpacing: 8, children: [
                   OutlinedButton.icon(
@@ -127,10 +137,10 @@ class _DeadlineRow extends StatelessWidget {
             label: Text(item.withinDays != null ? 'Set the day you got it' : 'Set the date'),
           )
         : null;
-    return Container(
+    return PremiumCard(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.fromLTRB(8, 12, 14, 8),
-      decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: p.line)),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 14, 8),
+      stripe: st.level == 'none' ? p.inkSoft.withAlpha(90) : fg,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Checkbox(value: item.done, onChanged: (_) => store.toggleDone(item.id)),

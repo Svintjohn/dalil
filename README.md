@@ -376,6 +376,13 @@ What keeps it private:
 - "Hide amounts" (on by default) also covers money amounts. Dates, times, percentages and small counts such as "30 days" stay.
 - This is a pattern check, not a promise. The card is shown first so the person can look before sending.
 
+## Premium feel
+
+- Cards (findings, My cases, Money due, deadlines) share one `PremiumCard`: thin ink border, flat shadow, a colour stripe on the leading edge that shows urgency or done, and a small lift under a pointer.
+- Result sections and list cards fade and slide in one after another as they appear (`Reveal`). Nothing moves for people who asked for reduced motion.
+- Buttons get a soft hover/pressed wash and a clear focus ring, for keyboard users too.
+- Headlines and money totals use the display font, so the page has a clear order of reading.
+
 ## Support link
 
 The footer has a small coffee button that opens https://ko-fi.com/dalilapp in a new tab. It is a plain link: no widget, no script and no tracking from Ko-fi on the page.

@@ -36,6 +36,9 @@ class FakeApi implements DalilApi {
         'samples': [
           {'id': 'rent', 'title': 'Rental contract', 'text': 'A made-up rental contract text that is long enough.'}
         ],
+        'form_samples': [
+          {'id': 'form_card', 'title': 'Library card form', 'text': 'Full name ______ Date of birth ______ Signature ______'}
+        ],
         'photo_tips': ['Lay the page flat.'],
         'privacy': {'headline': 'Your document is not saved', 'points': ['Nothing is stored.']},
       });
@@ -61,7 +64,7 @@ class FakeApi implements DalilApi {
       Letter.fromJson({'letter_en': 'Dear landlord'});
   List<String> formCalls = [];
   @override
-  Future<FormHelp> form({required List<String> images, String? text, required String language, String? country}) async {
+  Future<FormHelp> form({required List<String> images, String? text, required String language, String? country, String? sampleId}) async {
     formCalls.add(text ?? '');
     return FormHelp.fromJson({
       'is_form': true,
@@ -597,6 +600,9 @@ void main() {
     await tester.tap(find.text('Paste text'));
     await tester.pumpAndSettle();
     expect(find.text('Rental contract'), findsNothing); // the made-up examples are for documents, not forms
+    await tester.tap(find.text('Library card form')); // but there are made-up forms to try
+    await tester.pump();
+    expect(find.text('Library card form'), findsOneWidget);
     await tester.enterText(find.byWidgetPredicate((w) => w is TextField && (w.decoration?.hintText ?? '').contains('Paste the text')), 'Full name ______  Passport number ______  Signature ______');
     await tester.pump();
     await reveal(tester, find.text('Help me fill it in'));

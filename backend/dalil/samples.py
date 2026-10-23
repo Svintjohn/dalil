@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from .agent import finalize_report
+from .agent import finalize_form, finalize_report
 from .languages import get_language
 from .models import RawReport
 
@@ -313,3 +313,82 @@ def saved_report(sample_id: str | None) -> dict | None:
     report = finalize_report(RawReport.model_validate(s["raw"]), get_language("en"))
     report["saved"] = True
     return report
+
+
+# Made-up blank forms for "Fill in a form". Their results are saved, so trying one costs nothing and always works.
+FORM_SAMPLES: dict[str, dict] = {
+    "form_card": {
+        "title": "Library card form",
+        "note": "A simple form",
+        "text": (
+            "CITY LIBRARY - MEMBERSHIP APPLICATION\n\n"
+            "Full name: ____________\nDate of birth: ____________\nHome address: ____________\n"
+            "Phone number: ____________\nID number: ____________\n"
+            "Membership type (tick one): Adult / Student / Senior\n"
+            "Do you agree to the library rules? Yes / No\nSignature: ____________  Date: ____________"
+        ),
+        "raw": {
+            "is_form": True,
+            "form_name": "Library membership application",
+            "purpose": "You fill this in to get a library card so you can borrow books.",
+            "fields": [
+                {"label": "Full name", "meaning": "Your name as it appears on your ID.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "Date of birth", "meaning": "The day you were born.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "Home address", "meaning": "Where you live now. The library may send letters here.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "Phone number", "meaning": "A number where the library can reach you.", "how_to_fill": "", "kind": "private", "required": "unclear"},
+                {"label": "ID number", "meaning": "The number on your identity document.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "Membership type", "meaning": "The kind of card you want. The price or loan limits can differ.", "how_to_fill": "Tick the one that fits you. If you are not sure, ask the desk which one is right.", "kind": "choice", "required": "yes"},
+                {"label": "Do you agree to the library rules?", "meaning": "You confirm you accept the rules for borrowing, returns and fines.", "how_to_fill": "Ask to read the rules first if you have not seen them.", "kind": "choice", "required": "yes"},
+                {"label": "Signature and date", "meaning": "Your own signature and today's date. It shows you agree.", "how_to_fill": "", "kind": "signature", "required": "yes"},
+            ],
+            "warnings": [],
+            "before_submit": ["Check that your name matches your ID.", "Read the library rules before you sign."],
+            "not_sure": "",
+        },
+    },
+    "form_bank": {
+        "title": "Bank form asking for PIN",
+        "note": "Has a warning sign",
+        "text": (
+            "ACCOUNT VERIFICATION FORM\n\n"
+            "To keep your account active, complete this form today.\n"
+            "Full name: ____________\nAccount number: ____________\n"
+            "Card number: ____________  Expiry: ____/____  CVV: ______\n"
+            "ATM PIN: ______\nOne-time password (OTP) sent to your phone: ______\n"
+            "Accounts not verified within 24 hours will be closed."
+        ),
+        "raw": {
+            "is_form": True,
+            "form_name": "Account verification form",
+            "purpose": "A form that says it verifies your bank account.",
+            "fields": [
+                {"label": "Full name", "meaning": "Your name.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "Account number", "meaning": "The number of your bank account.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "Card number, expiry and CVV", "meaning": "The details printed on your bank card. With these, someone can spend your money.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "ATM PIN", "meaning": "The secret code you use at the machine. A real bank never asks for it on a form.", "how_to_fill": "", "kind": "private", "required": "yes"},
+                {"label": "One-time password (OTP)", "meaning": "A code sent to your phone to approve one action. Giving it away lets someone approve payments as you.", "how_to_fill": "", "kind": "private", "required": "yes"},
+            ],
+            "warnings": [
+                "Banks do not ask for your PIN, CVV or OTP on a form. Do not fill this in.",
+                "The 24-hour deadline is a pressure tactic. Contact your bank using the number on your card.",
+            ],
+            "before_submit": ["Do not send this form. Call your bank using the number on the back of your card."],
+            "not_sure": "",
+        },
+    },
+}
+
+
+def list_form_samples() -> list[dict]:
+    return [{"id": k, "title": v["title"], "note": v["note"], "text": v["text"]} for k, v in FORM_SAMPLES.items()]
+
+
+def saved_form(sample_id: str | None) -> dict | None:
+    s = FORM_SAMPLES.get(sample_id or "")
+    if not s:
+        return None
+    out = finalize_form(s["raw"], get_language("en"))
+    out["saved"] = True
+    out["saved_note"] = "This is a saved result for a sample form. It was not produced live."
+    out["privacy"] = {"hidden": {}, "hidden_total": 0}
+    return out

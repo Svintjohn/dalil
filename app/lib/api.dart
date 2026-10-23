@@ -33,6 +33,7 @@ abstract class DalilApi {
     String? text,
     required String language,
     String? country,
+    String? sampleId,
   });
   Future<Accuracy> accuracy();
 }
@@ -154,10 +155,12 @@ class HttpDalilApi implements DalilApi {
     String? text,
     required String language,
     String? country,
+    String? sampleId,
   }) async {
     final body = <String, dynamic>{'images': images, 'language': language};
     if (text != null && text.trim().isNotEmpty) body['text'] = text;
     if (country != null && country.isNotEmpty) body['country'] = country;
+    if (sampleId != null) body['sample_id'] = sampleId;
     return FormHelp.fromJson(await _post('/api/form', body));
   }
 

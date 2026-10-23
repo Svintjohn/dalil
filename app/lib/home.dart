@@ -327,6 +327,7 @@ class _HomePageState extends State<HomePage> {
           text: photoMode ? null : textCtl.text,
           language: language!.code,
           country: country,
+          sampleId: photoMode ? null : sampleId,
         );
         if (!mounted) return;
         setState(() => form = f);
@@ -930,12 +931,12 @@ class _HomePageState extends State<HomePage> {
           label: const Text('Open a PDF'),
         ),
       ),
-      if (samples.isNotEmpty && !formMode) ...[
+      if ((formMode ? (meta?.formSamples ?? const <SampleDoc>[]) : samples).isNotEmpty) ...[
         const SizedBox(height: 10),
-        Text('Or try a made-up example', style: TextStyle(color: p.inkSoft)),
+        Text(formMode ? 'Or try a made-up form' : 'Or try a made-up example', style: TextStyle(color: p.inkSoft)),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final s in samples)
+          for (final s in (formMode ? (meta?.formSamples ?? const <SampleDoc>[]) : samples))
             ActionChip(
               label: Text(s.title),
               side: BorderSide(color: p.line),

@@ -1168,3 +1168,16 @@ def test_accuracy_endpoint_gives_offline_numbers_and_an_honest_caveat():
     assert "not proof" in d["caveat"] and "developers" in d["caveat"]
     assert d["live"] is None or {"scam", "legit", "numbers"} <= set(d["live"])
     assert "text" not in json.dumps(d["offline"])  # only counts and case ids, never document text
+
+
+def test_sample_forms_are_saved_and_the_bank_one_warns():
+    from dalil import samples
+
+    ids = [s["id"] for s in samples.list_form_samples()]
+    assert "form_card" in ids and "form_bank" in ids
+    card = samples.saved_form("form_card")
+    assert card["is_form"] and card["saved"] and not card["secret_field"]
+    assert all(f["kind"] == "private" for f in card["fields"] if f["label"] in ("Full name", "ID number"))
+    bank = samples.saved_form("form_bank")
+    assert bank["secret_field"] and bank["warnings"]
+    assert samples.saved_form("nope") is None

@@ -169,6 +169,7 @@ def _meta_body(model_ready: bool) -> dict:
         "languages": languages.as_dicts(),
         "countries": registry.coverage(),
         "samples": samples.list_samples(),
+        "form_samples": samples.list_form_samples(),
         "limits": {"max_images": config.MAX_IMAGES, "max_text_chars": config.MAX_TEXT_CHARS, "max_request_kb": MAX_REQUEST_KB},
         "photo_tips": PHOTO_TIPS,
         "privacy": PRIVACY,
@@ -253,6 +254,8 @@ def review(req: ReviewRequest, request: Request):
 def form(req: ReviewRequest, request: Request):
     """Help with filling in a form: what each box asks for. It never writes the person's details for them."""
     guard(request)
+    if req.sample_id and (saved := samples.saved_form(req.sample_id)):
+        return saved  # a made-up sample form: always the saved result, so trying it costs nothing
     lang = languages.get_language(req.language)
     text = (req.text or "").strip()
     if not req.images and not text:

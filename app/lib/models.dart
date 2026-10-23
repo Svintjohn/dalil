@@ -63,6 +63,7 @@ class Meta {
     required this.languages,
     required this.countries,
     required this.samples,
+    this.formSamples = const [],
     required this.maxImages,
     required this.maxTextChars,
     required this.maxRequestKb,
@@ -74,7 +75,7 @@ class Meta {
   final bool modelReady;
   final List<Language> languages;
   final List<CountryCoverage> countries;
-  final List<SampleDoc> samples;
+  final List<SampleDoc> samples, formSamples; // formSamples: made-up blank forms for "Fill in a form"
   final int maxImages, maxTextChars, maxRequestKb;
   final List<String> photoTips, privacyPoints;
 
@@ -88,6 +89,7 @@ class Meta {
       languages: _l(j['languages']).map((e) => Language.fromJson(_m(e))).toList(),
       countries: _l(j['countries']).map((e) => CountryCoverage.fromJson(_m(e))).toList(),
       samples: _l(j['samples']).map((e) => SampleDoc.fromJson(_m(e))).toList(),
+      formSamples: _l(j['form_samples']).map((e) => SampleDoc.fromJson(_m(e))).toList(),
       maxImages: n(limits['max_images'], 6),
       maxTextChars: n(limits['max_text_chars'], 30000),
       maxRequestKb: n(limits['max_request_kb'], 4000),

@@ -36,6 +36,24 @@ has been handed something confusing.
 
 Messages that look like scams are labelled "looks suspicious, check on the official app". Dalil never states that something is fraud as a fact.
 
+## Why it is an agent
+
+Dalil does not just answer. It decides what it needs, uses tools, runs checks that do not depend on the AI, and produces things you can act on.
+
+**Three tools the agent calls while it reads a document**
+- `lookup_rules`: finds the rules for the country and topic (for example, tenancy law in Dubai), each with an official source link and the date it was last checked.
+- `list_authorities`: finds the right office to contact, or to report to.
+- `fetch_official_page`: reads a page from an official website only, never from random sites.
+
+**Checks that do not rely on the AI**
+- Amounts are added up in code, so a bill that does not add up is caught by arithmetic, not by guessing.
+- Scam signs are matched against a fixed list, and a message is only ever labelled "looks suspicious", never stated as fraud.
+- Dates and time limits are turned into deadlines that can be saved on your own device.
+- Personal data (ID, card, IBAN, phone, email) is hidden before anything reaches the AI.
+- Every rule and link the agent cites must exist in the registry. Unsourced "high risk" claims are downgraded.
+
+**What it produces for you:** a plain explanation in your language, a deadline list, a reply letter, a scam report you can send to the right authority, and a guide to filling in a form box by box.
+
 ## Tech
 
 | Part | What |

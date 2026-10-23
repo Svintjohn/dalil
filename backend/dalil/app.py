@@ -7,6 +7,7 @@ import logging
 import re
 from contextlib import contextmanager
 from functools import lru_cache
+from pathlib import Path
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
@@ -190,17 +191,11 @@ def photo_check(req: PhotoCheckRequest, request: Request):
     return quality.assess_image(raw).to_dict()
 
 
-@app.post("/api/review")
-def review(req: ReviewRequest, request: Request):
-    guard(request)
-    lang = languages.get_language(req.language)
-    text = (req.text or "").strip()
-    if not req.images and not text:
-        raise ApiError(422, "empty", "Add a photo or paste the text of the document.")
-
+def _prepare_pages(images: list[str]) -> list[bytes]:
+    """Decode, check and normalise the photos. A page that is not clear enough stops the request with a calm message."""
     pages: list[bytes] = []
     failed = []
-    for i, s in enumerate(req.images):
+    for i, s in enumerate(images):
         try:
             raw = decode_image(s)
         except ValueError:
@@ -213,6 +208,18 @@ def review(req: ReviewRequest, request: Request):
         pages.append(norm)
     if failed:
         raise ApiError(422, "photo_quality", "Some photos are not clear enough to read. Retake them and try again.", pages=failed)
+    return pages
+
+
+@app.post("/api/review")
+def review(req: ReviewRequest, request: Request):
+    guard(request)
+    lang = languages.get_language(req.language)
+    text = (req.text or "").strip()
+    if not req.images and not text:
+        raise ApiError(422, "empty", "Add a photo or paste the text of the document.")
+
+    pages = _prepare_pages(req.images)
 
     masked = privacy.mask_personal_data(text) if text else None
     use_saved = bool(req.sample_id) and (config.USE_SAVED or not config.ai_ready())
@@ -240,6 +247,54 @@ def review(req: ReviewRequest, request: Request):
         raise _model_problem(e, req.language)
     report["privacy"] = {"hidden": masked.counts if masked else {}, "hidden_total": masked.total if masked else 0}
     return report
+
+
+@app.post("/api/form")
+def form(req: ReviewRequest, request: Request):
+    """Help with filling in a form: what each box asks for. It never writes the person's details for them."""
+    guard(request)
+    lang = languages.get_language(req.language)
+    text = (req.text or "").strip()
+    if not req.images and not text:
+        raise ApiError(422, "empty", "Add a photo or a PDF of the form, or paste its text.")
+    pages = _prepare_pages(req.images)
+    masked = privacy.mask_personal_data(text) if text else None
+    try:
+        with ai_slot(request):
+            out = agent.form_help(images=pages, text=masked.text if masked else None, lang=lang, country=req.country)
+    except agent.PhotoUnreadable as e:
+        raise ApiError(422, "photo_unreadable", "The photo is not clear enough to read. Retake it and try again.", issues=e.issues)
+    except (agent.ModelUnavailable, agent.ModelOutputError) as e:
+        raise _model_problem(e, req.language)
+    out["privacy"] = {"hidden": masked.counts if masked else {}, "hidden_total": masked.total if masked else 0}
+    return out
+
+
+ACCURACY_CAVEAT = (
+    "The test documents were written by the developers, and the rules were tuned on them. These numbers show that the checks "
+    "still work as designed. They are not proof of accuracy on real documents, which has not been measured yet."
+)
+
+
+@lru_cache(maxsize=1)
+def _accuracy_body() -> dict:
+    from evaluation import score  # the labeled test documents; only counts and case ids leave this function
+
+    live = None
+    try:
+        path = Path(__file__).resolve().parent.parent / "evaluation" / "results" / "live.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and all(isinstance(data.get(k), dict) for k in ("scam", "legit", "numbers")):
+            live = data
+    except Exception:  # noqa: BLE001 - no live run saved yet, or a damaged file
+        live = None
+    return {"version": __version__, "offline": score.run_offline(), "live": live, "caveat": ACCURACY_CAVEAT}
+
+
+@app.get("/api/accuracy")
+def accuracy(response: Response):
+    response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=3600"
+    return _accuracy_body()
 
 
 def _check_report(report: dict) -> None:

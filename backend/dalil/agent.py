@@ -17,7 +17,7 @@ from .gemini import GeminiClient, LLMError
 from .openai_compat import OpenAICompatClient
 from .languages import Language
 from .models import READABILITY_CODES, READABILITY_MESSAGES, RawReport, _to_amount
-from .prompts import LABEL_KEYS, ask_system, letter_system, review_system
+from .prompts import FORM_LABELS, LABEL_KEYS, ask_system, form_system, letter_system, review_system
 from .tools import TOOL_DEFS, run_tool
 
 
@@ -446,3 +446,75 @@ def draft_letter(*, report: dict, recipient: str, note: str, lang: Language, cli
         "sources": sources,
         "note": "This is a draft for you to check before sending. It is not legal advice.",
     }
+
+
+# ---- Form helper ----
+
+_SECRET_FIELD = re.compile(r"pass(?:word|code)|\bpin\b|\botp\b|one[- ]time|\bcvv\b|\bcvc\b|security code|card (?:number|no)|credit card|debit card|رقم سري|كلمة (?:المرور|السر)|رمز", re.I)
+_PRIVATE_FIELD = re.compile(
+    r"passport|emirates ?id|\bid (?:no|number)|national id|licen[sc]e (?:no|number)|date of birth|\bdob\b|iban|account (?:no|number)|"
+    r"mobile|phone|address|email|e-mail|visa (?:no|number)|labou?r card|مرور|هوية|جواز|هاتف|عنوان|ميلاد",
+    re.I,
+)
+FORM_KINDS = ("text", "number", "date", "choice", "signature", "private")
+
+
+def _short(v: Any, n: int) -> str:
+    return " ".join(str(v).split())[:n] if isinstance(v, (str, int, float)) else ""
+
+
+def _short_list(v: Any, n: int, each: int) -> list[str]:
+    if not isinstance(v, list):
+        return []
+    out = [_short(x, each) for x in v]
+    return [x for x in out if x][:n]
+
+
+def finalize_form(obj: Any, lang: Language) -> dict:
+    """Clean the model's form help. Secret and personal boxes are always marked private, whatever the model said."""
+    if not isinstance(obj, dict):
+        raise ModelOutputError("invalid_shape")
+    labels = {**FORM_LABELS, **{k: v for k, v in (obj.get("labels") or {}).items() if k in FORM_LABELS and isinstance(v, str) and v.strip()}} if isinstance(obj.get("labels"), dict) else dict(FORM_LABELS)
+    is_form = obj.get("is_form") is not False
+    fields = []
+    for f in (obj.get("fields") if isinstance(obj.get("fields"), list) else [])[:30]:
+        if not isinstance(f, dict):
+            continue
+        label, meaning = _short(f.get("label"), 120), _short(f.get("meaning"), 400)
+        if not label or not meaning:
+            continue
+        kind = f.get("kind") if f.get("kind") in FORM_KINDS else "text"
+        secret = bool(_SECRET_FIELD.search(label))
+        if secret or (_PRIVATE_FIELD.search(label) and kind in ("text", "number", "date")):
+            kind = "private"
+        req = f.get("required") if f.get("required") in ("yes", "no", "unclear") else "unclear"
+        fields.append({"label": label, "meaning": meaning, "how_to_fill": _short(f.get("how_to_fill"), 400), "kind": kind, "required": req, "secret": secret})
+    return {
+        "is_form": bool(is_form and fields),
+        "secret_field": any(f["secret"] for f in fields),  # shown by the app as its own warning, even when the model forgets
+        "form_name": _short(obj.get("form_name"), 160),
+        "purpose": _short(obj.get("purpose"), 400),
+        "fields": fields if is_form else [],
+        "warnings": _short_list(obj.get("warnings"), 5, 300),
+        "before_submit": _short_list(obj.get("before_submit"), 6, 300),
+        "not_sure": _short(obj.get("not_sure"), 400),
+        "labels": labels,
+        "language": lang.code,
+        "rtl": lang.rtl,
+    }
+
+
+def form_help(*, images: list[bytes], text: str | None, lang: Language, country: str | None, client=None) -> dict:
+    client = client or get_client()
+    content: list[dict] = []
+    if images:
+        content += _image_blocks(images)
+        content.append({"type": "text", "text": f"The form is in the attached photo(s), {len(images)} page(s) in order. Help me fill it in."})
+    if text:
+        content.append({"type": "text", "text": "The form text is between the markers.\n<<<FORM\n" + text + "\nFORM>>>\nHelp me fill it in."})
+    final = run_loop(client, model=config.MODEL, system=form_system(lang, country), messages=[{"role": "user", "content": content}], max_rounds=2)
+    obj = parse_json(final)
+    if isinstance(obj, dict) and obj.get("readable") is False:
+        issues = [c for c in (obj.get("readability_issues") if isinstance(obj.get("readability_issues"), list) else []) if c in READABILITY_CODES] or ["blurry"]
+        raise PhotoUnreadable([{"code": c, "message": READABILITY_MESSAGES[c]} for c in issues])
+    return finalize_form(obj, lang)

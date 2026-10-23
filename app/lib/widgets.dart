@@ -153,6 +153,57 @@ Future<T?> showSpringDialog<T>(BuildContext context, WidgetBuilder builder) {
   );
 }
 
+/// Anything that is tapped but is not a Material button. It can be reached with the Tab key, used with Enter or Space,
+/// is announced as a button, and shows a clear ring while it has the keyboard focus.
+class Tappable extends StatefulWidget {
+  const Tappable({super.key, required this.onTap, required this.child, this.label, this.selected, this.radius = 12});
+  final VoidCallback? onTap; // null: shown, but not usable
+  final Widget child;
+  final String? label; // what a screen reader says; the child's own text is then not read twice
+  final bool? selected;
+  final double radius;
+
+  @override
+  State<Tappable> createState() => _TappableState();
+}
+
+class _TappableState extends State<Tappable> {
+  bool focus = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    final on = widget.onTap != null;
+    return FocusableActionDetector(
+      enabled: on,
+      mouseCursor: on ? SystemMouseCursors.click : MouseCursor.defer,
+      onShowFocusHighlight: (v) => setState(() => focus = v),
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) {
+          widget.onTap?.call();
+          return null;
+        }),
+      },
+      child: Semantics(
+        button: true,
+        enabled: on,
+        selected: widget.selected,
+        label: widget.label,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: DecoratedBox(
+            key: focus ? const ValueKey('tappable-focus') : null,
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(widget.radius), border: focus ? Border.all(color: p.ink, width: 2.2) : null),
+            child: widget.label != null ? ExcludeSemantics(child: widget.child) : widget.child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class Segmented extends StatelessWidget {
   const Segmented({super.key, required this.labels, required this.icons, required this.index, required this.onChanged});
   final List<String> labels;
@@ -190,20 +241,17 @@ class Segmented extends StatelessWidget {
             children: [
               for (var i = 0; i < n; i++)
                 Expanded(
-                  child: Semantics(
-                    button: true,
-                    selected: i == index,
+                  child: Tappable(
                     label: labels[i],
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => onChanged(i),
-                      child: Center(
-                        child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          Icon(icons[i], size: 18, color: i == index ? p.ink : p.inkSoft),
-                          const SizedBox(width: 8),
-                          Flexible(child: Text(labels[i], maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: i == index ? p.ink : p.inkSoft))),
-                        ]),
-                      ),
+                    selected: i == index,
+                    radius: 10,
+                    onTap: () => onChanged(i),
+                    child: Center(
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(icons[i], size: 18, color: i == index ? p.ink : p.inkSoft),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(labels[i], maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: i == index ? p.ink : p.inkSoft))),
+                      ]),
                     ),
                   ),
                 ),

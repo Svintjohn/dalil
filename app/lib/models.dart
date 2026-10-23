@@ -486,3 +486,115 @@ class Letter {
         note: _s(j['note']),
       );
 }
+
+
+/// One box on a form, explained. Personal and secret boxes are marked "private": Dalil never suggests a value for them.
+class FormBox {
+  const FormBox({required this.label, required this.meaning, required this.howToFill, required this.kind, required this.required, required this.secret});
+  final String label, meaning, howToFill, kind, required; // kind: text | number | date | choice | signature | private; required: yes | no | unclear
+  final bool secret;
+
+  bool get isPrivate => kind == 'private';
+
+  factory FormBox.fromJson(Map<String, dynamic> j) => FormBox(
+        label: _s(j['label']).trim(),
+        meaning: _s(j['meaning']).trim(),
+        howToFill: _s(j['how_to_fill']).trim(),
+        kind: const ['text', 'number', 'date', 'choice', 'signature', 'private'].contains(_s(j['kind'])) ? _s(j['kind']) : 'text',
+        required: const ['yes', 'no', 'unclear'].contains(_s(j['required'])) ? _s(j['required']) : 'unclear',
+        secret: _b(j['secret']),
+      );
+}
+
+/// What the form helper returns: what each box asks for, things to be careful about, and checks before handing it in.
+class FormHelp {
+  FormHelp({
+    required this.isForm,
+    required this.secretField,
+    required this.formName,
+    required this.purpose,
+    required this.fields,
+    required this.warnings,
+    required this.beforeSubmit,
+    required this.notSure,
+    required this.labels,
+    required this.rtl,
+    required this.hiddenTotal,
+  });
+  final bool isForm, secretField, rtl;
+  final String formName, purpose, notSure;
+  final List<FormBox> fields;
+  final List<String> warnings, beforeSubmit;
+  final Map<String, String> labels;
+  final int hiddenTotal;
+
+  String label(String key, String fallback) {
+    final v = labels[key];
+    return (v == null || v.trim().isEmpty) ? fallback : v;
+  }
+
+  factory FormHelp.fromJson(Map<String, dynamic> j) {
+    final lab = <String, String>{};
+    _m(j['labels']).forEach((k, v) => lab[k] = _s(v));
+    final priv = _m(j['privacy']);
+    List<String> strs(dynamic v) => _l(v).map((e) => _s(e).trim()).where((e) => e.isNotEmpty).toList();
+    final fields = _l(j['fields']).map((e) => FormBox.fromJson(_m(e))).where((f) => f.label.isNotEmpty && f.meaning.isNotEmpty).toList();
+    return FormHelp(
+      isForm: j['is_form'] != false && fields.isNotEmpty,
+      secretField: _b(j['secret_field']),
+      formName: _s(j['form_name']).trim(),
+      purpose: _s(j['purpose']).trim(),
+      fields: fields,
+      warnings: strs(j['warnings']),
+      beforeSubmit: strs(j['before_submit']),
+      notSure: _s(j['not_sure']).trim(),
+      labels: lab,
+      rtl: _b(j['rtl']),
+      hiddenTotal: priv['hidden_total'] is int ? priv['hidden_total'] as int : 0,
+    );
+  }
+}
+
+/// The counts from the labeled test documents. Only numbers and case ids, never document text.
+class AccuracyPart {
+  const AccuracyPart({required this.scamN, required this.scamWarned, required this.legitN, required this.falseAlarms, required this.falseStops, required this.numN, required this.numCorrect});
+  final int scamN, scamWarned, legitN, falseAlarms, falseStops, numN, numCorrect;
+
+  factory AccuracyPart.fromJson(Map<String, dynamic> j) {
+    int n(dynamic v) => v is int ? v : (v is num ? v.toInt() : 0);
+    final s = _m(j['scam']), l = _m(j['legit']), u = _m(j['numbers']);
+    return AccuracyPart(
+      scamN: n(s['scored'] ?? s['n']),
+      scamWarned: n(s['detected']),
+      legitN: n(l['scored'] ?? l['n']),
+      falseAlarms: n(l['false_alarms']),
+      falseStops: n(l['false_stops']),
+      numN: n(u['scored'] ?? u['n']),
+      numCorrect: n(u['correct']),
+    );
+  }
+
+  bool get isEmpty => scamN + legitN + numN == 0;
+}
+
+class Accuracy {
+  const Accuracy({required this.offline, this.live, this.liveModel = '', this.liveSeconds = 0, this.liveErrors = 0, required this.caveat});
+  final AccuracyPart offline;
+  final AccuracyPart? live; // the run with the real AI model, when one has been saved
+  final String liveModel, caveat;
+  final double liveSeconds;
+  final int liveErrors;
+
+  factory Accuracy.fromJson(Map<String, dynamic> j) {
+    final liveJ = j['live'] is Map ? _m(j['live']) : null;
+    final live = liveJ == null ? null : AccuracyPart.fromJson(liveJ);
+    return Accuracy(
+      offline: AccuracyPart.fromJson(_m(j['offline'])),
+      live: (live == null || live.isEmpty) ? null : live,
+      liveModel: liveJ == null ? '' : _s(liveJ['model']),
+      liveSeconds: liveJ != null && liveJ['avg_seconds'] is num ? (liveJ['avg_seconds'] as num).toDouble() : 0,
+      liveErrors: liveJ != null && liveJ['errors'] is Map ? (liveJ['errors'] as Map).length : 0,
+      caveat: _s(j['caveat']),
+    );
+  }
+}

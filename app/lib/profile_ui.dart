@@ -163,15 +163,14 @@ class _PersonalizeDialogState extends State<PersonalizeDialog> {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final shade = Palette.forAccent(a, dark);
     final on = profile.accent == a;
-    return Semantics(
-      button: true,
-      selected: on,
+    return Tappable(
+      key: ValueKey('accent-${a.name}'),
       label: '${accentLabel(a)} colour',
-      excludeSemantics: true,
-      child: GestureDetector(
-        key: ValueKey('accent-${a.name}'),
-        behavior: HitTestBehavior.opaque,
-        onTap: () => profile.setAccent(a),
+      selected: on,
+      radius: 14,
+      onTap: () => profile.setAccent(a),
+      child: Padding(
+        padding: const EdgeInsets.all(2),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           AnimatedContainer(
             duration: Motion.ms(context, 220),

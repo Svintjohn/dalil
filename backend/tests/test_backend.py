@@ -1060,3 +1060,111 @@ def test_report_scam_labels_exist():
     from dalil import prompts
 
     assert {"report_scam", "report_where", "report_msg", "report_none"} <= set(prompts.LABEL_KEYS)
+
+
+# ---- Form helper ----
+
+def _form_json(**over):
+    base = {
+        "readable": True, "readability_issues": [], "is_form": True, "form_name": "Visa renewal form", "purpose": "To renew a visa.",
+        "fields": [
+            {"label": "Full name", "meaning": "Your name.", "how_to_fill": "As written in your passport.", "kind": "text", "required": "yes"},
+            {"label": "Passport number", "meaning": "The number on your passport.", "how_to_fill": "Copy it from the passport page.", "kind": "text", "required": "yes"},
+            {"label": "Nationality", "meaning": "Your country of citizenship.", "how_to_fill": "", "kind": "text", "required": "unclear"},
+            {"label": "Bank card PIN", "meaning": "A secret number.", "how_to_fill": "", "kind": "text", "required": "no"},
+        ],
+        "warnings": ["Do not sign with empty boxes."], "before_submit": ["Check every box."], "not_sure": "", "labels": {"form_fields": "Ano ang ibig sabihin"},
+    }
+    base.update(over)
+    return json.dumps(base)
+
+
+def test_form_help_marks_personal_and_secret_boxes_private_whatever_the_model_said():
+    client = FakeClient(fake_resp(text_block(_form_json())))
+    out = agent.form_help(images=[], text="Visa renewal form ...", lang=languages.get_language("tl"), country=None, client=client)
+    kinds = {f["label"]: f["kind"] for f in out["fields"]}
+    assert kinds["Full name"] == "text"
+    assert kinds["Passport number"] == "private"  # personal, although the model said "text"
+    assert kinds["Bank card PIN"] == "private"
+    assert out["secret_field"] is True
+    assert out["is_form"] is True and out["labels"]["form_fields"] == "Ano ang ibig sabihin"
+    assert out["labels"]["form_note"]  # missing labels fall back to English
+    assert out["language"] == "tl"
+
+
+def test_form_help_without_a_secret_box_has_no_secret_warning():
+    j = json.loads(_form_json())
+    j["fields"] = j["fields"][:1]
+    out = agent.form_help(images=[], text="x " * 20, lang=languages.get_language("en"), country="AE", client=FakeClient(fake_resp(text_block(json.dumps(j)))))
+    assert out["secret_field"] is False and len(out["fields"]) == 1
+
+
+def test_form_help_says_so_when_it_is_not_a_form_and_survives_bad_output():
+    out = agent.form_help(images=[], text="a letter " * 5, lang=languages.get_language("en"), country=None,
+                          client=FakeClient(fake_resp(text_block(_form_json(is_form=False, fields=[], purpose="This is a letter.")))))
+    assert out["is_form"] is False and out["fields"] == [] and out["purpose"] == "This is a letter."
+    # a form the model claims but with no usable boxes is also "not a form"
+    out = agent.form_help(images=[], text="x " * 20, lang=languages.get_language("en"), country=None,
+                          client=FakeClient(fake_resp(text_block(_form_json(fields=[{"label": "", "meaning": ""}, 5, None])))))
+    assert out["is_form"] is False
+    for bad in ("[1,2]", '"text"', "null"):
+        with pytest.raises(agent.ModelOutputError):
+            agent.form_help(images=[], text="x " * 20, lang=languages.get_language("en"), country=None, client=FakeClient(fake_resp(text_block(bad))))
+
+
+def test_form_help_limits_and_cleans_text():
+    many = [{"label": f"Box {i}", "meaning": f"Meaning {i}", "kind": "weird", "required": "maybe"} for i in range(40)]
+    out = agent.finalize_form(json.loads(_form_json(fields=many, warnings=["a"] * 9, before_submit=["b"] * 9)), languages.get_language("en"))
+    assert len(out["fields"]) == 30 and len(out["warnings"]) == 5 and len(out["before_submit"]) == 6
+    assert {f["kind"] for f in out["fields"]} == {"text"} and {f["required"] for f in out["fields"]} == {"unclear"}
+
+
+def test_form_help_reports_an_unreadable_photo():
+    client = FakeClient(fake_resp(text_block(json.dumps({"readable": False, "readability_issues": ["blurry", "nonsense"]}))))
+    with pytest.raises(agent.PhotoUnreadable) as e:
+        agent.form_help(images=[b"x"], text=None, lang=languages.get_language("en"), country=None, client=client)
+    assert [i["code"] for i in e.value.issues] == ["blurry"]
+
+
+def test_form_prompt_never_asks_the_model_to_fill_in_personal_details():
+    from dalil import prompts
+
+    sys_prompt = prompts.form_system(languages.get_language("ar"), "ae")
+    assert "Never invent or suggest a value for a personal detail" in sys_prompt
+    assert "Do not call tools" in sys_prompt
+    assert "Arabic" in sys_prompt and "country AE" in sys_prompt
+    assert {"form_secret", "form_private", "form_not_form"} <= set(prompts.FORM_LABELS)
+
+
+def test_form_endpoint(monkeypatch):
+    from fastapi.testclient import TestClient
+    from dalil.app import app
+
+    seen = {}
+
+    def fake(*, images, text, lang, country, client=None):
+        seen.update(text=text, n=len(images), lang=lang.code)
+        return agent.finalize_form(json.loads(_form_json()), lang)
+
+    monkeypatch.setattr(agent, "form_help", fake)
+    c = TestClient(app)
+    r = c.post("/api/form", json={"text": "Name: ____ Email: a.person@example.com", "language": "en"})
+    assert r.status_code == 200 and r.json()["form_name"] == "Visa renewal form"
+    assert "a.person@example.com" not in (seen["text"] or "")  # personal data is masked before the model sees it
+    assert r.json()["privacy"]["hidden_total"] >= 1
+    assert c.post("/api/form", json={"language": "en"}).status_code == 422
+
+
+# ---- Accuracy page ----
+
+def test_accuracy_endpoint_gives_offline_numbers_and_an_honest_caveat():
+    from fastapi.testclient import TestClient
+    from dalil.app import app
+
+    r = TestClient(app).get("/api/accuracy")
+    assert r.status_code == 200
+    d = r.json()
+    assert d["offline"]["scam"]["n"] >= 30 and d["offline"]["legit"]["n"] >= 30 and d["offline"]["numbers"]["n"] >= 10
+    assert "not proof" in d["caveat"] and "developers" in d["caveat"]
+    assert d["live"] is None or {"scam", "legit", "numbers"} <= set(d["live"])
+    assert "text" not in json.dumps(d["offline"])  # only counts and case ids, never document text

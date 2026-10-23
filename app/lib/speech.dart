@@ -141,8 +141,7 @@ class SpeechDictation implements Dictation {
       }
       if (!_ready) return false;
       await _stt.listen(
-        localeId: _tag(languageCode),
-        listenOptions: stt.SpeechListenOptions(partialResults: true, cancelOnError: true),
+        listenOptions: stt.SpeechListenOptions(partialResults: true, cancelOnError: true, localeId: _tag(languageCode)),
         onResult: (r) => onText(r.recognizedWords),
       );
       return true;

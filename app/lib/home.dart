@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'accuracy_dialog.dart';
 import 'api.dart';
 import 'camera_dialog.dart';
 import 'cases.dart';
@@ -13,6 +14,7 @@ import 'cases_ui.dart';
 import 'deadlines.dart';
 import 'deadlines_ui.dart';
 import 'fonts.dart';
+import 'form_view.dart';
 import 'landing.dart';
 import 'models.dart';
 import 'motion.dart';
@@ -86,6 +88,8 @@ class _HomePageState extends State<HomePage> {
   String? calmError; // the message of a temporary problem (busy, slow), shown in a calm style
   List<QualityIssue> blocking = [];
   Report? report;
+  bool formMode = false; // helping to fill in a form, not explaining a document
+  FormHelp? form;
   final chat = <ChatTurn>[];
   final askCtl = TextEditingController();
   bool asking = false;
@@ -296,8 +300,40 @@ class _HomePageState extends State<HomePage> {
       error = null;
       blocking = [];
       report = null;
+      form = null;
       chat.clear();
     });
+    if (formMode) {
+      try {
+        final f = await widget.api.form(
+          images: photoMode ? pages.map((p) => p.b64).toList() : const [],
+          text: photoMode ? null : textCtl.text,
+          language: language!.code,
+          country: country,
+        );
+        if (!mounted) return;
+        setState(() => form = f);
+        Sfx.instance.event('done');
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToResult());
+      } on ApiException catch (e) {
+        if (!mounted) return;
+        setState(() {
+          error = e.message;
+          calmError = isBusyCode(e.code) ? e.message : null;
+          if (!isBusyCode(e.code)) Sfx.instance.event('error');
+          if (e.code == 'photo_unreadable' || e.code == 'photo_quality') blocking = _issuesFrom(e);
+        });
+      } finally {
+        slowTimer?.cancel();
+        if (mounted) {
+          setState(() {
+            busy = false;
+            _cool(4);
+          });
+        }
+      }
+      return;
+    }
     try {
       final r = await widget.api.review(
         images: photoMode ? pages.map((p) => p.b64).toList() : const [],
@@ -327,6 +363,15 @@ class _HomePageState extends State<HomePage> {
         });
       }
     }
+  }
+
+  void _accuracy() => showSpringDialog<void>(context, (_) => AccuracyDialog(api: widget.api));
+
+  Future<void> _copyForm() async {
+    final f = form;
+    if (f == null) return;
+    await Clipboard.setData(ClipboardData(text: formToText(f)));
+    _say('Copied. You can paste it into a message.');
   }
 
   void _goTo(GlobalKey key) {
@@ -546,21 +591,14 @@ class _HomePageState extends State<HomePage> {
       ('lang', 'Languages', langKey),
     ];
     final side = pagePad(context) > 20 ? 24.0 : 12.0;
-    final logo = Semantics(
-      button: true,
+    final logo = Tappable(
       label: 'Dalil, back to the top',
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _toTop,
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Text('دليل', style: Fonts.mark(TextStyle(fontSize: 28, height: 1.2, color: p.accent, fontWeight: FontWeight.w700))),
-            const SizedBox(width: 10),
-            Text('Dalil', style: Fonts.display(const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, letterSpacing: -0.4))),
-          ]),
-        ),
-      ),
+      onTap: _toTop,
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Text('دليل', style: Fonts.mark(TextStyle(fontSize: 28, height: 1.2, color: p.accent, fontWeight: FontWeight.w700))),
+        const SizedBox(width: 10),
+        Text('Dalil', style: Fonts.display(const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, letterSpacing: -0.4))),
+      ]),
     );
     final themeButton = IconButton(
       tooltip: 'Light or dark',
@@ -772,33 +810,27 @@ class _HomePageState extends State<HomePage> {
         curve: Motion.smooth,
         alignment: Alignment.topCenter,
         child: pages.isEmpty
-            ? Semantics(
-                button: true,
+            ? Tappable(
+                key: const ValueKey('drop-zone'),
                 label: 'Choose photos of your document',
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    key: const ValueKey('drop-zone'),
-                    behavior: HitTestBehavior.opaque,
-                    onTap: busy ? null : () => _addPhoto(ImageSource.gallery),
-                    child: HoverLift(
-                      radius: 20,
-                      color: p.inset,
-                      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-                      child: Column(children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(color: p.accentTint, shape: BoxShape.circle),
-                          child: Icon(Icons.add_a_photo_outlined, size: 26, color: p.accent),
-                        ),
-                        const SizedBox(height: 14),
-                        Text('Add a photo of your document', style: Fonts.display(const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3))),
-                        const SizedBox(height: 4),
-                        Text('Tap here, or use the buttons below. One photo per page, up to ${meta?.maxImages ?? 6} pages. PDFs work too.', textAlign: TextAlign.center, style: TextStyle(color: p.inkSoft, height: 1.4)),
-                      ]),
+                radius: 20,
+                onTap: busy ? null : () => _addPhoto(ImageSource.gallery),
+                child: HoverLift(
+                  radius: 20,
+                  color: p.inset,
+                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                  child: Column(children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(color: p.accentTint, shape: BoxShape.circle),
+                      child: Icon(Icons.add_a_photo_outlined, size: 26, color: p.accent),
                     ),
-                  ),
+                    const SizedBox(height: 14),
+                    Text('Add a photo of your document', style: Fonts.display(const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3))),
+                    const SizedBox(height: 4),
+                    Text('Tap here, or use the buttons below. One photo per page, up to ${meta?.maxImages ?? 6} pages. PDFs work too.', textAlign: TextAlign.center, style: TextStyle(color: p.inkSoft, height: 1.4)),
+                  ]),
                 ),
               )
             : Wrap(spacing: 12, runSpacing: 12, children: [for (var i = 0; i < pages.length; i++) _thumb(context, i)]),
@@ -882,7 +914,7 @@ class _HomePageState extends State<HomePage> {
           label: const Text('Open a PDF'),
         ),
       ),
-      if (samples.isNotEmpty) ...[
+      if (samples.isNotEmpty && !formMode) ...[
         const SizedBox(height: 10),
         Text('Or try a made-up example', style: TextStyle(color: p.inkSoft)),
         const SizedBox(height: 8),
@@ -908,6 +940,19 @@ class _HomePageState extends State<HomePage> {
     final m = meta;
     return Sheet(
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Segmented(
+          key: const ValueKey('mode-switch'),
+          labels: const ['Understand it', 'Fill in a form'],
+          icons: const [Icons.article_outlined, Icons.edit_note],
+          index: formMode ? 1 : 0,
+          onChanged: (i) => setState(() {
+            formMode = i == 1;
+            if (formMode) sampleId = null;
+            error = null;
+            blocking = [];
+          }),
+        ),
+        const SizedBox(height: 12),
         Segmented(
           labels: const ['Photos', 'Paste text'],
           icons: const [Icons.photo_camera_outlined, Icons.notes],
@@ -987,9 +1032,9 @@ class _HomePageState extends State<HomePage> {
                   ? Row(key: const ValueKey('busy'), mainAxisAlignment: MainAxisAlignment.center, children: [
                       SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2.2, color: p.onAccent)),
                       const SizedBox(width: 12),
-                      const Text('Reading your document'),
+                      Text(formMode ? 'Reading your form' : 'Reading your document'),
                     ])
-                  : const Text('Explain this', key: ValueKey('idle')),
+                  : Text(formMode ? 'Help me fill it in' : 'Explain this', key: ValueKey(formMode ? 'idle-form' : 'idle')),
             ),
           ),
         ),
@@ -1009,6 +1054,8 @@ class _HomePageState extends State<HomePage> {
   Widget _resultColumn(BuildContext context) {
     final p = Palette.of(context);
     final r = report;
+    final fh = form;
+    if (r == null && fh != null) return _formColumn(context, fh);
     if (r == null) return busy ? const PaperDemo(key: ValueKey('reading'), scanning: true) : const BringAnything(key: ValueKey('bring'));
     return Column(
       key: ValueKey(r),
@@ -1078,6 +1125,25 @@ class _HomePageState extends State<HomePage> {
             ]),
           ),
         ],
+      ],
+    );
+  }
+
+  Widget _formColumn(BuildContext context, FormHelp fh) {
+    return Column(
+      key: ValueKey(fh),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Sheet(
+          padding: const EdgeInsets.fromLTRB(28, 24, 28, 32),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            if (fh.isForm)
+              Wrap(alignment: WrapAlignment.end, children: [
+                KeyedSubtree(key: const ValueKey('form-copy'), child: _tool(context, Icons.copy_outlined, 'Copy', _copyForm)),
+              ]),
+            FormView(help: fh),
+          ]),
+        ),
       ],
     );
   }
@@ -1209,7 +1275,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         ScrollReveal(child: RepaintBoundary(child: TrustSection(countries: m.countries))),
-        const SiteFooter(),
+        SiteFooter(onAccuracy: _accuracy),
       ])),
     );
   }

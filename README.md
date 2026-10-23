@@ -400,6 +400,15 @@ What keeps it private:
 - Buttons get a soft hover/pressed wash and a clear focus ring, for keyboard users too.
 - Headlines and money totals use the display font, so the page has a clear order of reading.
 
+## Fill in a form
+Switch to **Fill in a form** on the home page and add a photo or PDF of a blank form. `/api/form` lists each box in plain words, says what goes in it and what is required, and warns before you submit. Personal boxes (name, ID number, address) are marked private and never get a suggested value. If the form asks for a PIN, password, OTP or card number, Dalil warns you to stop and check who is asking. Text is masked like pasted text; nothing is stored.
+
+## How accurate is Dalil?
+The footer link **How accurate is Dalil?** opens `/api/accuracy`: the offline test results (scam signs, alarm, numbers) and, if `backend/evaluation/results/live.json` is committed, the last live AI run. It says plainly that the developers wrote the test cases, so it is not proof. Only counts and case ids are shown.
+
+## Accessibility
+Every tappable control uses `Tappable`: reachable with Tab, used with Enter or Space, a clear focus ring, and a spoken label. This covers the mode switch, logo, drop zone, language words, colour swatches and camera shutter. Colour contrast was audited for all five palettes in light and dark (text, tints and accents all at 4.5:1 or better).
+
 ## Support link
 
 The footer has a small coffee button that opens https://ko-fi.com/dalilapp in a new tab. It is a plain link: no widget, no script and no tracking from Ko-fi on the page.

@@ -507,18 +507,15 @@ class _LangWordState extends State<LangWord> {
       style: TextStyle(fontSize: widget.size, height: 1.2, fontWeight: FontWeight.w600, color: hover ? p.markSolid : p.wallInk),
       child: Text(widget.language.native.isEmpty ? widget.language.name : widget.language.native),
     );
-    return Semantics(
-      button: true,
-      selected: widget.selected,
-      label: widget.language.name,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => hover = true),
-        onExit: (_) => setState(() => hover = false),
-        child: GestureDetector(
-          onTap: widget.onTap,
-          child: widget.selected ? Marker(color: p.markSolid.withAlpha(150), thickness: 0.2, child: text) : text,
-        ),
+    return MouseRegion(
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: Tappable(
+        label: widget.language.name,
+        selected: widget.selected,
+        radius: 8,
+        onTap: widget.onTap,
+        child: widget.selected ? Marker(color: p.markSolid.withAlpha(150), thickness: 0.2, child: text) : text,
       ),
     );
   }
@@ -574,7 +571,8 @@ class TrustSection extends StatelessWidget {
 }
 
 class SiteFooter extends StatelessWidget {
-  const SiteFooter({super.key});
+  const SiteFooter({super.key, this.onAccuracy});
+  final VoidCallback? onAccuracy; // opens "How accurate is Dalil?"
 
   @override
   Widget build(BuildContext context) {
@@ -603,6 +601,14 @@ class SiteFooter extends StatelessWidget {
           child: const Text('☕', semanticsLabel: 'Buy Dalil a coffee on Ko-fi', style: TextStyle(fontSize: 22, height: 1)),
         ),
       ),
+      if (onAccuracy != null)
+        TextButton.icon(
+          key: const ValueKey('accuracy-link'),
+          onPressed: onAccuracy,
+          style: TextButton.styleFrom(foregroundColor: p.inkSoft, textStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+          icon: const Icon(Icons.fact_check_outlined, size: 17),
+          label: const Text('How accurate is Dalil?'),
+        ),
       TextButton.icon(
         key: const ValueKey('clear-storage'),
         onPressed: () => confirmClearSaved(context),
@@ -630,8 +636,8 @@ class SiteFooter extends StatelessWidget {
         child: wide
             ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 brand,
-                const Spacer(),
-                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [note, const SizedBox(height: 10), links]),
+                const SizedBox(width: 24),
+                Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [note, const SizedBox(height: 10), links])),
               ])
             : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [brand, const SizedBox(height: 14), note, const SizedBox(height: 10), links]),
       ),

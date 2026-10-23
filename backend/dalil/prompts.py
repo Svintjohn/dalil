@@ -146,6 +146,60 @@ def review_system(lang: Language, country_hint: str | None, covered: bool | None
     return out
 
 
+FORM_LABELS = {
+    "form_fields": "What each box means",
+    "form_how": "How to fill it in",
+    "form_private": "Private: write this yourself, never share it with anyone who contacts you",
+    "form_required": "Required",
+    "form_choose": "Choose one",
+    "form_warnings": "Be careful",
+    "form_submit": "Before you hand it in",
+    "form_secret": "This form asks for a password, PIN or one-time code. A real office never needs these on a form. Do not write them and do not give them to anyone.",
+    "form_not_form": "This does not look like a form to fill in. Use Explain for letters, bills and notices.",
+    "form_note": "This is a guide to what each box asks for. Dalil does not fill in your personal details and cannot tell you what to choose when it matters legally, medically or financially. Ask the office that gave you the form.",
+}
+
+FORM_SCHEMA = """OUTPUT
+The person gave you a form (blank or partly filled) and wants help filling it in. Go through the boxes in the order they appear. Reply with one JSON object and nothing else:
+{
+  "readable": true,
+  "readability_issues": [],
+  "is_form": true,
+  "form_name": "the name of the form, as printed",
+  "purpose": "what the form is for, one or two short sentences",
+  "fields": [{"label": "the box label copied as printed, at most 12 words", "meaning": "what this box asks for, in simple words", "how_to_fill": "a practical tip: where to find the answer, the format, what to match (for example 'as written in your passport'). Never a value for the person", "kind": "text|number|date|choice|signature|private", "required": "yes|no|unclear"}],
+  "warnings": ["short things to be careful about"],
+  "before_submit": ["short checks to make before handing it in"],
+  "not_sure": "anything you could not read or understand, or empty",
+  "labels": {LABELS}
+}
+Rules for the form help:
+- Do not call tools for this task.
+- "kind": "private" for anything personal or secret: ID, passport or licence numbers, date of birth, address, phone, bank account, IBAN, card details, passwords, PINs, one-time codes. "signature" for signing. "choice" when the person picks from options (name the options in "meaning"). "required" is "yes" only when the form says so (a star, the word mandatory or required), "no" when it says optional, else "unclear".
+- Never invent or suggest a value for a personal detail, and never fill in names, numbers or dates for the person. Say where the answer comes from instead.
+- When a choice has legal, medical or money consequences, explain what each option means as the form states it and tell the person to ask the office that gave them the form. Do not choose for them.
+- "warnings": a declaration that makes the person responsible for the truth of what they write; a box that must be left empty; a signature near blank space (never sign a form with empty boxes); a request for a password, PIN, one-time code or full card details (a real office never needs these on a form); a fee or deadline the form states. Use only what the form says. Do not invent fees, form numbers, laws or offices.
+- Up to 30 fields, 5 warnings and 6 before_submit items. Keep every sentence short.
+- If the image or text is not a form to fill in (it is a letter, bill or notice), set "is_form" to false, put one gentle sentence in "purpose", and leave "fields" empty.
+- If a photo is too unclear to read, set "readable" to false and list why in "readability_issues" using only these codes: blurry, dark, glare, cropped, too_small, tilted, pages_missing, not_a_document.
+- Translate the labels into the reply language.
+"""
+
+
+def form_labels_json() -> str:
+    import json
+
+    return json.dumps(FORM_LABELS, ensure_ascii=False)
+
+
+def form_system(lang: Language, country_hint: str | None) -> str:
+    out = BASE.format(lang_name=lang.name, lang_native=lang.native)
+    if country_hint:
+        out += f"\nCONTEXT\nThe person says the form is from country {country_hint.upper()}.\n"
+    out += "\n" + FORM_SCHEMA.replace("{LABELS}", form_labels_json())
+    return out
+
+
 ASK_SCHEMA = """OUTPUT
 Reply with one JSON object and nothing else: {"answer": "2 to 5 short sentences of plain text, no markdown", "rule_refs": ["COUNTRY:topic:fact_id"], "authority_refs": ["COUNTRY:authority_id"]}.
 If the answer is not in the document, the earlier reading or the tool results, say you cannot tell and name who to ask (an office from tool results). Do not give legal advice.

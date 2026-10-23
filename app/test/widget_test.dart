@@ -59,6 +59,32 @@ class FakeApi implements DalilApi {
   @override
   Future<Letter> letter({required Map<String, dynamic> report, required String language, required String recipient, required String note}) async =>
       Letter.fromJson({'letter_en': 'Dear landlord'});
+  List<String> formCalls = [];
+  @override
+  Future<FormHelp> form({required List<String> images, String? text, required String language, String? country}) async {
+    formCalls.add(text ?? '');
+    return FormHelp.fromJson({
+      'is_form': true,
+      'form_name': 'Visa renewal form',
+      'purpose': 'To renew a visa.',
+      'fields': [
+        {'label': 'Full name', 'meaning': 'Your name.', 'how_to_fill': 'As in your passport.', 'kind': 'text', 'required': 'yes'},
+        {'label': 'Passport number', 'meaning': 'The number on your passport.', 'kind': 'private', 'required': 'yes'},
+      ],
+      'before_submit': ['Check every box.'],
+    });
+  }
+
+  @override
+  Future<Accuracy> accuracy() async => Accuracy.fromJson({
+        'offline': {
+          'scam': {'n': 30, 'scored': 30, 'detected': 30},
+          'legit': {'n': 34, 'scored': 34, 'false_alarms': 0, 'false_stops': 0},
+          'numbers': {'n': 10, 'scored': 10, 'correct': 10},
+        },
+        'live': null,
+        'caveat': 'The test documents were written by the developers.',
+      });
 }
 
 class FakeSpeaker implements Speaker {
@@ -546,6 +572,48 @@ void main() {
         expect(m.toLowerCase(), contains('photo'));
       }
     });
+  });
+
+
+  testWidgets('help fill in a form: switch the mode, paste the form text, read what each box means', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final api = FakeApi();
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: HomePage(api: api)));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('Fill in a form'));
+    await tester.tap(find.text('Fill in a form'));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('Paste text'));
+    await tester.tap(find.text('Paste text'));
+    await tester.pumpAndSettle();
+    expect(find.text('Rental contract'), findsNothing); // the made-up examples are for documents, not forms
+    await tester.enterText(find.byWidgetPredicate((w) => w is TextField && (w.decoration?.hintText ?? '').contains('Paste the text')), 'Full name ______  Passport number ______  Signature ______');
+    await tester.pump();
+    await reveal(tester, find.text('Help me fill it in'));
+    await tester.tap(find.text('Help me fill it in'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(api.formCalls, hasLength(1));
+    expect(find.text('Visa renewal form'), findsOneWidget);
+    expect(find.text('Full name'), findsOneWidget);
+    expect(find.text('As in your passport.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('private-1')), findsOneWidget); // the passport number is marked private
+    expect(find.byKey(const ValueKey('private-0')), findsNothing);
+    expect(find.text('Two things to check.'), findsNothing); // no document report next to it
+  });
+
+  testWidgets('the footer opens the accuracy numbers', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: HomePage(api: FakeApi())));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.byKey(const ValueKey('accuracy-link')));
+    await tester.tap(find.byKey(const ValueKey('accuracy-link')));
+    await tester.pumpAndSettle();
+    expect(find.text('How accurate is Dalil?'), findsWidgets);
+    expect(find.byKey(const ValueKey('accuracy-caveat')), findsOneWidget);
   });
 
   testWidgets('desktop: the header has the nav links and a call-to-action', (tester) async {

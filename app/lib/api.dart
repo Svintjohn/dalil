@@ -28,6 +28,13 @@ abstract class DalilApi {
     required String recipient,
     required String note,
   });
+  Future<FormHelp> form({
+    required List<String> images,
+    String? text,
+    required String language,
+    String? country,
+  });
+  Future<Accuracy> accuracy();
 }
 
 class HttpDalilApi implements DalilApi {
@@ -140,4 +147,21 @@ class HttpDalilApi implements DalilApi {
     required String note,
   }) async =>
       Letter.fromJson(await _post('/api/letter', {'report': report, 'language': language, 'recipient': recipient, 'note': note}));
+
+  @override
+  Future<FormHelp> form({
+    required List<String> images,
+    String? text,
+    required String language,
+    String? country,
+  }) async {
+    final body = <String, dynamic>{'images': images, 'language': language};
+    if (text != null && text.trim().isNotEmpty) body['text'] = text;
+    if (country != null && country.isNotEmpty) body['country'] = country;
+    return FormHelp.fromJson(await _post('/api/form', body));
+  }
+
+  @override
+  Future<Accuracy> accuracy() async =>
+      Accuracy.fromJson(await _send(() => _client.get(Uri.parse('$base/api/accuracy'), headers: _headers), timeout: const Duration(seconds: 20)));
 }

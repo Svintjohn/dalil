@@ -1,9 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart' show XFile;
 
 import 'theme.dart';
+import 'widgets.dart';
 
 bool get needsLiveCamera =>
     kIsWeb && defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS;
@@ -80,18 +80,16 @@ class _CameraDialogState extends State<_CameraDialog> {
                     onPressed: () => Navigator.pop(context),
                     child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
                   ),
-                  Semantics(
-                    button: true,
+                  Tappable(
                     label: 'Take photo',
-                    child: GestureDetector(
-                      onTap: _snap,
-                      child: Container(
-                        width: 68,
-                        height: 68,
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3)),
-                        child: DecoratedBox(decoration: BoxDecoration(shape: BoxShape.circle, color: snapping ? p.accent : Colors.white)),
-                      ),
+                    radius: 40,
+                    onTap: _snap,
+                    child: Container(
+                      width: 68,
+                      height: 68,
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3)),
+                      child: DecoratedBox(decoration: BoxDecoration(shape: BoxShape.circle, color: snapping ? p.accent : Colors.white)),
                     ),
                   ),
                   const SizedBox(width: 64),

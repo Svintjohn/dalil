@@ -521,12 +521,14 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: HomePage(api: FakeApi(), pdfPicker: picker)));
       await tester.pumpAndSettle();
-      await reveal(tester, find.byKey(const ValueKey('pdf-button')));
+      await reveal(tester, find.byKey(const ValueKey('file-button')));
     }
 
     testWidgets('a PDF with text fills the text box and can be explained', (tester) async {
       await open(tester, (_, __) async => const PdfPick.text('bill.pdf', 1, 'Dear customer, your bill is due on 28 November. Please pay it.'));
-      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.tap(find.byKey(const ValueKey('file-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('choose-pdf')));
       await tester.pumpAndSettle();
       expect(find.text('Dear customer, your bill is due on 28 November. Please pay it.'), findsOneWidget);
       await reveal(tester, find.text('Explain this'));
@@ -537,7 +539,9 @@ void main() {
 
     testWidgets('a scanned PDF adds page pictures and says when pages were left out', (tester) async {
       await open(tester, (room, __) async => PdfPick.pages('scan.pdf', 8, [Uint8List.fromList(png), Uint8List.fromList(png)]));
-      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.tap(find.byKey(const ValueKey('file-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('choose-pdf')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.text('Only the first 2 of 8 pages were added.'), findsOneWidget);
@@ -551,7 +555,9 @@ void main() {
         chars = c;
         return null;
       });
-      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.tap(find.byKey(const ValueKey('file-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('choose-pdf')));
       await tester.pumpAndSettle();
       expect(room, 6);
       expect(chars, 30000);
@@ -560,7 +566,9 @@ void main() {
 
     testWidgets('a locked or broken PDF gets a calm message', (tester) async {
       await open(tester, (_, __) async => const PdfPick.failed('x.pdf', 'locked'));
-      await tester.tap(find.byKey(const ValueKey('pdf-button')));
+      await tester.tap(find.byKey(const ValueKey('file-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('choose-pdf')));
       await tester.pumpAndSettle();
       expect(find.textContaining('locked with a password'), findsOneWidget);
     });

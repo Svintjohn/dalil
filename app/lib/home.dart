@@ -204,6 +204,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// A PDF: its text goes into the text box (the person can read and change it), a scan goes in as page pictures.
+  /// One button for both kinds of file: photos from the gallery or a PDF.
+  Future<void> _chooseFile() async {
+    final pick = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (c) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(key: const ValueKey('choose-photos'), leading: const Icon(Icons.photo_library_outlined), title: const Text('Photos from this device'), subtitle: const Text('One photo per page'), onTap: () => Navigator.pop(c, 'photos')),
+          ListTile(key: const ValueKey('choose-pdf'), leading: const Icon(Icons.picture_as_pdf_outlined), title: const Text('A PDF'), subtitle: const Text('Dalil reads it on your device'), onTap: () => Navigator.pop(c, 'pdf')),
+        ]),
+      ),
+    );
+    if (!mounted) return;
+    if (pick == 'photos') await _addPhoto(ImageSource.gallery);
+    if (pick == 'pdf') await _addPdf();
+  }
+
   Future<void> _addPdf() async {
     final max = meta?.maxImages ?? 6;
     final maxChars = meta?.maxTextChars ?? 30000;
@@ -839,8 +856,7 @@ class _HomePageState extends State<HomePage> {
       const SizedBox(height: 14),
       Wrap(spacing: 10, runSpacing: 10, children: [
         Pressable(enabled: !busy, child: FilledButton.icon(style: primary, onPressed: busy ? null : () => _addPhoto(ImageSource.camera), icon: const Icon(Icons.photo_camera_outlined), label: const Text('Take photo'))),
-        Pressable(enabled: !busy, child: OutlinedButton.icon(style: secondary, onPressed: busy ? null : () => _addPhoto(ImageSource.gallery), icon: const Icon(Icons.photo_library_outlined), label: const Text('Choose photos'))),
-        Pressable(enabled: !busy, child: OutlinedButton.icon(key: const ValueKey('pdf-button'), style: secondary, onPressed: busy ? null : _addPdf, icon: const Icon(Icons.picture_as_pdf_outlined), label: const Text('Choose PDF'))),
+        Pressable(enabled: !busy, child: OutlinedButton.icon(key: const ValueKey('file-button'), style: secondary, onPressed: busy ? null : _chooseFile, icon: const Icon(Icons.folder_open_outlined), label: const Text('Choose a file'))),
       ]),
       if (tips.isNotEmpty) ...[
         const SizedBox(height: 8),
@@ -976,7 +992,7 @@ class _HomePageState extends State<HomePage> {
             label: 'Reply in',
             onTap: _pickLanguage,
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Flexible(child: Text('${language!.name}  ·  ${language!.native}', overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600))),
+              Flexible(child: Text(language!.name == language!.native ? language!.name : '${language!.name}  ·  ${language!.native}', overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600))),
               Icon(Icons.chevron_right, color: p.inkSoft),
             ]),
           ),

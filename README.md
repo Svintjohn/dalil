@@ -427,6 +427,9 @@ The footer link **How accurate is Dalil?** opens `/api/accuracy`: the offline te
 ## Accessibility
 Every tappable control uses `Tappable`: reachable with Tab, used with Enter or Space, a clear focus ring, and a spoken label. This covers the mode switch, logo, drop zone, language words, colour swatches and camera shutter. Colour contrast was audited for all five palettes in light and dark (text, tints and accents all at 4.5:1 or better).
 
+## Saved sample results
+The made-up sample documents have saved results, so they work even when the AI is busy. They are always labelled "This is a saved result for a sample document. It was not produced live." The School fee notice also has a hand-written Arabic version (choose Arabic in "Reply in"), and the School, Job offer and Rental contract samples have a saved reply letter. Anything you paste or edit yourself always goes to the real AI.
+
 ## Support link
 
 The footer has a small coffee button that opens https://ko-fi.com/dalilapp in a new tab. It is a plain link: no widget, no script and no tracking from Ko-fi on the page.

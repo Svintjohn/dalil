@@ -226,7 +226,7 @@ def review(req: ReviewRequest, request: Request):
     use_saved = bool(req.sample_id) and (config.USE_SAVED or not config.ai_ready())
 
     def saved() -> dict | None:
-        r = samples.saved_report(req.sample_id)
+        r = samples.saved_report(req.sample_id, req.language)
         if r:
             r["saved_note"] = "This is a saved result for a sample document. It was not produced live."
         return r
@@ -320,6 +320,8 @@ def ask(req: AskRequest, request: Request):
 def letter(req: LetterRequest, request: Request):
     guard(request)
     _check_report(req.report)
+    if req.report.get("saved") and (sl := samples.saved_letter(str(req.report.get("sample_id") or ""), req.language)):
+        return sl  # the report is a saved sample, so its letter is a saved sample too
     try:
         with ai_slot(request):
             return agent.draft_letter(report=req.report, recipient=req.recipient, note=req.note, lang=languages.get_language(req.language))

@@ -306,13 +306,143 @@ def list_samples() -> list[dict]:
     return [{"id": k, "title": v["title"], "note": v["note"], "text": v["text"]} for k, v in SAMPLES.items()]
 
 
-def saved_report(sample_id: str | None) -> dict | None:
+_MONTHS_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
+_DUE_TEXT_AR = f"{_DUE.day} {_MONTHS_AR[_DUE.month - 1]} {_DUE.year}"
+
+# An Arabic version of one sample, written by hand, so the page can be shown right to left even when the AI is not available.
+SAMPLES_AR: dict[str, dict] = {
+    "school": {
+        "doc_type": "إشعار رسوم مدرسية",
+        "summary": "هذا إشعار من مدرسة. يطلب منك دفع رسوم الفصل الدراسي الثاني وقدرها 4,200 درهم في موعد محدد، وإعادة إذن الرحلة موقّعًا خلال 7 أيام.",
+        "key_facts": [
+            {"label": "الرسوم", "value": "4,200 درهم (الفصل الثاني، الصف الخامس)"},
+            {"label": "رسوم التأخير", "value": "150 درهمًا"},
+            {"label": "آخر موعد للدفع", "value": _DUE_TEXT_AR},
+        ],
+        "next_steps": [
+            {"action": "ادفع الرسوم في مكتب الحسابات بالمدرسة أو بالتحويل المصرفي، مع استخدام الرقم المرجعي الموجود في الفاتورة.", "deadline": _DUE_TEXT_AR},
+            {"action": "وقّع إذن الرحلة وأعده إلى المدرسة.", "deadline": "خلال 7 أيام من تاريخ الرسالة"},
+        ],
+        "checklist": [{"task": "ابحث عن الرقم المرجعي في الفاتورة", "due": ""}, {"task": "احتفظ بإيصال التحويل المصرفي", "due": ""}],
+        "prep": {
+            "office": "مكتب الحسابات بالمدرسة",
+            "bring": [
+                {"item": "الفاتورة وعليها الرقم المرجعي", "required": True},
+                {"item": "إذن الرحلة موقّعًا", "required": True},
+                {"item": "هويتك", "required": False},
+                {"item": "وسيلة للاحتفاظ بإيصال الدفع", "required": False},
+            ],
+            "questions": ["هل يمكنني دفع الرسوم على دفعتين؟", "هل تُضاف رسوم التأخير تلقائيًا، أم يمكن إلغاؤها إذا تأخرت بضعة أيام؟", "هل سأحصل على إيصال بالدفع؟"],
+        },
+        "if_ignored": [{"action": "دفع رسوم الفصل الثاني (4,200 درهم) في الموعد المحدد", "consequence": "ستُضاف رسوم تأخير قدرها 150 درهمًا."}],
+        "due_label": "رسوم الفصل الدراسي الثاني",
+        "deadline_labels": ["دفع رسوم الفصل الثاني (4,200 درهم)", "إعادة إذن الرحلة موقّعًا"],
+        "not_sure": "هذا مثال من صنعنا. اسأل المدرسة إذا لم تكن متأكدًا من الرسوم أو الرحلة.",
+        "closing": "يمكنك أن تسألني عن هذا الإشعار. هذا دليل إرشادي وليس استشارة قانونية.",
+        "labels": {
+            "plain_words": "بكلمات بسيطة", "terms": "كلمات صعبة مشروحة", "key_facts": "التفاصيل الأساسية", "watch_out": "انتبه", "ask": "اطلب",
+            "next_steps": "الخطوات التالية", "checklist": "قائمتك", "deadlines": "المواعيد", "where": "إلى أين تذهب", "not_sure": "غير متأكد من",
+            "no_flags": "لم نجد علامات خطر", "numbers_flag": "المبالغ لا تتطابق", "due_amount": "المبلغ المستحق", "due_by": "الدفع قبل",
+            "due_check": "راجع هذا الرقم: المبالغ في الورقة لا تتطابق.", "high": "خطر مرتفع", "medium": "تحقق من هذا", "low": "نقطة صغيرة",
+            "suspicious": "يبدو مشبوهًا", "sources": "مصادر رسمية", "if_ignored": "إذا لم تفعل شيئًا", "from_document": "المستند يقول", "from_rule": "قاعدة رسمية",
+            "prep": "قبل أن تذهب", "prep_bring": "أحضر", "prep_ask": "اسأل", "prep_required": "المستند يطلب هذا", "prep_suggested": "مقترح",
+            "numbers": "فحص الأرقام", "numbers_ok": "المبالغ الظاهرة تساوي الإجمالي في المستند.",
+        },
+    },
+}
+
+
+def saved_report(sample_id: str | None, language: str = "en") -> dict | None:
     s = SAMPLES.get(sample_id or "")
     if not s:
         return None
-    report = finalize_report(RawReport.model_validate(s["raw"]), get_language("en"))
+    raw = dict(s["raw"])
+    lang = get_language("en")
+    ar = SAMPLES_AR.get(sample_id or "")
+    if ar and language == "ar":
+        lang = get_language("ar")
+        raw.update({k: ar[k] for k in ("doc_type", "summary", "key_facts", "checklist", "prep", "not_sure", "closing", "labels")})
+        raw["next_steps"] = [{**e, **a} for e, a in zip(raw["next_steps"], ar["next_steps"])]
+        raw["if_ignored"] = [{**e, **a} for e, a in zip(raw["if_ignored"], ar["if_ignored"])]
+        raw["due"] = {**raw["due"], "label": ar["due_label"], "date_text": _DUE_TEXT_AR}
+        raw["deadlines"] = [{**d, "label": lab} for d, lab in zip(raw["deadlines"], ar["deadline_labels"])]
+        raw["deadlines"][0]["date_text"] = _DUE_TEXT_AR
+    report = finalize_report(RawReport.model_validate(raw), lang)
     report["saved"] = True
+    report["sample_id"] = sample_id
     return report
+
+
+# Saved reply letters for the sample documents, so "Draft a letter" can be shown even when the AI is not available.
+SAMPLE_LETTERS: dict[str, dict] = {
+    "school": {
+        "to": "School accounts office",
+        "subject": "Question about Term 2 fees and the trip permission slip",
+        "letter_en": (
+            "Dear Accounts Office,\n\n"
+            "Thank you for your notice about the Term 2 fees of AED 4,200 for my child in Grade 5.\n\n"
+            "I would like to ask two things:\n"
+            "1. Can I pay the fee in two parts? If yes, please tell me the dates and amounts.\n"
+            "2. Is the late charge of AED 150 added automatically, or can it be waived if a payment is a few days late?\n\n"
+            "I will also return the signed trip permission slip within 7 days. Please confirm in writing that you received it.\n\n"
+            "I would be grateful for a written reply.\n\n"
+            "Kind regards,\n[Your full name]\n[Child's name and class]\n[Date]"
+        ),
+        "letter_ar": (
+            "السادة مكتب الحسابات المحترمين،\n\n"
+            "شكرًا لكم على الإشعار بخصوص رسوم الفصل الدراسي الثاني وقدرها 4,200 درهم لابني/ابنتي في الصف الخامس.\n\n"
+            "أودّ أن أسأل عن أمرين:\n"
+            "1. هل يمكنني دفع الرسوم على دفعتين؟ إن كان ذلك ممكنًا، أرجو إبلاغي بالمواعيد والمبالغ.\n"
+            "2. هل تُضاف رسوم التأخير البالغة 150 درهمًا تلقائيًا، أم يمكن إلغاؤها إذا تأخرت دفعة بضعة أيام؟\n\n"
+            "وسأعيد إذن الرحلة موقّعًا خلال 7 أيام. أرجو تأكيد استلامه كتابيًا.\n\n"
+            "أكون شاكرًا لو وصلني ردّكم كتابيًا.\n\n"
+            "مع خالص التحية،\n[اسمك الكامل]\n[اسم الطفل وصفه]\n[التاريخ]"
+        ),
+    },
+    "job": {
+        "to": "Employer or HR",
+        "subject": "Request to review terms in my job offer",
+        "letter_en": (
+            "Dear [Hiring manager's name],\n\n"
+            "Thank you for the offer for the Warehouse Assistant position. Before I sign, I would like to ask you to review a few terms and confirm them in writing.\n\n"
+            "1. The offer says the company will keep my passport for safekeeping. I would like to keep my own passport and give you a copy.\n"
+            "2. The offer says the visa and recruitment fee will be deducted from my salary. Please confirm who should pay this fee and where it is allowed.\n"
+            "3. Please confirm my working hours and my notice period in writing.\n\n"
+            "I would be grateful for a written reply.\n\n"
+            "Kind regards,\n[Your full name]\n[Date]"
+        ),
+        "letter_ar": "",
+    },
+    "rent": {
+        "to": "Landlord or property manager",
+        "subject": "Request to register the tenancy contract in Ejari and review some clauses",
+        "letter_en": (
+            "Dear [Landlord's name],\n\n"
+            "Thank you for the tenancy contract. Before I sign or pay, I would like to ask you to register the contract in Ejari and to review a few clauses.\n\n"
+            "1. The contract says it does not need to be registered in Ejari. Please register it through the Ejari system.\n"
+            "2. The rent can rise at any time with 14 days' notice. Please change this to the written notice that Dubai Land Department guidance describes.\n"
+            "3. The AED 8,000 deposit is called non-refundable. Please confirm it will be refunded at the end, less any proven damage.\n"
+            "4. Please give me a written receipt for any payment, including the agent fee.\n\n"
+            "I would be grateful for a written reply.\n\n"
+            "Kind regards,\n[Your full name]\n[Date]"
+        ),
+        "letter_ar": "",
+    },
+}
+
+
+def saved_letter(sample_id: str | None, language: str = "en") -> dict | None:
+    s = SAMPLE_LETTERS.get(sample_id or "")
+    if not s:
+        return None
+    lang = get_language(language)
+    local = s["letter_ar"] if language == "ar" else ""
+    return {
+        "to": s["to"], "subject": s["subject"], "letter_en": s["letter_en"], "letter_local": local,
+        "language": lang.code, "rtl": lang.rtl, "sources": [],
+        "note": "This is a saved letter for a sample document. It was not produced live. It is a draft to check, not legal advice.",
+        "saved": True,
+    }
 
 
 # Made-up blank forms for "Fill in a form". Their results are saved, so trying one costs nothing and always works.

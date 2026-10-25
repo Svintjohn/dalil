@@ -1181,3 +1181,30 @@ def test_sample_forms_are_saved_and_the_bank_one_warns():
     bank = samples.saved_form("form_bank")
     assert bank["secret_field"] and bank["warnings"]
     assert samples.saved_form("nope") is None
+
+
+def test_saved_arabic_sample_and_saved_letters():
+    from dalil import samples
+
+    ar = samples.saved_report("school", "ar")
+    assert ar["language"] == "ar" and ar["rtl"] and ar["saved"] and ar["sample_id"] == "school"
+    assert "رسوم" in ar["summary"] and ar["labels"]["next_steps"] == "الخطوات التالية"
+    assert ar["due"]["amount"] == 4200
+    en = samples.saved_report("school", "en")
+    assert en["language"] == "en" and "school" in en["summary"].lower()
+    assert samples.saved_report("rent", "ar")["language"] == "en"  # only the school sample has an Arabic version
+    for sid in ("school", "job", "rent"):
+        L = samples.saved_letter(sid, "en")
+        assert L["saved"] and "[Your full name]" in L["letter_en"] and L["letter_local"] == ""
+    assert samples.saved_letter("school", "ar")["rtl"] and samples.saved_letter("school", "ar")["letter_local"]
+    assert samples.saved_letter("fine", "en") is None
+
+
+def test_letter_endpoint_uses_the_saved_letter_for_a_saved_sample_report(monkeypatch):
+    from fastapi.testclient import TestClient
+    from dalil import app as app_mod, samples
+
+    client = TestClient(app_mod.app)
+    rep = samples.saved_report("job", "en")
+    r = client.post("/api/letter", json={"report": rep, "language": "en", "recipient": "employer", "note": ""})
+    assert r.status_code == 200 and r.json()["saved"] and "passport" in r.json()["letter_en"]
